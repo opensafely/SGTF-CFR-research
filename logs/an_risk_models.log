@@ -1,0 +1,418 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /workspace/logs/an_risk_models.log
+  log type:  text
+ opened on:  10 Feb 2021, 17:34:43
+
+. 
+. clear
+
+. 
+. /*
+> use "C:\Users\EIDEDGRI\Documents\GitHub\SGTF-CFR-research\output\cr_analysis_
+> dataset.dta"
+> */
+. 
+. use ./output/cr_analysis_dataset.dta
+(SGTF CFR ANALYSIS DATASET: 10 Feb 2021)
+
+. 
+. noi di "SUBSETTING ON 28-DAY RISK POPULATION"
+SUBSETTING ON 28-DAY RISK POPULATION
+
+. keep if risk_pop==1
+(27,938 observations deleted)
+
+. 
+. tab sgtf risk_28, row
+
++----------------+
+| Key            |
+|----------------|
+|   frequency    |
+| row percentage |
++----------------+
+
+ Exposure: |
+    0=VOC; |    28-day outcome
+ 1=non-VOC |         0          1 |     Total
+-----------+----------------------+----------
+   non-VOC |    30,811        422 |    31,233 
+           |     98.65       1.35 |    100.00 
+-----------+----------------------+----------
+       VOC |    31,662        616 |    32,278 
+           |     98.09       1.91 |    100.00 
+-----------+----------------------+----------
+     Total |    62,473      1,038 |    63,511 
+           |     98.37       1.63 |    100.00 
+
+. 
+. 
+. *******************
+. /* Unadjusted RR */
+. *******************
+. 
+. glm risk_28 i.sgtf, family(bin) link(log) eform
+
+Iteration 0:   log likelihood = -10570.567  
+Iteration 1:   log likelihood =   -5302.85  
+Iteration 2:   log likelihood = -5284.6269  
+Iteration 3:   log likelihood = -5284.2824  
+Iteration 4:   log likelihood = -5284.2823  
+
+Generalized linear models                         Number of obs   =     63,511
+Optimization     : ML                             Residual df     =     63,509
+                                                  Scale parameter =          1
+Deviance         =   10568.5647                   (1/df) Deviance =   .1664105
+Pearson          =  63510.99501                   (1/df) Pearson  =   1.000031
+
+Variance function: V(u) = u*(1-u)                 [Bernoulli]
+Link function    : g(u) = ln(u)                   [Log]
+
+                                                  AIC             =   .1664682
+Log likelihood   = -5284.282348                   BIC             =  -691775.5
+
+------------------------------------------------------------------------------
+             |                 OIM
+     risk_28 | Risk Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   1.412458   .0885471     5.51   0.000     1.249147    1.597119
+       _cons |   .0135114   .0006533   -89.02   0.000     .0122898    .0148544
+------------------------------------------------------------------------------
+Note: _cons estimates baseline risk.
+
+. 
+. /*
+> predict pred_xb if e(sample), xb
+> predict pred_se if e(sample), stdp
+> 
+> gen ln_lb = pred_xb - invnormal(0.975)*pred_se
+> gen ln_ub = pred_xb + invnormal(0.975)*pred_se
+> 
+> gen xb = exp(pred_xb)
+> gen lb = exp(ln_lb)
+> gen ub = exp(ln_ub)
+> */
+. 
+. * Absolute risk
+. margins sgtf
+
+Adjusted predictions                            Number of obs     =     63,511
+Model VCE    : OIM
+
+Expression   : Predicted mean risk_28, predict()
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |     Margin   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+    non-VOC  |   .0135114   .0006533    20.68   0.000      .012231    .0147917
+        VOC  |   .0190842   .0007616    25.06   0.000     .0175916    .0205768
+------------------------------------------------------------------------------
+
+. 
+. 
+. 
+. ***********************************************************
+. /* Fully adjusted RR - age as spline, continuous hh size */
+. ***********************************************************
+. 
+. glm risk_28 i.sgtf i.male ib1.imd ib1.eth5 ib1.smoke_nomiss ib1.obese4cat hou
+> sehold_size ///
+>                         i.stp ib1.rural_urban5 ib0.comorb_cat ib1.start_week 
+> age1 age2 age3, ///
+>                         family(bin) link(log) eform
+
+Iteration 0:   log likelihood = -8099.7338  
+Iteration 1:   log likelihood = -4142.3384  
+Iteration 2:   log likelihood = -4123.2445  
+Iteration 3:   log likelihood = -4122.6588  
+Iteration 4:   log likelihood = -4122.6584  
+
+Generalized linear models                         Number of obs   =     47,672
+Optimization     : ML                             Residual df     =     47,635
+                                                  Scale parameter =          1
+Deviance         =  8245.316773                   (1/df) Deviance =   .1730937
+Pearson          =  47640.14896                   (1/df) Pearson  =   1.000108
+
+Variance function: V(u) = u*(1-u)                 [Bernoulli]
+Link function    : g(u) = ln(u)                   [Log]
+
+                                                  AIC             =   .1745116
+Log likelihood   = -4122.658386                   BIC             =  -504883.6
+
+------------------------------------------------------------------------------
+             |                 OIM
+     risk_28 | Risk Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   1.393354   .0981183     4.71   0.000     1.213727    1.599566
+             |
+        male |
+          M  |   .9212298    .063891    -1.18   0.237     .8041438    1.055364
+             |
+         imd |
+          4  |    .943694   .0841989    -0.65   0.516      .792291    1.124029
+5 most de..  |   1.019087   .1172798     0.16   0.869     .8133032     1.27694
+             |
+        eth5 |
+South Asian  |   .8282143   .1427565    -1.09   0.274     .5907775    1.161078
+      Black  |   1.038042   .1603635     0.24   0.809     .7668594    1.405122
+      Mixed  |   .7266311   .1328033    -1.75   0.081     .5078593    1.039644
+      Other  |   .9861979   .1141663    -0.12   0.904     .7860054    1.237379
+             |
+smoke_nomiss |
+     Former  |   1.070544   .2531504     0.29   0.773     .6734751    1.701716
+    Current  |   1.092781   .1133454     0.86   0.392     .8917533    1.339126
+             |
+   obese4cat |
+Obese I ..)  |   .9176901   .0904122    -0.87   0.383     .7565443     1.11316
+Obese II..)  |   .8644452   .0871963    -1.44   0.149     .7093769    1.053411
+Obese II..)  |   1.013275    .089566     0.15   0.881     .8520941    1.204945
+             |
+household_~e |   .9837404   .0329002    -0.49   0.624     .9213252    1.050384
+             |
+         stp |
+          2  |   1.120237   .1773859     0.72   0.473     .8213438      1.5279
+          3  |   1.338167   .2013549     1.94   0.053     .9963904    1.797179
+          4  |   1.140735   .1785473     0.84   0.400     .8393734    1.550295
+          5  |   1.072761   .1704112     0.44   0.658     .7857554      1.4646
+          6  |   1.147481   .1811559     0.87   0.384     .8421007    1.563605
+          7  |   1.006976   .1620321     0.04   0.966     .7346027    1.380338
+          8  |   .9796311   .1592761    -0.13   0.899     .7123076    1.347279
+          9  |   1.154633    .180722     0.92   0.358     .8496007    1.569182
+         10  |   1.110766   .1753818     0.67   0.506     .8151243    1.513634
+             |
+rural_urban5 |
+Urban min..  |   .9926849   .1541783    -0.05   0.962     .7321625    1.345908
+Urban cit..  |   1.000148   .1339601     0.00   0.999     .7692262    1.300392
+Rural tow..  |   1.085416   .1437156     0.62   0.536     .8373215    1.407021
+Rural vil..  |   .9692748   .1190921    -0.25   0.800     .7618371    1.233195
+             |
+  comorb_cat |
+1 comorbi..  |   .9034583   .1352915    -0.68   0.498     .6736619    1.211642
+2+ comorb..  |   .9300617   .1258073    -0.54   0.592     .7134634    1.212416
+             |
+  start_week |
+23Nov-29Nov  |   .8835555   .0905348    -1.21   0.227     .7227934    1.080074
+30Nov-06Dec  |    .767512   .0814776    -2.49   0.013     .6233375    .9450333
+07Dec-13Dec  |   .7903681   .0844963    -2.20   0.028     .6409579    .9746064
+14Dec-20Dec  |   .9689668   .1094591    -0.28   0.780     .7765208    1.209107
+             |
+        age1 |    .998456   .0070872    -0.22   0.828     .9846615    1.012444
+        age2 |   1.004718   .0233902     0.20   0.840     .9599039    1.051624
+        age3 |   .9833185   .0650643    -0.25   0.799     .8637177    1.119481
+       _cons |   .0189093   .0048798   -15.38   0.000     .0114028    .0313573
+------------------------------------------------------------------------------
+Note: _cons estimates baseline risk.
+
+. 
+. 
+. * Adjusted absolute risk
+. margins sgtf
+
+Predictive margins                              Number of obs     =     47,672
+Model VCE    : OIM
+
+Expression   : Predicted mean risk_28, predict()
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |     Margin   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+    non-VOC  |   .0143438    .000778    18.44   0.000     .0128191    .0158686
+        VOC  |    .019986   .0008973    22.27   0.000     .0182273    .0217448
+------------------------------------------------------------------------------
+
+. margins sgtf, asbalanced
+
+Predictive margins                              Number of obs     =     47,672
+Model VCE    : OIM
+
+Expression   : Predicted mean risk_28, predict()
+at           : sgtf             (asbalanced)
+               male             (asbalanced)
+               imd              (asbalanced)
+               eth5             (asbalanced)
+               smoke_nomiss     (asbalanced)
+               obese4cat        (asbalanced)
+               stp              (asbalanced)
+               rural_urban5     (asbalanced)
+               comorb_cat       (asbalanced)
+               start_week       (asbalanced)
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |     Margin   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+    non-VOC  |    .013828   .0016692     8.28   0.000     .0105563    .0170996
+        VOC  |   .0192673   .0022494     8.57   0.000     .0148585     .023676
+------------------------------------------------------------------------------
+
+. 
+. *margins male imd eth5 smoke_nomiss obese4cat rural_urban5 comorb_cat, at(sgt
+> f=(0 1))
+. 
+. 
+. 
+. **************************************************
+. /* Fully adjusted RR - age grouped, cat hh size */
+. **************************************************
+. 
+. glm risk_28 i.sgtf i.agegroupA i.male ib1.imd ib1.eth5 ib1.smoke_nomiss ib1.o
+> bese4cat ///
+>                         ib1.hh_total_cat i.stp ib1.rural_urban5 ib0.comorb_ca
+> t ib1.start_week, ///
+>                         family(bin) link(log) eform
+note: 3.hh_total_cat != 0 predicts failure perfectly
+      3.hh_total_cat dropped and 59 obs not used
+
+
+Iteration 0:   log likelihood = -7909.1493  
+Iteration 1:   log likelihood = -4048.1555  
+Iteration 2:   log likelihood = -4029.0154  
+Iteration 3:   log likelihood =  -4028.399  
+Iteration 4:   log likelihood = -4028.3986  
+Iteration 5:   log likelihood = -4028.3986  
+
+Generalized linear models                         Number of obs   =     46,527
+Optimization     : ML                             Residual df     =     46,548
+                                                  Scale parameter =          1
+Deviance         =  8058.851027                   (1/df) Deviance =   .1731299
+Pearson          =  46513.54373                   (1/df) Pearson  =   .9992598
+
+Variance function: V(u) = u*(1-u)                 [Bernoulli]
+Link function    : g(u) = ln(u)                   [Log]
+
+                                                  AIC             =    .174576
+Log likelihood   = -4028.398552                   BIC             =  -492288.2
+
+------------------------------------------------------------------------------
+             |                 OIM
+     risk_28 | Risk Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   1.371172   .0974808     4.44   0.000     1.192827    1.576182
+             |
+   agegroupA |
+     50-<65  |   1.025118   .0921338     0.28   0.783     .8595495    1.222578
+     65-<75  |   .8481712   .1080086    -1.29   0.196      .660829    1.088624
+     75-<85  |   1.106978   .1596483     0.70   0.481     .8344086    1.468586
+        85+  |   .8512584   .2144839    -0.64   0.523     .5195075    1.394861
+             |
+        male |
+          M  |   .9237115   .0647711    -1.13   0.258     .8050998    1.059798
+             |
+         imd |
+          4  |   .9540943     .08577    -0.52   0.601     .7999651     1.13792
+5 most de..  |   1.022289   .1190509     0.19   0.850     .8136671    1.284401
+             |
+        eth5 |
+South Asian  |   .8167426    .142805    -1.16   0.247     .5797692    1.150576
+      Black  |   1.041191   .1626804     0.26   0.796     .7665401    1.414249
+      Mixed  |   .6940055   .1310277    -1.93   0.053     .4793544    1.004776
+      Other  |   .9813665    .114964    -0.16   0.872     .7800379    1.234658
+             |
+smoke_nomiss |
+     Former  |   1.040749   .2531894     0.16   0.870     .6460546    1.676575
+    Current  |   1.107982   .1155583     0.98   0.326     .9031413    1.359283
+             |
+   obese4cat |
+Obese I ..)  |   .9492956   .0942402    -0.52   0.600     .7814469    1.153197
+Obese II..)  |   .8818395   .0898757    -1.23   0.217     .7221649    1.076819
+Obese II..)  |   1.035348   .0925536     0.39   0.698      .868949    1.233612
+             |
+hh_total_cat |
+        3-5  |   .9339008   .0653277    -0.98   0.328     .8142504    1.071133
+       6-10  |          1  (empty)
+             |
+         stp |
+          2  |   1.130986   .1820648     0.76   0.444     .8249582    1.550539
+          3  |   1.379225    .210397     2.11   0.035      1.02279    1.859874
+          4  |   1.154897   .1837331     0.91   0.365     .8455227    1.577471
+          5  |   1.108095   .1778582     0.64   0.523     .8090074    1.517755
+          6  |   1.130278   .1825198     0.76   0.448     .8236288    1.551098
+          7  |   1.032285   .1683433     0.19   0.846     .7498716    1.421059
+          8  |   1.000627   .1648823     0.00   0.997     .7244562    1.382078
+          9  |   1.167869   .1857937     0.98   0.329      .855024    1.595181
+         10  |   1.122034   .1800946     0.72   0.473     .8191853    1.536845
+             |
+rural_urban5 |
+Urban min..  |   .9647612   .1527048    -0.23   0.821     .7074398     1.31568
+Urban cit..  |   1.011411   .1368597     0.08   0.933     .7757943    1.318586
+Rural tow..  |   1.095054   .1466046     0.68   0.498      .842321    1.423618
+Rural vil..  |   .9696714   .1205837    -0.25   0.804     .7599294    1.237303
+             |
+  comorb_cat |
+1 comorbi..  |   .9065256    .137914    -0.65   0.519      .672795    1.221455
+2+ comorb..  |   .9374172   .1289273    -0.47   0.638     .7159181    1.227446
+             |
+  start_week |
+23Nov-29Nov  |   .8682849   .0894611    -1.37   0.170     .7095144    1.062584
+30Nov-06Dec  |   .7515924   .0803262    -2.67   0.008     .6095517    .9267322
+07Dec-13Dec  |   .7574737   .0820064    -2.57   0.010      .612652     .936529
+14Dec-20Dec  |   .9492213   .1079732    -0.46   0.647     .7595283     1.18629
+             |
+       _cons |   .0181149   .0041286   -17.60   0.000     .0115888    .0283161
+------------------------------------------------------------------------------
+Note: _cons estimates baseline risk.
+
+. 
+. 
+. * Adjusted absolute risk
+. margins sgtf
+
+Predictive margins                              Number of obs     =     46,527
+Model VCE    : OIM
+
+Expression   : Predicted mean risk_28, predict()
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |     Margin   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+    non-VOC  |   .0145127   .0007918    18.33   0.000     .0129609    .0160646
+        VOC  |   .0198994   .0009066    21.95   0.000     .0181225    .0216763
+------------------------------------------------------------------------------
+
+. margins sgtf, asbalanced
+
+Adjusted predictions                            Number of obs     =     46,527
+Model VCE    : OIM
+
+Expression   : Predicted mean risk_28, predict()
+at           : sgtf             (asbalanced)
+               agegroupA        (asbalanced)
+               male             (asbalanced)
+               imd              (asbalanced)
+               eth5             (asbalanced)
+               smoke_nomiss     (asbalanced)
+               obese4cat        (asbalanced)
+               hh_total_cat     (asbalanced)
+               stp              (asbalanced)
+               rural_urban5     (asbalanced)
+               comorb_cat       (asbalanced)
+               start_week       (asbalanced)
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |     Margin   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+    non-VOC  |          .  (not estimable)
+        VOC  |          .  (not estimable)
+------------------------------------------------------------------------------
+
+. 
+. 
+. log close
+      name:  <unnamed>
+       log:  /workspace/logs/an_risk_models.log
+  log type:  text
+ closed on:  10 Feb 2021, 17:34:59
+-------------------------------------------------------------------------------

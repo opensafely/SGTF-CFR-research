@@ -1,0 +1,830 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /workspace/logs/an_risk28_table1.log
+  log type:  text
+ opened on:  10 Feb 2021, 17:33:44
+
+. 
+. clear
+
+. 
+. /*
+> use "C:\Users\EIDEDGRI\Documents\GitHub\SGTF-CFR-research\output\cr_analysis_
+> dataset.dta"
+> */
+. 
+. use ./output/cr_analysis_dataset.dta
+(SGTF CFR ANALYSIS DATASET: 10 Feb 2021)
+
+. 
+. 
+. 
+. 
+. *****************************************************************************
+> ***
+. *       PROGRAMS TO AUTOMATE TABULATIONS
+. *
+. *****************************************************************************
+> ***
+. * All below code from K Baskharan 
+. * Generic code to output one row of table
+. 
+. cap prog drop generaterow
+
+. program define generaterow
+  1. syntax, variable(varname) condition(string) 
+  2.         
+.         cou
+  3.         local overalldenom=r(N)
+  4.         
+.         sum `variable' if `variable' `condition'
+  5.         **K Wing additional code to aoutput variable category labels**
+.         local level=substr("`condition'",3,.)
+  6.         local lab: label `variable'Lab `level'
+  7.         file write tablecontent (" `lab'") _tab
+  8.         
+.         /*this is the overall column*/
+.         cou if `variable' `condition'
+  9.         local rowdenom = r(N)
+ 10.         local colpct = 100*(r(N)/`overalldenom')
+ 11.         file write tablecontent %9.0gc (`rowdenom')  (" (") %3.1f (`colpct
+> ') (")") _tab
+ 12. 
+.         /*this loops through groups*/
+.         forvalues i=0/1{
+ 13.         cou if sgtf == `i'
+ 14.         local rowdenom = r(N)
+ 15.         cou if sgtf == `i' & `variable' `condition'
+ 16.         local pct = 100*(r(N)/`rowdenom') 
+ 17.         file write tablecontent %9.0gc (r(N)) (" (") %3.1f (`pct') (")") _
+> tab
+ 18.         }
+ 19.         
+.         file write tablecontent _n
+ 20. end
+
+. 
+. 
+. * Output one row of table for co-morbidities and meds
+. * This puts it all on the same row, is rohini's edit
+. 
+. cap prog drop generaterow2 
+
+. program define generaterow2
+  1. syntax, variable(varname) condition(string) 
+  2.         
+.         cou
+  3.         local overalldenom=r(N)5
+  4.         
+.         cou if `variable' `condition'
+  5.         local rowdenom = r(N)
+  6.         local colpct = 100*(r(N)/`overalldenom')
+  7.         file write tablecontent %9.0gc (`rowdenom')  (" (") %3.1f (`colpct
+> ') (")") _tab
+  8. 
+.         forvalues i=0/1{
+  9.         cou if sgtf == `i'
+ 10.         local rowdenom = r(N)
+ 11.         cou if sgtf == `i' & `variable' `condition'
+ 12.         local pct = 100*(r(N)/`rowdenom') 
+ 13.         file write tablecontent %9.0gc (r(N)) (" (") %3.1f (`pct') (")") _
+> tab
+ 14.         }
+ 15.         
+.         file write tablecontent _n
+ 16. end
+
+. 
+. 
+. *****************************************************************************
+> ***
+. 
+. /* Explanatory Notes 
+> defines a program (SAS macro/R function equivalent), generate row
+> the syntax row specifies two inputs for the program: 
+>         a VARNAME which is your variable 
+>         a CONDITION which is a string of some condition you impose 
+>         
+> the program counts if variable and condition and returns the counts
+> column percentages are then automatically generated
+> this is then written to the text file 'tablecontent' 
+> the number followed by space, brackets, formatted pct, end bracket and then t
+> ab
+> the format %3.1f specifies length of 3, followed by 1 dp. 
+> */ 
+. 
+. *****************************************************************************
+> ***
+. * Generic code to output one section (varible) within table (calls above)
+. 
+. cap prog drop tabulatevariable
+
+. prog define tabulatevariable
+  1. syntax, variable(varname) min(real) max(real) [missing]
+  2. 
+.         local lab: variable label `variable'
+  3.         file write tablecontent ("`lab'") _n 
+  4. 
+.         forvalues varlevel = `min'/`max'{ 
+  5.                 generaterow, variable(`variable') condition("==`varlevel'"
+> )
+  6.         }
+  7.         
+.         if "`missing'"!="" generaterow, variable(`variable') condition("== 12
+> ")
+  8.         
+. end
+
+. 
+. 
+. *****************************************************************************
+> ***
+. 
+. /* Explanatory Notes 
+> defines program tabulate variable 
+> syntax is : 
+>         - a VARNAME which you stick in variable 
+>         - a numeric minimum 
+>         - a numeric maximum 
+>         - optional missing option, default value is . 
+> forvalues lowest to highest of the variable, manually set for each var
+> run the generate row program for the level of the variable 
+> if there is a missing specified, then run the generate row for missing vals
+> */ 
+. 
+. *****************************************************************************
+> ***
+. * Generic code to qui summarize a continous variable 
+. 
+. cap prog drop summarizevariable 
+
+. prog define summarizevariable
+  1. syntax, variable(varname) 
+  2. 
+.         local lab: variable label `variable'
+  3.         file write tablecontent ("`lab'") _n 
+  4. 
+. 
+.         qui summarize `variable', d
+  5.         file write tablecontent ("Mean (SD)") _tab 
+  6.         file write tablecontent  %3.1f (r(mean)) (" (") %3.1f (r(sd)) (")"
+> ) _tab
+  7.         
+.         forvalues i=0/1{                                                     
+>    
+  8.         qui summarize `variable' if sgtf == `i', d
+  9.         file write tablecontent  %3.1f (r(mean)) (" (") %3.1f (r(sd)) (")"
+> ) _tab
+ 10.         }
+ 11. 
+. file write tablecontent _n
+ 12. 
+.         
+.         qui summarize `variable', d
+ 13.         file write tablecontent ("Median (IQR)") _tab 
+ 14.         file write tablecontent %3.1f (r(p50)) (" (") %3.1f (r(p25)) ("-")
+>  %3.1f (r(p75)) (")") _tab
+ 15.         
+.         forvalues i=0/1{
+ 16.         qui summarize `variable' if sgtf == `i', d
+ 17.         file write tablecontent %3.1f (r(p50)) (" (") %3.1f (r(p25)) ("-")
+>  %3.1f (r(p75)) (")") _tab
+ 18.         }
+ 19.         
+. file write tablecontent _n
+ 20.         
+. end
+
+. 
+. 
+. 
+. *****************************************************************************
+> ***
+. * INVOKE PROGRAMS FOR TABLE 1 
+. *
+. *****************************************************************************
+> ***
+. 
+. noi di "SUBSETTING ON 28-DAY RISK POPULATION"
+SUBSETTING ON 28-DAY RISK POPULATION
+
+. keep if risk_pop==1
+(27,938 observations deleted)
+
+. 
+. 
+. *Set up output file
+. cap file close tablecontent
+
+. 
+. *file open tablecontent using "C:\Users\EIDEDGRI\Documents\GitHub\SGTF-CFR-re
+> search\output\table1_risk28.txt", write text replace
+. file open tablecontent using ./output/table1_risk28.txt, write text replace
+(note: file ./output/table1_risk28.txt not found)
+
+. 
+. file write tablecontent ("Table 1: Demographic and Clinical Characteristics")
+>  _n
+
+. 
+. file write tablecontent _tab ("Total")          _tab ///
+>                                                          ("non-VOC")    _tab 
+> ///
+>                                                          ("VOC")             
+>    _n
+
+.                                                          
+. 
+. 
+. * DEMOGRAPHICS (more than one level, potentially missing) 
+. 
+. /*reminder of variables:
+> patient_id age ageCat hh_id hh_size hh_composition case_date case eth5 eth16 
+> ethnicity_16 indexdate sex bmicat smoke imd region comorb_Neuro comorb_Immuno
+> suppression shielding chronic_respiratory_disease chronic_cardiac_disease dia
+> betes chronic_liver_disease cancer egfr_cat hypertension smoke_nomiss rural_u
+> rban
+> */
+. 
+. *DIED
+. tabulatevariable, variable(risk_28) min(0) max(1) 
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+     risk_28 |     62,473           0           0          0          0
+  62,473
+  31,233
+  30,811
+  32,278
+  31,662
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+     risk_28 |      1,038           1           0          1          1
+  1,038
+  31,233
+  422
+  32,278
+  616
+
+. file write tablecontent _n 
+
+. 
+. *SEX
+. tabulatevariable, variable(male) min(0) max(1) 
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+        male |     32,511           0           0          0          0
+  32,511
+  31,233
+  15,915
+  32,278
+  16,596
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+        male |     31,000           1           0          1          1
+  31,000
+  31,233
+  15,318
+  32,278
+  15,682
+
+. file write tablecontent _n 
+
+. 
+. *AGE
+. summarizevariable, variable(age) 
+
+. file write tablecontent _n
+
+. 
+. tabulatevariable, variable(agegroup) min(1) max(7) 
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+    agegroup |      9,770           1           0          1          1
+  9,770
+  31,233
+  4,839
+  32,278
+  4,931
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+    agegroup |      8,433           2           0          2          2
+  8,433
+  31,233
+  4,129
+  32,278
+  4,304
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+    agegroup |      8,122           3           0          3          3
+  8,122
+  31,233
+  4,085
+  32,278
+  4,037
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+    agegroup |      8,545           4           0          4          4
+  8,545
+  31,233
+  4,136
+  32,278
+  4,409
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+    agegroup |      6,891           5           0          5          5
+  6,891
+  31,233
+  3,314
+  32,278
+  3,577
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+    agegroup |      5,182           6           0          6          6
+  5,182
+  31,233
+  2,563
+  32,278
+  2,619
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+    agegroup |      3,061           7           0          7          7
+  3,061
+  31,233
+  1,536
+  32,278
+  1,525
+
+. file write tablecontent _n 
+
+. 
+. *ETHNICITY
+. tabulatevariable, variable(eth5) min(1) max(5) 
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+        eth5 |     35,647           1           0          1          1
+  35,647
+  31,233
+  17,481
+  32,278
+  18,166
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+        eth5 |      2,408           2           0          2          2
+  2,408
+  31,233
+  1,173
+  32,278
+  1,235
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+        eth5 |      2,409           3           0          3          3
+  2,409
+  31,233
+  1,182
+  32,278
+  1,227
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+        eth5 |      2,432           4           0          4          4
+  2,432
+  31,233
+  1,174
+  32,278
+  1,258
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+        eth5 |      4,776           5           0          5          5
+  4,776
+  31,233
+  2,345
+  32,278
+  2,431
+
+. file write tablecontent _n 
+
+. 
+. *BMI
+. tabulatevariable, variable(obese4cat) min(1) max(4) 
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+   obese4cat |     25,903           1           0          1          1
+  25,903
+  31,233
+  12,791
+  32,278
+  13,112
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+   obese4cat |     11,553           2           0          2          2
+  11,553
+  31,233
+  5,668
+  32,278
+  5,885
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+   obese4cat |     11,547           3           0          3          3
+  11,547
+  31,233
+  5,658
+  32,278
+  5,889
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+   obese4cat |     14,508           4           0          4          4
+  14,508
+  31,233
+  7,116
+  32,278
+  7,392
+
+. file write tablecontent _n 
+
+. 
+. *SMOKING
+. tabulatevariable, variable(smoke_nomiss) min(1) max(3) 
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+smoke_nomiss |     54,624           1           0          1          1
+  54,624
+  31,233
+  26,863
+  32,278
+  27,761
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+smoke_nomiss |      1,306           2           0          2          2
+  1,306
+  31,233
+  655
+  32,278
+  651
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+smoke_nomiss |      7,581           3           0          3          3
+  7,581
+  31,233
+  3,715
+  32,278
+  3,866
+
+. file write tablecontent _n
+
+. 
+. *COMORBIDITIES (3 CATEGORIES)
+. tabulatevariable, variable(comorb_cat) min(0) max(2) 
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+  comorb_cat |      4,236           0           0          0          0
+  4,236
+  31,233
+  2,055
+  32,278
+  2,181
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+  comorb_cat |     13,463           1           0          1          1
+  13,463
+  31,233
+  6,565
+  32,278
+  6,898
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+  comorb_cat |     45,812           2           0          2          2
+  45,812
+  31,233
+  22,613
+  32,278
+  23,199
+
+. file write tablecontent _n
+
+. 
+. *IMD
+. tabulatevariable, variable(imd) min(1) max(5) 
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+         imd |     44,380           1           0          1          1
+  44,380
+  31,233
+  21,857
+  32,278
+  22,523
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+         imd |          0
+  0
+  31,233
+  0
+  32,278
+  0
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+         imd |          0
+  0
+  31,233
+  0
+  32,278
+  0
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+         imd |     12,724           4           0          4          4
+  12,724
+  31,233
+  6,197
+  32,278
+  6,527
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+         imd |      6,407           5           0          5          5
+  6,407
+  31,233
+  3,179
+  32,278
+  3,228
+
+. file write tablecontent _n 
+
+. 
+. *HOUSEHOLD SIZE
+. tabulatevariable, variable(hh_total_cat) min(1) max(4) 
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+hh_total_cat |     30,413           1           0          1          1
+  30,413
+  31,233
+  15,039
+  32,278
+  15,374
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+hh_total_cat |     31,536           2           0          2          2
+  31,536
+  31,233
+  15,437
+  32,278
+  16,099
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+hh_total_cat |         86           3           0          3          3
+  86
+  31,233
+  50
+  32,278
+  36
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+hh_total_cat |          0
+  0
+  31,233
+  0
+  32,278
+  0
+
+. file write tablecontent _n 
+
+. 
+. *REGION
+. tabulatevariable, variable(region) min(0) max(8) 
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+      region |      6,427           0           0          0          0
+  6,427
+  31,233
+  3,155
+  32,278
+  3,272
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+      region |      6,310           1           0          1          1
+  6,310
+  31,233
+  3,086
+  32,278
+  3,224
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+      region |     12,603           2           0          2          2
+  12,603
+  31,233
+  6,281
+  32,278
+  6,322
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+      region |      6,307           3           0          3          3
+  6,307
+  31,233
+  3,087
+  32,278
+  3,220
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+      region |      6,368           4           0          4          4
+  6,368
+  31,233
+  3,098
+  32,278
+  3,270
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+      region |     12,588           5           0          5          5
+  12,588
+  31,233
+  6,193
+  32,278
+  6,395
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+      region |          0
+  0
+  31,233
+  0
+  32,278
+  0
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+      region |      6,411           7           0          7          7
+  6,411
+  31,233
+  3,136
+  32,278
+  3,275
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+      region |      6,497           8           0          8          8
+  6,497
+  31,233
+  3,197
+  32,278
+  3,300
+
+. file write tablecontent _n 
+
+. 
+. *RURAL URBAN (five categories)
+. tabulatevariable, variable(rural_urban5) min(1) max(5) 
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+rural_urban5 |      6,349           1           0          1          1
+  6,349
+  31,233
+  3,201
+  32,278
+  3,148
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+rural_urban5 |      6,360           2           0          2          2
+  6,360
+  31,233
+  3,116
+  32,278
+  3,244
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+rural_urban5 |     12,834           3           0          3          3
+  12,834
+  31,233
+  6,240
+  32,278
+  6,594
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+rural_urban5 |     12,659           4           0          4          4
+  12,659
+  31,233
+  6,254
+  32,278
+  6,405
+  63,511
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+rural_urban5 |     25,309           5           0          5          5
+  25,309
+  31,233
+  12,422
+  32,278
+  12,887
+
+. file write tablecontent _n 
+
+. 
+. 
+. 
+. 
+. 
+. 
+. 
+. file write tablecontent _n _n
+
+. 
+. 
+. file close tablecontent
+
+. 
+. 
+. * Close log file 
+. log close
+      name:  <unnamed>
+       log:  /workspace/logs/an_risk28_table1.log
+  log type:  text
+ closed on:  10 Feb 2021, 17:33:46
+-------------------------------------------------------------------------------
