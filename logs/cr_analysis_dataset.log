@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /workspace/logs/cr_analysis_dataset.log
   log type:  text
- opened on:  10 Feb 2021, 17:27:18
+ opened on:  11 Feb 2021, 11:40:03
 
 . 
 . clear
@@ -49,7 +49,7 @@
 
     Variable |        Obs        Mean    Std. Dev.       Min        Max
 -------------+---------------------------------------------------------
- study_start |    320,001    22259.96    14.12839      22236      22284
+ study_start |    320,001       22260     14.1336      22236      22284
 
 . noi disp "MINIMUM START DATE: " %td r(min)
 MINIMUM START DATE: 17nov2020
@@ -73,7 +73,7 @@ NO POSITIVE TEST IN STUDY PERIOD
 DIED ON/BEFORE STUDY START DATE:
 
 . drop if date(died_date_ons, "YMD") <= study_start
-(21,945 observations deleted)
+(21,853 observations deleted)
 
 . 
 . * DROP IF COVID POSITIVE ON/BEFORE STUDY START DATE
@@ -81,10 +81,10 @@ DIED ON/BEFORE STUDY START DATE:
 COVID POSITIVE BEFORE STUDY START DATE:
 
 . drop if date(covid_tpp_probable, "YMD") <= study_start
-(27,528 observations deleted)
+(26,927 observations deleted)
 
 . drop if date(first_pos_test_sgss, "YMD") <= study_start
-(82,516 observations deleted)
+(81,659 observations deleted)
 
 . 
 . * DROP IF VACCINATED ON/BEFORE STUDY START DATE
@@ -92,7 +92,7 @@ COVID POSITIVE BEFORE STUDY START DATE:
 VACCINATED ON/BEFORE STUDY START DATE:
 
 . drop if date(covid_vacc_date, "YMD") <= study_start
-(4,933 observations deleted)
+(4,972 observations deleted)
 
 . 
 . * Age: Exclude children
@@ -106,7 +106,7 @@ VACCINATED ON/BEFORE STUDY START DATE:
 DROPPING AGE>105:
 
 . drop if age>105
-(30 observations deleted)
+(19 observations deleted)
 
 . 
 . * Sex: Exclude categories other than M and F
@@ -132,13 +132,13 @@ DROPPING GENDER NOT M/F:
 DROPPING NO SGTF DATA
 
 . drop if has_sgtf==0
-(91,600 observations deleted)
+(92,347 observations deleted)
 
 . 
 . gen sgtf = rbinomial(1,0.5)
 
 . replace sgtf = rbinomial(1,0.6) if died_date_ons != ""
-(1,607 real changes made)
+(1,585 real changes made)
 
 . 
 . label define sgtfLab 0 "non-VOC" 1 "VOC"
@@ -209,105 +209,105 @@ DROPPING NO SGTF DATA
   9.         format `var'_date %td
  10. }
 variable bp_sys_date_measured was str7 now str10
-(91,449 real changes made)
-(4,660 real changes made)
-(4,660 missing values generated)
+(92,224 real changes made)
+(4,671 real changes made)
+(4,671 missing values generated)
 variable bp_dias_date_measured was str7 now str10
-(91,449 real changes made)
-(4,677 real changes made)
-(4,677 missing values generated)
+(92,224 real changes made)
+(4,601 real changes made)
+(4,601 missing values generated)
 variable hba1c_percentage_date was str7 now str10
-(91,449 real changes made)
-(4,551 real changes made)
-(4,551 missing values generated)
+(92,224 real changes made)
+(4,537 real changes made)
+(4,537 missing values generated)
 variable hba1c_mmol_per_mol_date was str7 now str10
-(91,449 real changes made)
-(4,581 real changes made)
-(4,581 missing values generated)
+(92,224 real changes made)
+(4,605 real changes made)
+(4,605 missing values generated)
 variable hypertension was str7 now str10
-(91,449 real changes made)
-(72,934 real changes made)
-(72,934 missing values generated)
+(92,224 real changes made)
+(73,873 real changes made)
+(73,873 missing values generated)
 variable bmi_date_measured was str7 now str10
-(91,449 real changes made)
-(4,670 real changes made)
-(4,670 missing values generated)
+(92,224 real changes made)
+(4,737 real changes made)
+(4,737 missing values generated)
 variable chronic_respiratory_disease was str7 now str10
-(91,449 real changes made)
-(72,950 real changes made)
-(72,950 missing values generated)
+(92,224 real changes made)
+(73,704 real changes made)
+(73,704 missing values generated)
 variable chronic_cardiac_disease was str7 now str10
-(91,449 real changes made)
-(73,184 real changes made)
-(73,184 missing values generated)
+(92,224 real changes made)
+(73,790 real changes made)
+(73,790 missing values generated)
 variable diabetes was str7 now str10
-(91,449 real changes made)
-(73,100 real changes made)
-(73,100 missing values generated)
+(92,224 real changes made)
+(73,754 real changes made)
+(73,754 missing values generated)
 variable lung_cancer was str7 now str10
-(91,449 real changes made)
-(73,199 real changes made)
-(73,199 missing values generated)
+(92,224 real changes made)
+(73,726 real changes made)
+(73,726 missing values generated)
 variable haem_cancer was str7 now str10
-(91,449 real changes made)
-(73,089 real changes made)
-(73,089 missing values generated)
+(92,224 real changes made)
+(73,800 real changes made)
+(73,800 missing values generated)
 variable other_cancer was str7 now str10
-(91,449 real changes made)
-(73,097 real changes made)
-(73,097 missing values generated)
+(92,224 real changes made)
+(73,678 real changes made)
+(73,678 missing values generated)
 variable chronic_liver_disease was str7 now str10
-(91,449 real changes made)
-(73,221 real changes made)
-(73,221 missing values generated)
+(92,224 real changes made)
+(73,932 real changes made)
+(73,932 missing values generated)
 variable stroke was str7 now str10
-(91,449 real changes made)
-(73,297 real changes made)
-(73,297 missing values generated)
+(92,224 real changes made)
+(73,872 real changes made)
+(73,872 missing values generated)
 variable dementia was str7 now str10
-(91,449 real changes made)
-(73,105 real changes made)
-(73,105 missing values generated)
+(92,224 real changes made)
+(73,750 real changes made)
+(73,750 missing values generated)
 variable other_neuro was str7 now str10
-(91,449 real changes made)
-(73,104 real changes made)
-(73,104 missing values generated)
+(92,224 real changes made)
+(73,614 real changes made)
+(73,614 missing values generated)
 variable organ_transplant was str7 now str10
-(91,449 real changes made)
-(73,227 real changes made)
-(73,227 missing values generated)
+(92,224 real changes made)
+(73,743 real changes made)
+(73,743 missing values generated)
 variable dysplenia was str7 now str10
-(91,449 real changes made)
-(73,359 real changes made)
-(73,359 missing values generated)
+(92,224 real changes made)
+(73,785 real changes made)
+(73,785 missing values generated)
 variable sickle_cell was str7 now str10
-(91,449 real changes made)
-(73,355 real changes made)
-(73,355 missing values generated)
+(92,224 real changes made)
+(73,973 real changes made)
+(73,973 missing values generated)
 variable aplastic_anaemia was str7 now str10
-(91,449 real changes made)
-(73,046 real changes made)
-(73,046 missing values generated)
+(92,224 real changes made)
+(73,842 real changes made)
+(73,842 missing values generated)
 variable hiv_date was str7 now str10
-(91,449 real changes made)
-(73,200 real changes made)
-(73,200 missing values generated)
+(92,224 real changes made)
+(73,705 real changes made)
+(73,705 missing values generated)
 variable permanent_immunodeficiency was str7 now str10
-(91,449 real changes made)
-(73,374 real changes made)
-(73,374 missing values generated)
+(92,224 real changes made)
+(73,695 real changes made)
+(73,695 missing values generated)
 variable temporary_immunodeficiency was str7 now str10
-(91,449 real changes made)
-(73,236 real changes made)
-(73,236 missing values generated)
+(92,224 real changes made)
+(73,861 real changes made)
+(73,861 missing values generated)
 variable ra_sle_psoriasis was str7 now str10
-(91,449 real changes made)
-(73,139 real changes made)
-(73,139 missing values generated)
+(92,224 real changes made)
+(73,609 real changes made)
+(73,609 missing values generated)
 variable dialysis was str7 now str10
-(91,449 real changes made)
-(73,125 real changes made)
-(73,125 missing values generated)
+(92,224 real changes made)
+(73,872 real changes made)
+(73,872 missing values generated)
 
 . 
 . rename bmi_date_measured_date      bmi_date_measured
@@ -334,11 +334,11 @@ variable dialysis was str7 now str10
   5.                 drop _tmp
   6.                 format %d `var'
   7. }
-(91,449 missing values generated)
-(88,298 missing values generated)
-(80,571 missing values generated)
-(75,083 missing values generated)
-(78,724 missing values generated)
+(92,224 missing values generated)
+(89,097 missing values generated)
+(80,882 missing values generated)
+(75,631 missing values generated)
+(79,175 missing values generated)
 
 .  
 .  
@@ -353,7 +353,7 @@ variable dialysis was str7 now str10
 . 
 . * Set implausible BMIs to missing:
 . replace bmi = . if !inrange(bmi, 15, 50)
-(12,632 real changes made, 12,632 to missing)
+(12,563 real changes made, 12,563 to missing)
 
 . 
 . * Sex
@@ -375,13 +375,13 @@ variable dialysis was str7 now str10
 
 . 
 . gen     smoke = 1  if smoking_status=="N"
-(87,855 missing values generated)
+(88,467 missing values generated)
 
 . replace smoke = 2  if smoking_status=="E"
-(1,834 real changes made)
+(1,829 real changes made)
 
 . replace smoke = 3  if smoking_status=="S"
-(10,924 real changes made)
+(11,115 real changes made)
 
 . replace smoke = . if smoking_status=="M"
 (0 real changes made)
@@ -412,19 +412,19 @@ variable dialysis was str7 now str10
 . 
 . * Re-order ethnicity
 . gen eth5=1 if ethnicity==1
-(40,018 missing values generated)
+(40,500 missing values generated)
 
 . replace eth5=2 if ethnicity==3
-(3,451 real changes made)
+(3,458 real changes made)
 
 . replace eth5=3 if ethnicity==4
-(3,441 real changes made)
+(3,370 real changes made)
 
 . replace eth5=4 if ethnicity==2
-(3,474 real changes made)
+(3,581 real changes made)
 
 . replace eth5=5 if ethnicity==5
-(6,892 real changes made)
+(7,026 real changes made)
 
 . replace eth5=. if ethnicity==.
 (0 real changes made)
@@ -446,7 +446,7 @@ variable dialysis was str7 now str10
 . 
 . * Ethnicity (16 category)
 . replace ethnicity_16 = . if ethnicity==.
-(17,074 real changes made, 17,074 to missing)
+(17,396 real changes made, 17,396 to missing)
 
 . label define ethnicity_16                                                    
 >                    ///
@@ -490,10 +490,10 @@ variable dialysis was str7 now str10
 . * Ethnicity (16 category grouped further)
 . * Generate a version of the full breakdown with mixed in one group
 . gen ethnicity_16_combinemixed = ethnicity_16
-(39,977 missing values generated)
+(40,333 missing values generated)
 
 . recode ethnicity_16_combinemixed 4/7 = 4
-(ethnicity_16_combinemixed: 5104 changes made)
+(ethnicity_16_combinemixed: 5301 changes made)
 
 . label define ethnicity_16_combinemixed  ///
 >                                                 1 "British or Mixed British" 
@@ -522,10 +522,10 @@ variable dialysis was str7 now str10
 . rename stp stp_old
 
 . bysort stp_old: gen stp = 1 if _n==1
-(91,439 missing values generated)
+(92,214 missing values generated)
 
 . replace stp = sum(stp)
-(91,448 real changes made)
+(92,223 real changes made)
 
 . drop stp_old
 
@@ -547,15 +547,15 @@ variable dialysis was str7 now str10
       Percentiles      Smallest
  1%            7              2
  5%            9              2
-10%           10              3       Obs              91,449
-25%           12              3       Sum of Wgt.      91,449
+10%           10              2       Obs              92,224
+25%           12              2       Sum of Wgt.      92,224
 
-50%           14                      Mean           14.46615
-                        Largest       Std. Dev.      3.702592
-75%           17             33
-90%           19             33       Variance       13.70918
-95%           21             33       Skewness        .343023
-99%           24             33       Kurtosis       3.290057
+50%           14                      Mean           14.59412
+                        Largest       Std. Dev.      3.728144
+75%           17             29
+90%           19             29       Variance       13.89906
+95%           21             29       Skewness       .3072925
+99%           24             29       Kurtosis       3.107969
 
 . 
 . egen n_utla = tag(utla)
@@ -571,17 +571,17 @@ variable dialysis was str7 now str10
                            count2
 -------------------------------------------------------------
       Percentiles      Smallest
- 1%          218             13
- 5%          266             13
-10%          331             13       Obs              91,449
-25%          440             13       Sum of Wgt.      91,449
+ 1%          214              9
+ 5%          279              9
+10%          334              9       Obs              92,224
+25%          438              9       Sum of Wgt.      92,224
 
-50%          768                      Mean           956.8429
-                        Largest       Std. Dev.      643.2119
-75%         1370           2412
-90%         2069           2412       Variance       413721.5
-95%         2387           2412       Skewness       .9025052
-99%         2412           2412       Kurtosis       2.639258
+50%          767                      Mean           964.3439
+                        Largest       Std. Dev.      650.2101
+75%         1359           2458
+90%         2078           2458       Variance       422773.1
+95%         2421           2458       Skewness       .9238208
+99%         2458           2458       Kurtosis       2.704039
 
 . 
 . * Regroup UTLAs with small case numbers
@@ -592,159 +592,159 @@ variable dialysis was str7 now str10
 
           utla_group |      Freq.     Percent        Cum.
 ---------------------+-----------------------------------
-Barking and Dagenham |        319        0.35        0.35
-              Barnet |        574        0.63        0.98
-            Barnsley |        404        0.44        1.42
- Bath and North East |        344        0.38        1.79
-             Bedford |        266        0.29        2.09
-              Bexley |        363        0.40        2.48
-          Birmingham |      1,810        1.98        4.46
-Blackburn with Darwe |        218        0.24        4.70
-           Blackpool |        265        0.29        4.99
-              Bolton |        490        0.54        5.53
-Bournemouth, Christc |        633        0.69        6.22
-    Bracknell Forest |        227        0.25        6.47
-            Bradford |        804        0.88        7.35
-               Brent |        480        0.52        7.87
-   Brighton and Hove |        469        0.51        8.38
-    Bristol, City of |        732        0.80        9.18
-             Bromley |        484        0.53        9.71
-     Buckinghamshire |        879        0.96       10.67
-                Bury |        358        0.39       11.07
-          Calderdale |        346        0.38       11.44
-      Cambridgeshire |        973        1.06       12.51
-              Camden |        409        0.45       12.95
-Central Bedfordshire |        436        0.48       13.43
-       Cheshire East |        687        0.75       14.18
-Cheshire West and Ch |        596        0.65       14.83
-      City of London |         13        0.01       14.85
-            Cornwall |        956        1.05       15.89
-       County Durham |        891        0.97       16.87
-            Coventry |        568        0.62       17.49
-             Croydon |        564        0.62       18.11
-             Cumbria |        841        0.92       19.03
-          Darlington |        212        0.23       19.26
-               Derby |        440        0.48       19.74
-          Derbyshire |      1,348        1.47       21.21
-               Devon |      1,454        1.59       22.80
-           Doncaster |        484        0.53       23.33
-              Dorset |        641        0.70       24.03
-              Dudley |        564        0.62       24.65
-              Ealing |        523        0.57       25.22
-East Riding of Yorks |        569        0.62       25.84
-         East Sussex |        916        1.00       26.85
-             Enfield |        484        0.53       27.37
-               Essex |      2,387        2.61       29.99
-           Gateshead |        354        0.39       30.37
-     Gloucestershire |      1,014        1.11       31.48
-           Greenwich |        440        0.48       31.96
-             Hackney |        375        0.41       32.37
-              Halton |        224        0.24       32.62
-Hammersmith and Fulh |        360        0.39       33.01
-           Hampshire |      2,213        2.42       35.43
-            Haringey |        456        0.50       35.93
-              Harrow |        435        0.48       36.40
-          Hartlepool |        153        0.17       36.57
-            Havering |        416        0.45       37.03
-Herefordshire, Count |        311        0.34       37.37
-       Hertfordshire |      2,130        2.33       39.70
-          Hillingdon |        431        0.47       40.17
-            Hounslow |        412        0.45       40.62
-       Isle of Wight |        229        0.25       40.87
-     Isles of Scilly |         15        0.02       40.89
-           Islington |        299        0.33       41.21
-Kensington and Chels |        256        0.28       41.49
-                Kent |      2,412        2.64       44.13
- Kingston upon Hull, |        419        0.46       44.59
-Kingston upon Thames |        260        0.28       44.87
-            Kirklees |        850        0.93       45.80
-            Knowsley |        292        0.32       46.12
-             Lambeth |        495        0.54       46.66
-          Lancashire |      2,069        2.26       48.92
-               Leeds |      1,431        1.56       50.49
-           Leicester |        483        0.53       51.02
-      Leicestershire |      1,091        1.19       52.21
-            Lewisham |        484        0.53       52.74
-        Lincolnshire |      1,195        1.31       54.05
-           Liverpool |        781        0.85       54.90
-               Luton |        275        0.30       55.20
-          Manchester |        791        0.86       56.07
-              Medway |        527        0.58       56.64
-              Merton |        344        0.38       57.02
-       Middlesbrough |        262        0.29       57.31
-       Milton Keynes |        443        0.48       57.79
- Newcastle upon Tyne |        420        0.46       58.25
-              Newham |        538        0.59       58.84
-             Norfolk |      1,568        1.71       60.55
-North East Lincolnsh |        276        0.30       60.85
-  North Lincolnshire |        293        0.32       61.17
-      North Somerset |        351        0.38       61.56
-      North Tyneside |        414        0.45       62.01
-     North Yorkshire |      1,034        1.13       63.14
-    Northamptonshire |      1,247        1.36       64.50
-      Northumberland |        511        0.56       65.06
-          Nottingham |        515        0.56       65.63
-     Nottinghamshire |      1,383        1.51       67.14
-              Oldham |        434        0.47       67.61
-         Oxfordshire |      1,137        1.24       68.86
-        Peterborough |        285        0.31       69.17
-            Plymouth |        426        0.47       69.63
-          Portsmouth |        373        0.41       70.04
-             Reading |        236        0.26       70.30
-           Redbridge |        428        0.47       70.77
-Redcar and Cleveland |        254        0.28       71.05
-Richmond upon Thames |        287        0.31       71.36
-            Rochdale |        335        0.37       71.73
-           Rotherham |        449        0.49       72.22
-             Rutland |         67        0.07       72.29
-             Salford |        432        0.47       72.76
-            Sandwell |        532        0.58       73.34
-              Sefton |        502        0.55       73.89
-           Sheffield |        929        1.02       74.91
-          Shropshire |        553        0.60       75.51
-              Slough |        213        0.23       75.75
-            Solihull |        358        0.39       76.14
-            Somerset |        990        1.08       77.22
-South Gloucestershir |        443        0.48       77.71
-      South Tyneside |        297        0.32       78.03
-         Southampton |        439        0.48       78.51
-     Southend-on-Sea |        209        0.23       78.74
-           Southwark |        407        0.45       79.18
-          St. Helens |        306        0.33       79.52
-       Staffordshire |      1,472        1.61       81.13
-           Stockport |        572        0.63       81.75
-    Stockton-on-Tees |        316        0.35       82.10
-      Stoke-on-Trent |        468        0.51       82.61
-             Suffolk |      1,198        1.31       83.92
-          Sunderland |        494        0.54       84.46
-              Surrey |      1,944        2.13       86.59
-              Sutton |        320        0.35       86.94
-             Swindon |        341        0.37       87.31
-            Tameside |        384        0.42       87.73
-  Telford and Wrekin |        338        0.37       88.10
-            Thurrock |        253        0.28       88.38
-              Torbay |        243        0.27       88.64
-       Tower Hamlets |        454        0.50       89.14
-            Trafford |        360        0.39       89.53
-           Wakefield |        676        0.74       90.27
-             Walsall |        509        0.56       90.83
-      Waltham Forest |        376        0.41       91.24
-          Wandsworth |        494        0.54       91.78
-          Warrington |        331        0.36       92.14
-        Warwickshire |        898        0.98       93.12
-      West Berkshire |        264        0.29       93.41
-         West Sussex |      1,370        1.50       94.91
-         Westminster |        378        0.41       95.32
-               Wigan |        529        0.58       95.90
-           Wiltshire |        768        0.84       96.74
-Windsor and Maidenhe |        230        0.25       96.99
-              Wirral |        595        0.65       97.64
-           Wokingham |        258        0.28       97.93
-       Wolverhampton |        458        0.50       98.43
-      Worcestershire |      1,112        1.22       99.64
-                York |        327        0.36      100.00
+Barking and Dagenham |        340        0.37        0.37
+              Barnet |        566        0.61        0.98
+            Barnsley |        406        0.44        1.42
+ Bath and North East |        326        0.35        1.78
+             Bedford |        291        0.32        2.09
+              Bexley |        365        0.40        2.49
+          Birmingham |      1,812        1.96        4.45
+Blackburn with Darwe |        249        0.27        4.72
+           Blackpool |        288        0.31        5.03
+              Bolton |        471        0.51        5.55
+Bournemouth, Christc |        659        0.71        6.26
+    Bracknell Forest |        205        0.22        6.48
+            Bradford |        798        0.87        7.35
+               Brent |        500        0.54        7.89
+   Brighton and Hove |        471        0.51        8.40
+    Bristol, City of |        757        0.82        9.22
+             Bromley |        483        0.52        9.74
+     Buckinghamshire |        912        0.99       10.73
+                Bury |        341        0.37       11.10
+          Calderdale |        385        0.42       11.52
+      Cambridgeshire |      1,027        1.11       12.63
+              Camden |        383        0.42       13.05
+Central Bedfordshire |        439        0.48       13.53
+       Cheshire East |        698        0.76       14.28
+Cheshire West and Ch |        589        0.64       14.92
+      City of London |          9        0.01       14.93
+            Cornwall |        946        1.03       15.96
+       County Durham |        949        1.03       16.99
+            Coventry |        573        0.62       17.61
+             Croydon |        572        0.62       18.23
+             Cumbria |        823        0.89       19.12
+          Darlington |        204        0.22       19.34
+               Derby |        436        0.47       19.81
+          Derbyshire |      1,359        1.47       21.29
+               Devon |      1,539        1.67       22.96
+           Doncaster |        527        0.57       23.53
+              Dorset |        635        0.69       24.22
+              Dudley |        589        0.64       24.85
+              Ealing |        513        0.56       25.41
+East Riding of Yorks |        566        0.61       26.02
+         East Sussex |        911        0.99       27.01
+             Enfield |        469        0.51       27.52
+               Essex |      2,421        2.63       30.15
+           Gateshead |        353        0.38       30.53
+     Gloucestershire |      1,032        1.12       31.65
+           Greenwich |        455        0.49       32.14
+             Hackney |        362        0.39       32.53
+              Halton |        214        0.23       32.77
+Hammersmith and Fulh |        359        0.39       33.16
+           Hampshire |      2,281        2.47       35.63
+            Haringey |        517        0.56       36.19
+              Harrow |        412        0.45       36.64
+          Hartlepool |        172        0.19       36.82
+            Havering |        436        0.47       37.30
+Herefordshire, Count |        335        0.36       37.66
+       Hertfordshire |      2,035        2.21       39.86
+          Hillingdon |        426        0.46       40.33
+            Hounslow |        380        0.41       40.74
+       Isle of Wight |        249        0.27       41.01
+     Isles of Scilly |         16        0.02       41.03
+           Islington |        309        0.34       41.36
+Kensington and Chels |        276        0.30       41.66
+                Kent |      2,458        2.67       44.33
+ Kingston upon Hull, |        416        0.45       44.78
+Kingston upon Thames |        272        0.29       45.07
+            Kirklees |        767        0.83       45.90
+            Knowsley |        304        0.33       46.23
+             Lambeth |        479        0.52       46.75
+          Lancashire |      2,078        2.25       49.01
+               Leeds |      1,422        1.54       50.55
+           Leicester |        512        0.56       51.10
+      Leicestershire |      1,117        1.21       52.31
+            Lewisham |        486        0.53       52.84
+        Lincolnshire |      1,224        1.33       54.17
+           Liverpool |        820        0.89       55.06
+               Luton |        279        0.30       55.36
+          Manchester |        793        0.86       56.22
+              Medway |        536        0.58       56.80
+              Merton |        336        0.36       57.17
+       Middlesbrough |        277        0.30       57.47
+       Milton Keynes |        445        0.48       57.95
+ Newcastle upon Tyne |        382        0.41       58.36
+              Newham |        502        0.54       58.91
+             Norfolk |      1,507        1.63       60.54
+North East Lincolnsh |        301        0.33       60.87
+  North Lincolnshire |        325        0.35       61.22
+      North Somerset |        336        0.36       61.58
+      North Tyneside |        399        0.43       62.02
+     North Yorkshire |        990        1.07       63.09
+    Northamptonshire |      1,198        1.30       64.39
+      Northumberland |        593        0.64       65.03
+          Nottingham |        538        0.58       65.62
+     Nottinghamshire |      1,352        1.47       67.08
+              Oldham |        433        0.47       67.55
+         Oxfordshire |      1,139        1.24       68.79
+        Peterborough |        302        0.33       69.11
+            Plymouth |        441        0.48       69.59
+          Portsmouth |        356        0.39       69.98
+             Reading |        252        0.27       70.25
+           Redbridge |        395        0.43       70.68
+Redcar and Cleveland |        244        0.26       70.94
+Richmond upon Thames |        307        0.33       71.28
+            Rochdale |        356        0.39       71.66
+           Rotherham |        460        0.50       72.16
+             Rutland |         55        0.06       72.22
+             Salford |        418        0.45       72.67
+            Sandwell |        499        0.54       73.22
+              Sefton |        492        0.53       73.75
+           Sheffield |        952        1.03       74.78
+          Shropshire |        570        0.62       75.40
+              Slough |        181        0.20       75.60
+            Solihull |        365        0.40       75.99
+            Somerset |        958        1.04       77.03
+South Gloucestershir |        420        0.46       77.49
+      South Tyneside |        291        0.32       77.80
+         Southampton |        409        0.44       78.24
+     Southend-on-Sea |        235        0.25       78.50
+           Southwark |        438        0.47       78.97
+          St. Helens |        314        0.34       79.31
+       Staffordshire |      1,438        1.56       80.87
+           Stockport |        585        0.63       81.51
+    Stockton-on-Tees |        337        0.37       81.87
+      Stoke-on-Trent |        473        0.51       82.39
+             Suffolk |      1,232        1.34       83.72
+          Sunderland |        527        0.57       84.29
+              Surrey |      2,035        2.21       86.50
+              Sutton |        334        0.36       86.86
+             Swindon |        318        0.34       87.21
+            Tameside |        416        0.45       87.66
+  Telford and Wrekin |        299        0.32       87.98
+            Thurrock |        273        0.30       88.28
+              Torbay |        216        0.23       88.51
+       Tower Hamlets |        448        0.49       89.00
+            Trafford |        366        0.40       89.40
+           Wakefield |        640        0.69       90.09
+             Walsall |        566        0.61       90.70
+      Waltham Forest |        393        0.43       91.13
+          Wandsworth |        501        0.54       91.67
+          Warrington |        353        0.38       92.06
+        Warwickshire |        919        1.00       93.05
+      West Berkshire |        273        0.30       93.35
+         West Sussex |      1,393        1.51       94.86
+         Westminster |        367        0.40       95.26
+               Wigan |        495        0.54       95.79
+           Wiltshire |        838        0.91       96.70
+Windsor and Maidenhe |        250        0.27       96.97
+              Wirral |        599        0.65       97.62
+           Wokingham |        274        0.30       97.92
+       Wolverhampton |        433        0.47       98.39
+      Worcestershire |      1,156        1.25       99.64
+                York |        330        0.36      100.00
 ---------------------+-----------------------------------
-               Total |     91,449      100.00
+               Total |     92,224      100.00
 
 . 
 . /*
@@ -785,47 +785,48 @@ Windsor and Maidenhe |        230        0.25       96.99
 
                   region |      Freq.     Percent        Cum.
 -------------------------+-----------------------------------
-           East Midlands |      9,161       10.02       10.02
-         East of England |      9,216       10.08       20.10
-                  London |     18,093       19.78       39.88
-              North East |      9,241       10.11       49.99
-              North West |      9,224       10.09       60.07
-              South East |     18,157       19.85       79.93
-           West Midlands |      9,196       10.06       89.98
-Yorkshire and the Humber |      9,161       10.02      100.00
+           East Midlands |      9,111        9.88        9.88
+         East of England |      9,067        9.83       19.71
+                  London |     18,385       19.94       39.65
+              North East |      9,179        9.95       49.60
+              North West |      9,333       10.12       59.72
+              South East |      9,242       10.02       69.74
+              South West |      9,303       10.09       79.83
+           West Midlands |      9,386       10.18       90.00
+Yorkshire and the Humber |      9,218       10.00      100.00
 -------------------------+-----------------------------------
-                   Total |     91,449      100.00
+                   Total |     92,224      100.00
 
 . 
 . gen region2=.
-(91,449 missing values generated)
+(92,224 missing values generated)
 
 . replace region2=0 if region=="East of England"
-(9,216 real changes made)
+(9,067 real changes made)
 
 . replace region2=1 if region=="East Midlands"
-(9,161 real changes made)
+(9,111 real changes made)
 
 . replace region2=2 if region=="London"
-(18,093 real changes made)
+(18,385 real changes made)
 
 . replace region2=3 if region=="North East"
-(9,241 real changes made)
+(9,179 real changes made)
 
 . replace region2=4 if region=="North West"
-(9,224 real changes made)
+(9,333 real changes made)
 
 . replace region2=5 if region=="South East"
-(18,157 real changes made)
+(9,242 real changes made)
 
 . replace region2=6 if region=="South West"
-(0 real changes made)
+(9,303 real changes made)
 
 . replace region2=7 if region=="West Midlands"
-(9,196 real changes made)
+(9,386 real changes made)
 
 . replace region2=8 if region=="Yorkshire and the Humber"
-(9,161 real changes made)
+(9,218 real changes made)
 
 . 
 . drop region
@@ -863,7 +864,7 @@ Yorkshire and the Humber |      9,161       10.02      100.00
 >                         60/69.9999 = 5 ///
 >                         70/79.9999 = 6 ///
 >                         80/max = 7, gen(agegroup) 
-(90365 differences between age and agegroup)
+(91129 differences between age and agegroup)
 
 . 
 . label define agegroupLab        0 "0-<18" ///
@@ -885,7 +886,7 @@ Yorkshire and the Humber |      9,161       10.02      100.00
 >                         65/74.9999=3 ///
 >                         75/84.9999=4 ///
 >                         85/max=5, gen(agegroupA) 
-(90371 differences between age and agegroupA)
+(91131 differences between age and agegroupA)
 
 . 
 . label define agegroupALab       1 "0-<50"  ///
@@ -901,7 +902,7 @@ Yorkshire and the Humber |      9,161       10.02      100.00
 . 
 . * Create binary age
 . recode age min/69.999=0 70/max=1, gen(age70)
-(90365 differences between age and age70)
+(91129 differences between age and age70)
 
 . 
 . * Check there are no missing ages
@@ -921,25 +922,25 @@ Yorkshire and the Humber |      9,161       10.02      100.00
 . 
 . * BMI (NB: watch for missingness)
 . gen     bmicat = .
-(91,449 missing values generated)
+(92,224 missing values generated)
 
 . recode  bmicat . = 1 if bmi<18.5
-(bmicat: 2361 changes made)
+(bmicat: 2353 changes made)
 
 . recode  bmicat . = 2 if bmi<25
-(bmicat: 9404 changes made)
+(bmicat: 9658 changes made)
 
 . recode  bmicat . = 3 if bmi<30
-(bmicat: 12922 changes made)
+(bmicat: 13050 changes made)
 
 . recode  bmicat . = 4 if bmi<35
-(bmicat: 16673 changes made)
+(bmicat: 16827 changes made)
 
 . recode  bmicat . = 5 if bmi<40
-(bmicat: 16583 changes made)
+(bmicat: 16772 changes made)
 
 . recode  bmicat . = 6 if bmi<.
-(bmicat: 20874 changes made)
+(bmicat: 21001 changes made)
 
 . replace bmicat = . if bmi>=.
 (0 real changes made)
@@ -959,7 +960,7 @@ Yorkshire and the Humber |      9,161       10.02      100.00
 . 
 . * Create more granular categorisation
 . recode bmicat 1/3 . = 1 4=2 5=3 6=4, gen(obese4cat)
-(89088 differences between bmicat and obese4cat)
+(89871 differences between bmicat and obese4cat)
 
 . 
 . label define obese4catLab       1 "No record of obesity"        ///
@@ -980,7 +981,7 @@ Yorkshire and the Humber |      9,161       10.02      100.00
 . 
 . * Create non-missing 3-category variable for current smoking
 . recode smoke .=1, gen(smoke_nomiss)
-(75097 differences between smoke and smoke_nomiss)
+(75523 differences between smoke and smoke_nomiss)
 
 . order smoke_nomiss, after(smoke)
 
@@ -994,7 +995,7 @@ Yorkshire and the Humber |      9,161       10.02      100.00
 . rename asthma asthmacat
 
 . recode asthmacat 0=1 1=2 2=3 .=1
-(asthmacat: 91449 changes made)
+(asthmacat: 92224 changes made)
 
 . label define asthmacat 1 "No" 2 "Yes, no OCS" 3 "Yes with OCS"
 
@@ -1009,19 +1010,19 @@ Yorkshire and the Humber |      9,161       10.02      100.00
 . 
 . * Categorise
 . gen     bpcat = 1 if bp_sys < 120 &  bp_dias < 80
-(86,771 missing values generated)
+(87,622 missing values generated)
 
 . replace bpcat = 2 if inrange(bp_sys, 120, 130) & bp_dias<80
-(0 real changes made)
+(1 real change made)
 
 . replace bpcat = 3 if inrange(bp_sys, 130, 140) | inrange(bp_dias, 80, 90)
-(105 real changes made)
+(121 real changes made)
 
 . replace bpcat = 4 if (bp_sys>=140 & bp_sys<.) | (bp_dias>=90 & bp_dias<.) 
-(86,666 real changes made)
+(87,500 real changes made)
 
 . replace bpcat = . if bp_sys>=. | bp_dias>=. | bp_sys==0 | bp_dias==0
-(9,087 real changes made, 9,087 to missing)
+(9,057 real changes made, 9,057 to missing)
 
 . 
 . label define bpcat 1 "Normal" 2 "Elevated" 3 "High, stage I"    ///
@@ -1031,7 +1032,7 @@ Yorkshire and the Humber |      9,161       10.02      100.00
 
 . 
 . recode bpcat .=1, gen(bpcat_nomiss)
-(9087 differences between bpcat and bpcat_nomiss)
+(9057 differences between bpcat and bpcat_nomiss)
 
 . label values bpcat_nomiss bpcat
 
@@ -1051,17 +1052,41 @@ Yorkshire and the Humber |      9,161       10.02      100.00
 . egen imd = cut(imd_o), group(5) icodes
 
 . replace imd = imd + 1
-(91,449 real changes made)
+(92,224 real changes made)
 
 . replace imd = . if imd_o==-1
 (0 real changes made)
 
 . drop imd_o
 
+. tab imd
+
+        imd |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |      9,129        9.90        9.90
+          2 |     18,340       19.89       29.79
+          3 |     18,544       20.11       49.89
+          4 |     18,375       19.92       69.82
+          5 |     27,836       30.18      100.00
+------------+-----------------------------------
+      Total |     92,224      100.00
+
 . 
 . * Reverse the order (so high is more deprived)
 . recode imd 5=1 4=2 3=3 2=4 1=5 .=.
-(imd: 91449 changes made)
+(imd: 73680 changes made)
+
+. tab imd
+
+        imd |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |     27,836       30.18       30.18
+          2 |     18,375       19.92       50.11
+          3 |     18,544       20.11       70.21
+          4 |     18,340       19.89       90.10
+          5 |      9,129        9.90      100.00
+------------+-----------------------------------
+      Total |     92,224      100.00
 
 . 
 . label define imdLab 1 "1 least deprived" 2 "2" 3 "3" 4 "4" 5 "5 most deprived
@@ -1081,16 +1106,16 @@ DROPPING IF NO IMD
 . /*  HOUSEHOLD SIZE  */
 . 
 . gen hh_total_cat=.
-(91,449 missing values generated)
+(92,224 missing values generated)
 
 . replace hh_total_cat=1 if household_size >=1 & household_size<=2
-(43,781 real changes made)
+(43,793 real changes made)
 
 . replace hh_total_cat=2 if household_size >=3 & household_size<=5
-(45,432 real changes made)
+(46,186 real changes made)
 
 . replace hh_total_cat=3 if household_size >=6 & household_size<=10
-(118 real changes made)
+(142 real changes made)
 
 . replace hh_total_cat=4 if household_size >=11
 (0 real changes made)
@@ -1112,22 +1137,22 @@ DROPPING IF NO IMD
 . * Create a 4 category rural urban variable based upon meeting with Roz 21st O
 > ctober
 . gen rural_urban5=.
-(91,449 missing values generated)
+(92,224 missing values generated)
 
 . replace rural_urban5=1 if rural_urban==1
-(9,037 real changes made)
+(9,284 real changes made)
 
 . replace rural_urban5=2 if rural_urban==2
-(9,130 real changes made)
+(9,092 real changes made)
 
 . replace rural_urban5=3 if rural_urban==3|rural_urban==4
-(18,425 real changes made)
+(18,373 real changes made)
 
 . replace rural_urban5=4 if rural_urban==5|rural_urban==6
-(18,262 real changes made)
+(18,574 real changes made)
 
 . replace rural_urban5=5 if rural_urban==7|rural_urban==8
-(36,595 real changes made)
+(36,901 real changes made)
 
 . 
 . label define rural_urban5Lab    1 "Urban major conurbation" ///
@@ -1147,13 +1172,13 @@ DROPPING IF NO IMD
 
                rural_urban5 |      Freq.     Percent        Cum.
 ----------------------------+-----------------------------------
-    Urban major conurbation |      9,037        9.88        9.88
-    Urban minor conurbation |      9,130        9.98       19.87
-        Urban city and town |     18,425       20.15       40.01
-      Rural town and fringe |     18,262       19.97       59.98
-Rural village and dispersed |     36,595       40.02      100.00
+    Urban major conurbation |      9,284       10.07       10.07
+    Urban minor conurbation |      9,092        9.86       19.93
+        Urban city and town |     18,373       19.92       39.85
+      Rural town and fringe |     18,574       20.14       59.99
+Rural village and dispersed |     36,901       40.01      100.00
 ----------------------------+-----------------------------------
-                      Total |     91,449      100.00
+                      Total |     92,224      100.00
 
 . 
 . 
@@ -1164,19 +1189,19 @@ Rural village and dispersed |     36,595       40.02      100.00
 care_home_t |
         ype |      Freq.     Percent        Cum.
 ------------+-----------------------------------
-         PC |      4,485        4.90        4.90
-         PN |      4,647        5.08        9.99
-         PS |      4,547        4.97       14.96
-          U |     77,770       85.04      100.00
+         PC |      4,653        5.05        5.05
+         PN |      4,585        4.97       10.02
+         PS |      4,714        5.11       15.13
+          U |     78,272       84.87      100.00
 ------------+-----------------------------------
-      Total |     91,449      100.00
+      Total |     92,224      100.00
 
 . 
 . gen home_bin=0
 
 . replace home_bin=1 if care_home_type=="PC" | care_home_type=="PN" | care_home
 > _type=="PS"
-(13,679 real changes made)
+(13,952 real changes made)
 
 . 
 . tab care_home_type home_bin, m
@@ -1184,12 +1209,12 @@ care_home_t |
 care_home_ |       home_bin
       type |         0          1 |     Total
 -----------+----------------------+----------
-        PC |         0      4,485 |     4,485 
-        PN |         0      4,647 |     4,647 
-        PS |         0      4,547 |     4,547 
-         U |    77,770          0 |    77,770 
+        PC |         0      4,653 |     4,653 
+        PN |         0      4,585 |     4,585 
+        PS |         0      4,714 |     4,714 
+         U |    78,272          0 |    78,272 
 -----------+----------------------+----------
-     Total |    77,770     13,679 |    91,449 
+     Total |    78,272     13,952 |    92,224 
 
 . 
 . label define home_binLab        0 "Private home" ///
@@ -1207,14 +1232,14 @@ care_home_ |       home_bin
 
     Variable |        Obs        Mean    Std. Dev.       Min        Max
 -------------+---------------------------------------------------------
-         age |     91,449    40.15148    23.67439          0        105
+         age |     92,224    40.17425    23.73916          0        105
 
 . gen c_age = age-r(mean)
 
 . 
 . * "Centre" sex to be coded -1 +1 
 . recode male 0=-1, gen(c_male)
-(46770 differences between male and c_male)
+(47188 differences between male and c_male)
 
 . 
 . * "Centre" IMD
@@ -1223,7 +1248,7 @@ care_home_ |       home_bin
 . 
 . * "Centre" ethnicity
 . gen c_ethnicity = ethnicity - 3
-(22,760 missing values generated)
+(23,065 missing values generated)
 
 . 
 . 
@@ -1277,41 +1302,41 @@ care_home_ |       home_bin
 . gen start_week = 53 if study_start <= date("04jan2021", "DMY")
 
 . replace start_week = 52 if study_start <= date("27dec2020", "DMY")
-(78,739 real changes made)
+(79,427 real changes made)
 
 . replace start_week = 51 if study_start <= date("20dec2020", "DMY")
-(67,018 real changes made)
+(67,450 real changes made)
 
 . replace start_week = 50 if study_start <= date("13dec2020", "DMY")
-(54,576 real changes made)
+(54,909 real changes made)
 
 . replace start_week = 49 if study_start <= date("06dec2020", "DMY")
-(41,209 real changes made)
+(41,520 real changes made)
 
 . replace start_week = 48 if study_start <= date("29nov2020", "DMY")
-(27,043 real changes made)
+(27,467 real changes made)
 
 . replace start_week = 47 if study_start <= date("22nov2020", "DMY")
-(12,836 real changes made)
+(12,773 real changes made)
 
 . 
 . tab start_week, m
 
  start_week |      Freq.     Percent        Cum.
 ------------+-----------------------------------
-         47 |     12,836       14.04       14.04
-         48 |     14,207       15.54       29.57
-         49 |     14,166       15.49       45.06
-         50 |     13,367       14.62       59.68
-         51 |     12,442       13.61       73.28
-         52 |     11,721       12.82       86.10
-         53 |     12,710       13.90      100.00
+         47 |     12,773       13.85       13.85
+         48 |     14,694       15.93       29.78
+         49 |     14,053       15.24       45.02
+         50 |     13,389       14.52       59.54
+         51 |     12,541       13.60       73.14
+         52 |     11,977       12.99       86.12
+         53 |     12,797       13.88      100.00
 ------------+-----------------------------------
-      Total |     91,449      100.00
+      Total |     92,224      100.00
 
 . 
 . replace start_week = start_week-46
-(91,449 real changes made)
+(92,224 real changes made)
 
 . 
 . label define start_weekLab      1 "16Nov-22Nov" ///
@@ -1330,15 +1355,15 @@ care_home_ |       home_bin
 
  start_week |      Freq.     Percent        Cum.
 ------------+-----------------------------------
-16Nov-22Nov |     12,836       14.04       14.04
-23Nov-29Nov |     14,207       15.54       29.57
-30Nov-06Dec |     14,166       15.49       45.06
-07Dec-13Dec |     13,367       14.62       59.68
-14Dec-20Dec |     12,442       13.61       73.28
-21Dec-27Dec |     11,721       12.82       86.10
-28Dec-04Jan |     12,710       13.90      100.00
+16Nov-22Nov |     12,773       13.85       13.85
+23Nov-29Nov |     14,694       15.93       29.78
+30Nov-06Dec |     14,053       15.24       45.02
+07Dec-13Dec |     13,389       14.52       59.54
+14Dec-20Dec |     12,541       13.60       73.14
+21Dec-27Dec |     11,977       12.99       86.12
+28Dec-04Jan |     12,797       13.88      100.00
 ------------+-----------------------------------
-      Total |     91,449      100.00
+      Total |     92,224      100.00
 
 . 
 . 
@@ -1377,18 +1402,18 @@ care_home_ |       home_bin
 . * Haematological malignancies
 . gen     cancer_haem_cat = 4 if inrange(haem_cancer_date, d(1/1/1900), `fiveyb
 > efore')
-(74,915 missing values generated)
+(75,635 missing values generated)
 
 . replace cancer_haem_cat = 3 if inrange(haem_cancer_date, `fiveybefore', `oney
 > before')
-(1,397 real changes made)
+(1,415 real changes made)
 
 . replace cancer_haem_cat = 2 if inrange(haem_cancer_date, `oneybefore', study_
 > start)
-(362 real changes made)
+(367 real changes made)
 
 . recode  cancer_haem_cat . = 1
-(cancer_haem_cat: 73156 changes made)
+(cancer_haem_cat: 73853 changes made)
 
 . label values cancer_haem_cat cancer
 
@@ -1398,22 +1423,22 @@ care_home_ |       home_bin
 > eybefore') | ///
 >                                                                  inrange(othe
 > r_cancer_date, d(1/1/1900), `fiveybefore') 
-(61,414 missing values generated)
+(61,987 missing values generated)
 
 . replace cancer_exhaem_cat = 3 if inrange(lung_cancer_date,  `fiveybefore', `o
 > neybefore') | ///
 >                                                                  inrange(othe
 > r_cancer_date, `fiveybefore', `oneybefore') 
-(2,728 real changes made)
+(2,868 real changes made)
 
 . replace cancer_exhaem_cat = 2 if inrange(lung_cancer_date,  `oneybefore', stu
 > dy_start) | ///
 >                                                                  inrange(othe
 > r_cancer_date, `oneybefore', study_start)
-(688 real changes made)
+(760 real changes made)
 
 . recode  cancer_exhaem_cat . = 1
-(cancer_exhaem_cat: 58637 changes made)
+(cancer_exhaem_cat: 59031 changes made)
 
 . label values cancer_exhaem_cat cancer
 
@@ -1449,7 +1474,7 @@ care_home_ |       home_bin
 . gen htdiag_or_highbp = bphigh
 
 . recode htdiag_or_highbp 0 = 1 if hypertension==1 
-(htdiag_or_highbp: 1865 changes made)
+(htdiag_or_highbp: 1891 changes made)
 
 . 
 . 
@@ -1460,67 +1485,67 @@ care_home_ |       home_bin
 . * Set implausible creatinine values to missing (Note: zero changed to missing
 > )
 . replace creatinine = . if !inrange(creatinine, 20, 3000) 
-(4,994 real changes made, 4,994 to missing)
+(4,978 real changes made, 4,978 to missing)
 
 .         
 . * Divide by 88.4 (to convert umol/l to mg/dl)
 . gen SCr_adj = creatinine/88.4
-(4,994 missing values generated)
+(4,978 missing values generated)
 
 . 
 . gen min=.
-(91,449 missing values generated)
+(92,224 missing values generated)
 
 . replace min = SCr_adj/0.7 if male==0
-(44,215 real changes made)
+(44,658 real changes made)
 
 . replace min = SCr_adj/0.9 if male==1
-(42,240 real changes made)
+(42,588 real changes made)
 
 . replace min = min^-0.329  if male==0
-(44,215 real changes made)
+(44,658 real changes made)
 
 . replace min = min^-0.411  if male==1
-(42,240 real changes made)
+(42,588 real changes made)
 
 . replace min = 1 if min<1
-(24,152 real changes made)
+(24,333 real changes made)
 
 . 
 . gen max=.
-(91,449 missing values generated)
+(92,224 missing values generated)
 
 . replace max=SCr_adj/0.7 if male==0
-(44,215 real changes made)
+(44,658 real changes made)
 
 . replace max=SCr_adj/0.9 if male==1
-(42,240 real changes made)
+(42,588 real changes made)
 
 . replace max=max^-1.209
-(86,455 real changes made)
+(87,246 real changes made)
 
 . replace max=1 if max>1
-(67,297 real changes made)
+(67,891 real changes made)
 
 . 
 . * egfr calculated using CKD-EPI formula with no eth
 . gen egfr=min*max*141
-(4,994 missing values generated)
+(4,978 missing values generated)
 
 . replace egfr=egfr*(0.993^age)
-(85,428 real changes made)
+(86,211 real changes made)
 
 . replace egfr=egfr*1.018 if male==0
-(44,215 real changes made)
+(44,658 real changes made)
 
 . 
 . * Categorise into ckd stages
 . * CKD stage calc without eth
 . egen egfr_cat = cut(egfr), at(0, 15, 30, 45, 60, 5000)
-(4994 missing values generated)
+(4978 missing values generated)
 
 . recode egfr_cat 0=5 15=4 30=3 45=2 60=0, generate(ckd)
-(86455 differences between egfr_cat and ckd)
+(87246 differences between egfr_cat and ckd)
 
 . * 0 = "No CKD"  2 "stage 3a" 3 "stage 3b" 4 "stage 4" 5 "stage 5"
 . label define ckd 0 "No CKD" 1 "CKD"
@@ -1533,10 +1558,10 @@ care_home_ |       home_bin
 . *replace chronic_kidney_disease = 0 if creatinine==. 
 . 
 . recode ckd 0=1 2/3=2 4/5=3, gen(reduced_kidney_function_cat)
-(85667 differences between ckd and reduced_kidney_function_cat)
+(86493 differences between ckd and reduced_kidney_function_cat)
 
 . replace reduced_kidney_function_cat = 1 if creatinine==. 
-(4,994 real changes made)
+(4,978 real changes made)
 
 . label define reduced_kidney_function_catlab ///
 >         1 "None" 2 "Stage 3a/3b egfr 30-60      " 3 "Stage 4/5 egfr<30"
@@ -1547,10 +1572,10 @@ care_home_ |       home_bin
 . *More detailed version incorporating stage 5 or dialysis as a separate catego
 > ry 
 . recode ckd 0=1 2/3=2 4=3 5=4, gen(reduced_kidney_function_cat2)
-(85667 differences between ckd and reduced_kidney_function_cat2)
+(86493 differences between ckd and reduced_kidney_function_cat2)
 
 . replace reduced_kidney_function_cat2 = 1 if creatinine==. 
-(4,994 real changes made)
+(4,978 real changes made)
 
 . replace reduced_kidney_function_cat2 = 4 if dialysis==1 
 (18,270 real changes made)
@@ -1572,10 +1597,10 @@ care_home_ |       home_bin
 . 
 . * Set zero or negative to missing
 . replace hba1c_percentage   = . if hba1c_percentage<=0
-(5,122 real changes made, 5,122 to missing)
+(5,051 real changes made, 5,051 to missing)
 
 . replace hba1c_mmol_per_mol = . if hba1c_mmol_per_mol<=0
-(6,525 real changes made, 6,525 to missing)
+(6,574 real changes made, 6,574 to missing)
 
 . 
 . local fifteenmbefore = study_start-15*(365.25/12)
@@ -1583,10 +1608,10 @@ care_home_ |       home_bin
 . 
 . * Only consider measurements in last 15 months
 . replace hba1c_percentage   = . if hba1c_percentage_date   < `fifteenmbefore'
-(85,555 real changes made, 85,555 to missing)
+(86,311 real changes made, 86,311 to missing)
 
 . replace hba1c_mmol_per_mol = . if hba1c_mmol_per_mol_date < `fifteenmbefore'
-(84,243 real changes made, 84,243 to missing)
+(84,722 real changes made, 84,722 to missing)
 
 . 
 . 
@@ -1597,14 +1622,14 @@ care_home_ |       home_bin
 
     Variable |        Obs        Mean    Std. Dev.       Min        Max
 -------------+---------------------------------------------------------
-hba1c_per~ge |        772    5.018657    2.022376    .202022   11.51306
-hba1c_mmol~l |        681    41.91197    19.62306    .073856   103.0563
+hba1c_per~ge |        862    5.015174    1.982298   .0126969   11.72286
+hba1c_mmol~l |        928    40.94739    18.83596    .223903   120.9483
 
 . gen     hba1c_pct = hba1c_percentage 
-(90,677 missing values generated)
+(91,362 missing values generated)
 
 . replace hba1c_pct = (hba1c_mmol_per_mol/10.929)+2.15 if hba1c_mmol_per_mol<. 
-(681 real changes made)
+(928 real changes made)
 
 . 
 . * Valid % range between 0-20  
@@ -1612,7 +1637,7 @@ hba1c_mmol~l |        681    41.91197    19.62306    .073856   103.0563
 (0 real changes made)
 
 . replace hba1c_pct = round(hba1c_pct, 0.1)
-(1,450 real changes made)
+(1,782 real changes made)
 
 . 
 . 
@@ -1620,19 +1645,19 @@ hba1c_mmol~l |        681    41.91197    19.62306    .073856   103.0563
 . 
 . * Group hba1c
 . gen     hba1ccat = 0 if hba1c_pct <  6.5
-(90,450 missing values generated)
+(90,997 missing values generated)
 
 . replace hba1ccat = 1 if hba1c_pct >= 6.5  & hba1c_pct < 7.5
-(221 real changes made)
+(295 real changes made)
 
 . replace hba1ccat = 2 if hba1c_pct >= 7.5  & hba1c_pct < 8
-(69 real changes made)
+(96 real changes made)
 
 . replace hba1ccat = 3 if hba1c_pct >= 8    & hba1c_pct < 9
-(93 real changes made)
+(103 real changes made)
 
 . replace hba1ccat = 4 if hba1c_pct >= 9    & hba1c_pct !=.
-(68 real changes made)
+(61 real changes made)
 
 . label define hba1ccat 0 "<6.5%" 1">=6.5-7.4" 2">=7.5-7.9" 3">=8-8.9" 4">=9"
 
@@ -1642,27 +1667,27 @@ hba1c_mmol~l |        681    41.91197    19.62306    .073856   103.0563
 
    hba1ccat |      Freq.     Percent        Cum.
 ------------+-----------------------------------
-      <6.5% |        999       68.90       68.90
-  >=6.5-7.4 |        221       15.24       84.14
-  >=7.5-7.9 |         69        4.76       88.90
-    >=8-8.9 |         93        6.41       95.31
-        >=9 |         68        4.69      100.00
+      <6.5% |      1,227       68.86       68.86
+  >=6.5-7.4 |        295       16.55       85.41
+  >=7.5-7.9 |         96        5.39       90.80
+    >=8-8.9 |        103        5.78       96.58
+        >=9 |         61        3.42      100.00
 ------------+-----------------------------------
-      Total |      1,450      100.00
+      Total |      1,782      100.00
 
 . 
 . * Create diabetes, split by control/not
 . gen     diabcat = 1 if diabetes==0
-(18,288 missing values generated)
+(18,411 missing values generated)
 
 . replace diabcat = 2 if diabetes==1 & inlist(hba1ccat, 0, 1)
-(235 real changes made)
+(318 real changes made)
 
 . replace diabcat = 3 if diabetes==1 & inlist(hba1ccat, 2, 3, 4)
-(41 real changes made)
+(55 real changes made)
 
 . replace diabcat = 4 if diabetes==1 & !inlist(hba1ccat, 0, 1, 2, 3, 4)
-(18,012 real changes made)
+(18,038 real changes made)
 
 . 
 . label define diabcat    1 "No diabetes"                         ///
@@ -1706,10 +1731,10 @@ chronic_res |
 piratory_di |
       sease |      Freq.     Percent        Cum.
 ------------+-----------------------------------
-          0 |     73,008       79.83       79.83
-          1 |     18,441       20.17      100.00
+          0 |     73,767       79.99       79.99
+          1 |     18,457       20.01      100.00
 ------------+-----------------------------------
-      Total |     91,449      100.00
+      Total |     92,224      100.00
 
 . 
 . *think I need level "3" of this, as this is asthma that requires OCS
@@ -1718,26 +1743,26 @@ piratory_di |
 
    asthmacat |      Freq.     Percent        Cum.
 -------------+-----------------------------------
-          No |     87,706       95.91       95.91
- Yes, no OCS |      1,862        2.04       97.94
-Yes with OCS |      1,881        2.06      100.00
+          No |     88,569       96.04       96.04
+ Yes, no OCS |      1,834        1.99       98.03
+Yes with OCS |      1,821        1.97      100.00
 -------------+-----------------------------------
-       Total |     91,449      100.00
+       Total |     92,224      100.00
 
 . generate asthma_severe=0
 
 . replace asthma_severe=1 if asthmacat==3
-(1,881 real changes made)
+(1,821 real changes made)
 
 . tab asthma_severe
 
 asthma_seve |
          re |      Freq.     Percent        Cum.
 ------------+-----------------------------------
-          0 |     89,568       97.94       97.94
-          1 |      1,881        2.06      100.00
+          0 |     90,403       98.03       98.03
+          1 |      1,821        1.97      100.00
 ------------+-----------------------------------
-      Total |     91,449      100.00
+      Total |     92,224      100.00
 
 . 
 . *(3) cardiac disease
@@ -1747,10 +1772,10 @@ chronic_car |
 diac_diseas |
           e |      Freq.     Percent        Cum.
 ------------+-----------------------------------
-          0 |     73,248       80.10       80.10
-          1 |     18,201       19.90      100.00
+          0 |     73,831       80.06       80.06
+          1 |     18,393       19.94      100.00
 ------------+-----------------------------------
-      Total |     91,449      100.00
+      Total |     92,224      100.00
 
 . 
 . *(4) diabetes
@@ -1758,47 +1783,47 @@ diac_diseas |
 
                    diabcat |      Freq.     Percent        Cum.
 ---------------------------+-----------------------------------
-               No diabetes |     73,161       80.00       80.00
-       Controlled diabetes |        235        0.26       80.26
-     Uncontrolled diabetes |         41        0.04       80.30
-Diabetes, no hba1c measure |     18,012       19.70      100.00
+               No diabetes |     73,813       80.04       80.04
+       Controlled diabetes |        318        0.34       80.38
+     Uncontrolled diabetes |         55        0.06       80.44
+Diabetes, no hba1c measure |     18,038       19.56      100.00
 ---------------------------+-----------------------------------
-                     Total |     91,449      100.00
+                     Total |     92,224      100.00
 
 . tab diabcat, nolabel
 
     diabcat |      Freq.     Percent        Cum.
 ------------+-----------------------------------
-          1 |     73,161       80.00       80.00
-          2 |        235        0.26       80.26
-          3 |         41        0.04       80.30
-          4 |     18,012       19.70      100.00
+          1 |     73,813       80.04       80.04
+          2 |        318        0.34       80.38
+          3 |         55        0.06       80.44
+          4 |     18,038       19.56      100.00
 ------------+-----------------------------------
-      Total |     91,449      100.00
+      Total |     92,224      100.00
 
 . generate dm=0
 
 . replace dm=1 if diabcat>1
-(18,288 real changes made)
+(18,411 real changes made)
 
 . tab dm
 
          dm |      Freq.     Percent        Cum.
 ------------+-----------------------------------
-          0 |     73,161       80.00       80.00
-          1 |     18,288       20.00      100.00
+          0 |     73,813       80.04       80.04
+          1 |     18,411       19.96      100.00
 ------------+-----------------------------------
-      Total |     91,449      100.00
+      Total |     92,224      100.00
 
 . tab dm diabcat
 
            |                   diabcat
         dm | No diabet  Controlle  Uncontrol  Diabetes, |     Total
 -----------+--------------------------------------------+----------
-         0 |    73,161          0          0          0 |    73,161 
-         1 |         0        235         41     18,012 |    18,288 
+         0 |    73,813          0          0          0 |    73,813 
+         1 |         0        318         55     18,038 |    18,411 
 -----------+--------------------------------------------+----------
-     Total |    73,161        235         41     18,012 |    91,449 
+     Total |    73,813        318         55     18,038 |    92,224 
 
 . 
 . *(5) non-haem cancer (in previous year)
@@ -1807,39 +1832,39 @@ Diabetes, no hba1c measure |     18,012       19.70      100.00
 cancer_exhaem |
          _cat |      Freq.     Percent        Cum.
 --------------+-----------------------------------
-        Never |     58,637       64.12       64.12
-    Last year |        688        0.75       64.87
-2-5 years ago |      2,712        2.97       67.84
-     5+ years |     29,412       32.16      100.00
+        Never |     59,031       64.01       64.01
+    Last year |        760        0.82       64.83
+2-5 years ago |      2,859        3.10       67.93
+     5+ years |     29,574       32.07      100.00
 --------------+-----------------------------------
-        Total |     91,449      100.00
+        Total |     92,224      100.00
 
 . tab cancer_exhaem, nolab
 
 cancer_exha |
      em_cat |      Freq.     Percent        Cum.
 ------------+-----------------------------------
-          1 |     58,637       64.12       64.12
-          2 |        688        0.75       64.87
-          3 |      2,712        2.97       67.84
-          4 |     29,412       32.16      100.00
+          1 |     59,031       64.01       64.01
+          2 |        760        0.82       64.83
+          3 |      2,859        3.10       67.93
+          4 |     29,574       32.07      100.00
 ------------+-----------------------------------
-      Total |     91,449      100.00
+      Total |     92,224      100.00
 
 . generate cancer_nonhaemPrevYear=0
 
 . replace cancer_nonhaemPrevYear=1 if cancer_exhaem_cat==2
-(688 real changes made)
+(760 real changes made)
 
 . tab cancer_nonhaemPrevYear
 
 cancer_nonh |
 aemPrevYear |      Freq.     Percent        Cum.
 ------------+-----------------------------------
-          0 |     90,761       99.25       99.25
-          1 |        688        0.75      100.00
+          0 |     91,464       99.18       99.18
+          1 |        760        0.82      100.00
 ------------+-----------------------------------
-      Total |     91,449      100.00
+      Total |     92,224      100.00
 
 . 
 . *(6) haem cancer (within previous 5 years)
@@ -1848,39 +1873,39 @@ aemPrevYear |      Freq.     Percent        Cum.
 cancer_haem_c |
            at |      Freq.     Percent        Cum.
 --------------+-----------------------------------
-        Never |     73,156       80.00       80.00
-    Last year |        362        0.40       80.39
-2-5 years ago |      1,397        1.53       81.92
-     5+ years |     16,534       18.08      100.00
+        Never |     73,853       80.08       80.08
+    Last year |        367        0.40       80.48
+2-5 years ago |      1,415        1.53       82.01
+     5+ years |     16,589       17.99      100.00
 --------------+-----------------------------------
-        Total |     91,449      100.00
+        Total |     92,224      100.00
 
 . tab cancer_haem, nolab
 
 cancer_haem |
        _cat |      Freq.     Percent        Cum.
 ------------+-----------------------------------
-          1 |     73,156       80.00       80.00
-          2 |        362        0.40       80.39
-          3 |      1,397        1.53       81.92
-          4 |     16,534       18.08      100.00
+          1 |     73,853       80.08       80.08
+          2 |        367        0.40       80.48
+          3 |      1,415        1.53       82.01
+          4 |     16,589       17.99      100.00
 ------------+-----------------------------------
-      Total |     91,449      100.00
+      Total |     92,224      100.00
 
 . generate cancer_haemPrev5Years=0
 
 . replace cancer_haemPrev5Years=1 if inrange(cancer_haem_cat,2,3)
-(1,759 real changes made)
+(1,782 real changes made)
 
 . tab cancer_haemPrev5Years
 
 cancer_haem |
  Prev5Years |      Freq.     Percent        Cum.
 ------------+-----------------------------------
-          0 |     89,690       98.08       98.08
-          1 |      1,759        1.92      100.00
+          0 |     90,442       98.07       98.07
+          1 |      1,782        1.93      100.00
 ------------+-----------------------------------
-      Total |     91,449      100.00
+      Total |     92,224      100.00
 
 . 
 . *(7) liver disease
@@ -1889,10 +1914,10 @@ cancer_haem |
 chronic_liv |
  er_disease |      Freq.     Percent        Cum.
 ------------+-----------------------------------
-          0 |     73,261       80.11       80.11
-          1 |     18,188       19.89      100.00
+          0 |     74,006       80.25       80.25
+          1 |     18,218       19.75      100.00
 ------------+-----------------------------------
-      Total |     91,449      100.00
+      Total |     92,224      100.00
 
 . 
 . *(8 and 9) stroke or dementia
@@ -1901,10 +1926,10 @@ chronic_liv |
 stroke_deme |
        ntia |      Freq.     Percent        Cum.
 ------------+-----------------------------------
-          0 |     58,738       64.23       64.23
-          1 |     32,711       35.77      100.00
+          0 |     59,237       64.23       64.23
+          1 |     32,987       35.77      100.00
 ------------+-----------------------------------
-      Total |     91,449      100.00
+      Total |     92,224      100.00
 
 . 
 . *(10) poor kidney function
@@ -1913,11 +1938,11 @@ stroke_deme |
     RECODE of ckd (RECODE of |
                    egfr_cat) |      Freq.     Percent        Cum.
 -----------------------------+-----------------------------------
-                        None |     72,546       79.33       79.33
-Stage 3a/3b egfr 30-60       |        633        0.69       80.02
-Stage 5 egfr <15 or dialysis |     18,270       19.98      100.00
+                        None |     73,359       79.54       79.54
+Stage 3a/3b egfr 30-60       |        595        0.65       80.19
+Stage 5 egfr <15 or dialysis |     18,270       19.81      100.00
 -----------------------------+-----------------------------------
-                       Total |     91,449      100.00
+                       Total |     92,224      100.00
 
 . tab reduced_kidney_function_cat2, nolabel
 
@@ -1926,16 +1951,16 @@ ckd (RECODE |
          of |
   egfr_cat) |      Freq.     Percent        Cum.
 ------------+-----------------------------------
-          1 |     72,546       79.33       79.33
-          2 |        633        0.69       80.02
-          4 |     18,270       19.98      100.00
+          1 |     73,359       79.54       79.54
+          2 |        595        0.65       80.19
+          4 |     18,270       19.81      100.00
 ------------+-----------------------------------
-      Total |     91,449      100.00
+      Total |     92,224      100.00
 
 . gen egfr60 = 0
 
 . replace egfr60 = 1 if reduced_kidney_function_cat2 > 1
-(18,903 real changes made)
+(18,865 real changes made)
 
 . tab egfr60 reduced_kidney_function_cat2
 
@@ -1943,10 +1968,10 @@ ckd (RECODE |
            |            egfr_cat)
     egfr60 |      None  Stage 3a/  Stage 5 e |     Total
 -----------+---------------------------------+----------
-         0 |    72,546          0          0 |    72,546 
-         1 |         0        633     18,270 |    18,903 
+         0 |    73,359          0          0 |    73,359 
+         1 |         0        595     18,270 |    18,865 
 -----------+---------------------------------+----------
-     Total |    72,546        633     18,270 |    91,449 
+     Total |    73,359        595     18,270 |    92,224 
 
 . 
 . *(11) organ transplant
@@ -1955,10 +1980,10 @@ ckd (RECODE |
 organ_trans |
       plant |      Freq.     Percent        Cum.
 ------------+-----------------------------------
-          0 |     73,286       80.14       80.14
-          1 |     18,163       19.86      100.00
+          0 |     73,804       80.03       80.03
+          1 |     18,420       19.97      100.00
 ------------+-----------------------------------
-      Total |     91,449      100.00
+      Total |     92,224      100.00
 
 . 
 . *(12) asplenia
@@ -1966,10 +1991,10 @@ organ_trans |
 
      spleen |      Freq.     Percent        Cum.
 ------------+-----------------------------------
-          0 |     58,977       64.49       64.49
-          1 |     32,472       35.51      100.00
+          0 |     59,287       64.29       64.29
+          1 |     32,937       35.71      100.00
 ------------+-----------------------------------
-      Total |     91,449      100.00
+      Total |     92,224      100.00
 
 . 
 . *(13) other immunosuppression
@@ -1979,10 +2004,10 @@ other_immun |
 osuppressio |
           n |      Freq.     Percent        Cum.
 ------------+-----------------------------------
-          0 |     58,358       63.81       63.81
-          1 |     33,091       36.19      100.00
+          0 |     58,531       63.47       63.47
+          1 |     33,693       36.53      100.00
 ------------+-----------------------------------
-      Total |     91,449      100.00
+      Total |     92,224      100.00
 
 . 
 . *create a total comborb var
@@ -2000,31 +2025,31 @@ osuppressio |
       Percentiles      Smallest
  1%            0              0
  5%            0              0
-10%            1              0       Obs              91,449
-25%            1              0       Sum of Wgt.      91,449
+10%            1              0       Obs              92,224
+25%            1              0       Sum of Wgt.      92,224
 
-50%            2                      Mean           2.326827
-                        Largest       Std. Dev.      1.302902
+50%            2                      Mean           2.328505
+                        Largest       Std. Dev.      1.307439
 75%            3              8
-90%            4              8       Variance       1.697553
-95%            5              8       Skewness       .3584809
-99%            6              9       Kurtosis       2.922237
+90%            4              8       Variance       1.709396
+95%            5              8       Skewness       .3618087
+99%            6              8       Kurtosis       2.925902
 
 . order totComorbsOfInterest
 
 . 
 . *create the covariate var I need
 . generate comorb_cat=.
-(91,449 missing values generated)
+(92,224 missing values generated)
 
 . replace comorb_cat=0 if totComorbsOfInterest==0
-(6,067 real changes made)
+(6,155 real changes made)
 
 . replace comorb_cat=1 if totComorbsOfInterest==1
-(19,337 real changes made)
+(19,567 real changes made)
 
 . replace comorb_cat=2 if totComorbsOfInterest>1
-(66,045 real changes made)
+(66,502 real changes made)
 
 . 
 . label define comorb_catLab      0 "No comorbidity"      ///
@@ -2039,11 +2064,11 @@ osuppressio |
 
       comorb_cat |      Freq.     Percent        Cum.
 -----------------+-----------------------------------
-  No comorbidity |      6,067        6.63        6.63
-   1 comorbidity |     19,337       21.15       27.78
-2+ comorbidities |     66,045       72.22      100.00
+  No comorbidity |      6,155        6.67        6.67
+   1 comorbidity |     19,567       21.22       27.89
+2+ comorbidities |     66,502       72.11      100.00
 -----------------+-----------------------------------
-           Total |     91,449      100.00
+           Total |     92,224      100.00
 
 . 
 . 
@@ -2079,15 +2104,15 @@ REMEMBER TO UPDATE DATE OF ONS DATA UPLOAD
       Percentiles      Smallest
  1%           28             28
  5%           29             28
-10%           31             28       Obs              63,511
-25%           36             28       Sum of Wgt.      63,511
+10%           31             28       Obs              64,091
+25%           36             28       Sum of Wgt.      64,091
 
-50%           44                      Mean           44.01378
-                        Largest       Std. Dev.      9.180802
+50%           44                      Mean           43.97385
+                        Largest       Std. Dev.      9.184907
 75%           52             59
-90%           57             59       Variance       84.28712
-95%           58             59       Skewness      -.0603109
-99%           59             59       Kurtosis       1.810777
+90%           56             59       Variance       84.36252
+95%           58             59       Skewness      -.0686519
+99%           59             59       Kurtosis       1.812808
 
 . 
 . * 40-day risk population
@@ -2103,15 +2128,15 @@ REMEMBER TO UPDATE DATE OF ONS DATA UPLOAD
       Percentiles      Smallest
  1%           40             40
  5%           41             40
-10%           42             40       Obs              41,209
-25%           45             40       Sum of Wgt.      41,209
+10%           42             40       Obs              41,520
+25%           45             40       Sum of Wgt.      41,520
 
-50%           50                      Mean           49.63899
-                        Largest       Std. Dev.       5.78022
+50%           50                      Mean           49.62642
+                        Largest       Std. Dev.      5.741596
 75%           55             59
-90%           58             59       Variance       33.41094
-95%           59             59       Skewness      -.0316591
-99%           59             59       Kurtosis       1.784456
+90%           58             59       Variance       32.96593
+95%           58             59       Skewness      -.0330027
+99%           59             59       Kurtosis       1.802051
 
 . 
 . /*   Outcomes   */
@@ -2120,7 +2145,7 @@ REMEMBER TO UPDATE DATE OF ONS DATA UPLOAD
 . gen died_pre_cens = (died_date_ons < ons_data_cens)
 
 . gen death_time = died_date_ons-study_start if died_pre_cens == 1
-(89,591 missing values generated)
+(90,497 missing values generated)
 
 . summ death_time, d
 
@@ -2129,15 +2154,15 @@ REMEMBER TO UPDATE DATE OF ONS DATA UPLOAD
       Percentiles      Smallest
  1%            1              1
  5%            2              1
-10%            4              1       Obs               1,858
-25%            9              1       Sum of Wgt.       1,858
+10%            4              1       Obs               1,727
+25%            9              1       Sum of Wgt.       1,727
 
-50%           19                      Mean           20.64801
-                        Largest       Std. Dev.      13.83415
-75%           30             57
-90%           42             57       Variance       191.3838
-95%           47             58       Skewness        .547117
-99%           54             58       Kurtosis       2.407948
+50%           19                      Mean           20.87435
+                        Largest       Std. Dev.      13.65104
+75%           31             56
+90%           41             57       Variance       186.3509
+95%           46             57       Skewness        .471957
+99%           54             58       Kurtosis       2.326848
 
 . 
 . gen risk_28 = (death_time <= 28)
@@ -2154,14 +2179,14 @@ REMEMBER TO UPDATE DATE OF ONS DATA UPLOAD
 died_pre_c |        risk_28
        ens |         0          1 |     Total
 -----------+----------------------+----------
-         0 |    89,591          0 |    89,591 
+         0 |    90,497          0 |    90,497 
            |    100.00       0.00 |    100.00 
 -----------+----------------------+----------
-         1 |       518      1,340 |     1,858 
-           |     27.88      72.12 |    100.00 
+         1 |       499      1,228 |     1,727 
+           |     28.89      71.11 |    100.00 
 -----------+----------------------+----------
-     Total |    90,109      1,340 |    91,449 
-           |     98.53       1.47 |    100.00 
+     Total |    90,996      1,228 |    92,224 
+           |     98.67       1.33 |    100.00 
 
 . 
 . * 40-day risk indicator
@@ -2179,21 +2204,21 @@ died_pre_c |        risk_28
 died_pre_c |        risk_40
        ens |         0          1 |     Total
 -----------+----------------------+----------
-         0 |    89,591          0 |    89,591 
+         0 |    90,497          0 |    90,497 
            |    100.00       0.00 |    100.00 
 -----------+----------------------+----------
-         1 |       209      1,649 |     1,858 
-           |     11.25      88.75 |    100.00 
+         1 |       175      1,552 |     1,727 
+           |     10.13      89.87 |    100.00 
 -----------+----------------------+----------
-     Total |    89,800      1,649 |    91,449 
-           |     98.20       1.80 |    100.00 
+     Total |    90,672      1,552 |    92,224 
+           |     98.32       1.68 |    100.00 
 
 . 
 . /* Survival time */
 . 
 . * Censoring date for Cox
 . gen vacc_cens = covid_vacc_date - 7 if covid_vacc_date != .
-(75,083 missing values generated)
+(75,631 missing values generated)
 
 . gen cox_pop = (study_start < vacc_cens)                 // Exclude if vaccina
 > ted within 7 days
@@ -2206,7 +2231,7 @@ died_pre_c |        risk_40
 . gen cox_death = (died_date_ons < .)
 
 . replace cox_death = 0 if (died_date_ons > stime_death)
-(1,387 real changes made)
+(1,491 real changes made)
 
 . 
 . gen cox_time = stime_death-study_start
@@ -2480,5 +2505,5 @@ file ./output/cr_analysis_dataset.dta saved
       name:  <unnamed>
        log:  /workspace/logs/cr_analysis_dataset.log
   log type:  text
- closed on:  10 Feb 2021, 17:27:42
+ closed on:  11 Feb 2021, 11:40:33
 -------------------------------------------------------------------------------

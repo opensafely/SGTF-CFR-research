@@ -476,9 +476,11 @@ egen imd = cut(imd_o), group(5) icodes
 replace imd = imd + 1
 replace imd = . if imd_o==-1
 drop imd_o
+tab imd
 
 * Reverse the order (so high is more deprived)
 recode imd 5=1 4=2 3=3 2=4 1=5 .=.
+tab imd
 
 label define imdLab 1 "1 least deprived" 2 "2" 3 "3" 4 "4" 5 "5 most deprived" 
 label values imd imdLab 

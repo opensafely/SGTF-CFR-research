@@ -1,0 +1,648 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /workspace/logs/an_cox_models.log
+  log type:  text
+ opened on:  11 Feb 2021, 12:20:22
+
+. 
+. clear
+
+. 
+. /*
+> use "C:\Users\EIDEDGRI\Documents\GitHub\SGTF-CFR-research\output\cr_analysis_
+> dataset.dta"
+> */
+. 
+. use ./output/cr_analysis_dataset.dta
+(SGTF CFR ANALYSIS DATASET: 11 Feb 2021)
+
+. 
+. noi di "SUBSETTING ON COX CENSORED POPULATION"
+SUBSETTING ON COX CENSORED POPULATION
+
+. keep if cox_pop==1
+(1,474 observations deleted)
+
+. 
+. tab sgtf cox_death, row
+
++----------------+
+| Key            |
+|----------------|
+|   frequency    |
+| row percentage |
++----------------+
+
+ Exposure: |
+    0=VOC; |    Outcome for Cox
+ 1=non-VOC |         0          1 |     Total
+-----------+----------------------+----------
+   non-VOC |    44,087        655 |    44,742 
+           |     98.54       1.46 |    100.00 
+-----------+----------------------+----------
+       VOC |    45,027        981 |    46,008 
+           |     97.87       2.13 |    100.00 
+-----------+----------------------+----------
+     Total |    89,114      1,636 |    90,750 
+           |     98.20       1.80 |    100.00 
+
+. 
+. 
+. *******************
+. /* Unadjusted HR */
+. *******************
+. 
+. stset stime_death, origin(study_start) fail(cox_death) scale(1) id(patient_id
+> )
+
+                id:  patient_id
+     failure event:  cox_death != 0 & cox_death < .
+obs. time interval:  (stime_death[_n-1], stime_death]
+ exit on or before:  failure
+    t for analysis:  (time-origin)
+            origin:  time study_start
+
+------------------------------------------------------------------------------
+     90,750  total observations
+          0  exclusions
+------------------------------------------------------------------------------
+     90,750  observations remaining, representing
+     90,750  subjects
+      1,636  failures in single-failure-per-subject data
+  3,072,340  total analysis time at risk and under observation
+                                                at risk from t =         0
+                                     earliest observed entry t =         0
+                                          last observed exit t =        59
+
+. 
+. stcox i.sgtf
+
+         failure _d:  cox_death
+   analysis time _t:  (stime_death-origin)
+             origin:  time study_start
+                 id:  patient_id
+
+Iteration 0:   log likelihood = -18067.377
+Iteration 1:   log likelihood = -18038.981
+Iteration 2:   log likelihood = -18038.975
+Refining estimates:
+Iteration 0:   log likelihood = -18038.975
+
+Cox regression -- Breslow method for ties
+
+No. of subjects =       90,750                  Number of obs    =      90,750
+No. of failures =        1,636
+Time at risk    =      3072340
+                                                LR chi2(1)       =       56.80
+Log likelihood  =   -18038.975                  Prob > chi2      =      0.0000
+
+------------------------------------------------------------------------------
+          _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   1.457375   .0735374     7.46   0.000     1.320142    1.608873
+------------------------------------------------------------------------------
+
+. 
+. * Stratified by STP
+. stcox i.sgtf, strata(stp)
+
+         failure _d:  cox_death
+   analysis time _t:  (stime_death-origin)
+             origin:  time study_start
+                 id:  patient_id
+
+Iteration 0:   log likelihood = -14299.578
+Iteration 1:   log likelihood = -14271.157
+Iteration 2:   log likelihood = -14271.152
+Refining estimates:
+Iteration 0:   log likelihood = -14271.152
+
+Stratified Cox regr. -- Breslow method for ties
+
+No. of subjects =       90,750                  Number of obs    =      90,750
+No. of failures =        1,636
+Time at risk    =      3072340
+                                                LR chi2(1)       =       56.85
+Log likelihood  =   -14271.152                  Prob > chi2      =      0.0000
+
+------------------------------------------------------------------------------
+          _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   1.457682   .0735612     7.47   0.000     1.320405    1.609231
+------------------------------------------------------------------------------
+                                                             Stratified by stp
+
+. 
+. * Test for non-PH
+. stphtest, log detail
+
+      Test of proportional-hazards assumption
+
+      Time:  Log(t)
+      ----------------------------------------------------------------
+                  |       rho            chi2       df       Prob>chi2
+      ------------+---------------------------------------------------
+      0b.sgtf     |            .            .        1             .
+      1.sgtf      |     -0.00071         0.00        1         0.9770
+      ------------+---------------------------------------------------
+      global test |                      0.00        1         0.9770
+      ----------------------------------------------------------------
+
+. 
+. * Plot scaled schoenfeld residuals
+. stphtest, plot(1.sgtf) yline(0)
+
+. graph export ./output/unadj_cox_shoen.svg, as(svg) replace
+(note: file ./output/unadj_cox_shoen.svg not found)
+(file ./output/unadj_cox_shoen.svg written in SVG format)
+
+. 
+. * KM plot
+. sts graph,      surv by(sgtf) ///
+>                         ylabel(0.8(0.05)1) ///
+>                         legend(label(1 "non-VOC") label(2 "VOC"))
+
+         failure _d:  cox_death
+   analysis time _t:  (stime_death-origin)
+             origin:  time study_start
+                 id:  patient_id
+
+. graph export ./output/unadj_cox_km.svg, as(svg) replace
+(note: file ./output/unadj_cox_km.svg not found)
+(file ./output/unadj_cox_km.svg written in SVG format)
+
+.                 
+. * Smoothed hazard plot
+. sts graph,      haz by(sgtf) ///
+>                         legend(label(1 "non-VOC") label(2 "VOC"))
+
+         failure _d:  cox_death
+   analysis time _t:  (stime_death-origin)
+             origin:  time study_start
+                 id:  patient_id
+
+. graph export ./output/unadj_cox_haz.svg, as(svg) replace
+(note: file ./output/unadj_cox_haz.svg not found)
+(file ./output/unadj_cox_haz.svg written in SVG format)
+
+. 
+. 
+. 
+. *********************************************************************
+. /* Demographically adjusted HR - age as spline, continuous hh size */
+. /* Not adjusting for comorbidities, obesity, or smoking status     */
+. *********************************************************************
+. 
+. * Stratified by STP
+. stcox i.sgtf i.male ib1.imd ib1.eth5 household_size ///
+>                          ib1.rural_urban5 ib1.start_week age1 age2 age3, stra
+> ta(stp)
+
+         failure _d:  cox_death
+   analysis time _t:  (stime_death-origin)
+             origin:  time study_start
+                 id:  patient_id
+
+Iteration 0:   log likelihood = -10316.174
+Iteration 1:   log likelihood = -10290.286
+Iteration 2:   log likelihood = -10290.269
+Iteration 3:   log likelihood = -10290.269
+Refining estimates:
+Iteration 0:   log likelihood = -10290.269
+
+Stratified Cox regr. -- Breslow method for ties
+
+No. of subjects =       68,041                  Number of obs    =      68,041
+No. of failures =        1,220
+Time at risk    =      2305165
+                                                LR chi2(24)      =       51.81
+Log likelihood  =   -10290.269                  Prob > chi2      =      0.0008
+
+------------------------------------------------------------------------------
+          _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   1.449391   .0846738     6.35   0.000     1.292582    1.625223
+             |
+        male |
+          M  |   1.012583   .0580102     0.22   0.827     .9050356     1.13291
+             |
+         imd |
+          2  |   1.022252   .0834741     0.27   0.788     .8710671    1.199678
+          3  |   .9895925   .0815961    -0.13   0.899     .8419207    1.163166
+          4  |   1.007901   .0827894     0.10   0.924     .8580246    1.183957
+5 most de..  |    .876036   .0965224    -1.20   0.230     .7058881    1.087196
+             |
+        eth5 |
+South Asian  |   1.010509   .1337376     0.08   0.937     .7796258    1.309766
+      Black  |   1.127197   .1448056     0.93   0.351     .8762949    1.449939
+      Mixed  |   1.095245   .1377947     0.72   0.470      .855894     1.40153
+      Other  |   1.026212   .0976416     0.27   0.786     .8516226    1.236593
+             |
+household_~e |   .9711693   .0267698    -1.06   0.289     .9200937     1.02508
+             |
+rural_urban5 |
+Urban min..  |   .9266308   .1220952    -0.58   0.563     .7157317    1.199674
+Urban cit..  |   1.022957   .1138423     0.20   0.838     .8224876    1.272288
+Rural tow..  |   1.056569   .1168819     0.50   0.619     .8506183    1.312385
+Rural vil..  |   1.030473   .1045428     0.30   0.767     .8446585    1.257164
+             |
+  start_week |
+23Nov-29Nov  |   1.056973   .0935704     0.63   0.531     .8886071     1.25724
+30Nov-06Dec  |   .9810835   .0939274    -0.20   0.842     .8132298    1.183583
+07Dec-13Dec  |   1.024744   .1051668     0.24   0.812     .8380283     1.25306
+14Dec-20Dec  |   1.050021   .1166521     0.44   0.660     .8445665    1.305456
+21Dec-27Dec  |   .9254096   .1203914    -0.60   0.551     .7171281    1.194184
+28Dec-04Jan  |   1.207102   .1648665     1.38   0.168     .9236057    1.577617
+             |
+        age1 |   .9951916   .0058528    -0.82   0.412     .9837863    1.006729
+        age2 |   1.013221    .019544     0.68   0.496     .9756308     1.05226
+        age3 |   .9660741    .052843    -0.63   0.528     .8678623      1.0754
+------------------------------------------------------------------------------
+                                                             Stratified by stp
+
+. 
+.                          
+.                          
+. *********************************************************************
+. /* Demographically adjusted HR - age grouped, cat hh size                  */
+. /* Not adjusting for comorbidities, obesity, or smoking status     */
+. *********************************************************************
+. 
+. * Stratified by STP
+. stcox i.sgtf i.male ib1.imd ib1.eth5 ib1.hh_total_cat ///
+>                          ib1.rural_urban5 ib1.start_week i.agegroup, strata(s
+> tp)
+
+         failure _d:  cox_death
+   analysis time _t:  (stime_death-origin)
+             origin:  time study_start
+                 id:  patient_id
+
+Iteration 0:   log likelihood = -10011.735
+Iteration 1:   log likelihood = -9981.5679
+Iteration 2:   log likelihood = -9981.5385
+Iteration 3:   log likelihood = -9981.5384
+Refining estimates:
+Iteration 0:   log likelihood = -9981.5384
+
+Stratified Cox regr. -- Breslow method for ties
+
+No. of subjects =       66,471                  Number of obs    =      66,471
+No. of failures =        1,187
+Time at risk    =      2251904
+                                                LR chi2(29)      =       60.39
+Log likelihood  =   -9981.5384                  Prob > chi2      =      0.0006
+
+------------------------------------------------------------------------------
+          _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |     1.4662   .0869531     6.45   0.000     1.305307    1.646924
+             |
+        male |
+          M  |   1.027797   .0596901     0.47   0.637     .9172195    1.151706
+             |
+         imd |
+          2  |   1.039371   .0858039     0.47   0.640     .8840983    1.221913
+          3  |   .9823245   .0824129    -0.21   0.832     .8333793     1.15789
+          4  |   1.014094   .0844269     0.17   0.866     .8614159    1.193834
+5 most de..  |   .8783024   .0981864    -1.16   0.246     .7054841    1.093455
+             |
+        eth5 |
+South Asian  |   1.019388   .1360684     0.14   0.886     .7847312    1.324215
+      Black  |   1.138876   .1474996     1.00   0.315     .8835568    1.467974
+      Mixed  |   1.079178   .1387738     0.59   0.553      .838755    1.388516
+      Other  |   .9985311   .0972191    -0.02   0.988     .8250625    1.208471
+             |
+hh_total_cat |
+        3-5  |    .929872   .0540283    -1.25   0.211     .8297855    1.042031
+       6-10  |   .5457555   .5463532    -0.60   0.545     .0767122    3.882682
+             |
+rural_urban5 |
+Urban min..  |   .9164781   .1221338    -0.65   0.513     .7058093    1.190027
+Urban cit..  |   1.012865    .113914     0.11   0.910     .8124921    1.262652
+Rural tow..  |   1.044195   .1167049     0.39   0.699     .8387771    1.299919
+Rural vil..  |   1.016288      .1041     0.16   0.875     .8314321    1.242243
+             |
+  start_week |
+23Nov-29Nov  |   1.059725    .094927     0.65   0.517     .8890889     1.26311
+30Nov-06Dec  |    .976982   .0947384    -0.24   0.810     .8078768    1.181484
+07Dec-13Dec  |    1.00728   .1051019     0.07   0.945     .8209827    1.235853
+14Dec-20Dec  |   1.037334   .1167688     0.33   0.745     .8319596    1.293407
+21Dec-27Dec  |   .9281594   .1216401    -0.57   0.569      .717907    1.199988
+28Dec-04Jan  |   1.180216   .1638393     1.19   0.233     .8990762    1.549268
+             |
+    agegroup |
+     18-<30  |   .9008067   .0862108    -1.09   0.275      .746738    1.086663
+     30-<40  |   .8167668   .0846631    -1.95   0.051     .6666004    1.000761
+     40-<50  |   .9256754    .093412    -0.77   0.444     .7595599     1.12812
+     50-<60  |    .846537   .0865474    -1.63   0.103      .692822    1.034356
+     60-<70  |   1.024731    .105498     0.24   0.812     .8374855    1.253842
+     70-<80  |   .8701124   .1042605    -1.16   0.246     .6879881    1.100449
+        80+  |   .8397849   .1239693    -1.18   0.237     .6288013     1.12156
+------------------------------------------------------------------------------
+                                                             Stratified by stp
+
+. 
+. 
+.                          
+. ***********************************************************
+. /* Fully adjusted HR - age as spline, continuous hh size */
+. ***********************************************************
+. 
+. * Stratified by STP
+. stcox i.sgtf i.male ib1.imd ib1.eth5 ib1.smoke_nomiss ib1.obese4cat household
+> _size ///
+>                          ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 
+> age2 age3, strata(stp)
+
+         failure _d:  cox_death
+   analysis time _t:  (stime_death-origin)
+             origin:  time study_start
+                 id:  patient_id
+
+Iteration 0:   log likelihood = -10316.174
+Iteration 1:   log likelihood = -10286.643
+Iteration 2:   log likelihood = -10286.617
+Iteration 3:   log likelihood = -10286.617
+Refining estimates:
+Iteration 0:   log likelihood = -10286.617
+
+Stratified Cox regr. -- Breslow method for ties
+
+No. of subjects =       68,041                  Number of obs    =      68,041
+No. of failures =        1,220
+Time at risk    =      2305165
+                                                LR chi2(31)      =       59.11
+Log likelihood  =   -10286.617                  Prob > chi2      =      0.0017
+
+------------------------------------------------------------------------------
+          _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   1.449323   .0846742     6.35   0.000     1.292514    1.625156
+             |
+        male |
+          M  |   1.012246   .0579968     0.21   0.832     .9047245    1.132546
+             |
+         imd |
+          2  |   1.022683   .0835143     0.27   0.784     .8714255    1.200195
+          3  |   .9902432   .0816549    -0.12   0.905     .8424658    1.163942
+          4  |   1.008274   .0828242     0.10   0.920     .8583356    1.184405
+5 most de..  |   .8755754   .0964754    -1.21   0.228     .7055111    1.086634
+             |
+        eth5 |
+South Asian  |   1.009577   .1336262     0.07   0.943     .7788892    1.308589
+      Black  |   1.127416   .1448396     0.93   0.351     .8764558    1.450235
+      Mixed  |   1.092792   .1374948     0.71   0.481     .8539643    1.398414
+      Other  |   1.026103   .0976366     0.27   0.787     .8515241    1.236475
+             |
+smoke_nomiss |
+     Former  |   1.122913   .2151143     0.61   0.545      .771406    1.634591
+    Current  |   .8752266   .0813438    -1.43   0.152     .7294737    1.050102
+             |
+   obese4cat |
+Obese I ..)  |   .8596819   .0722905    -1.80   0.072     .7290552    1.013713
+Obese II..)  |   1.041958   .0825738     0.52   0.604      .892059    1.217045
+Obese II..)  |   1.001432   .0742835     0.02   0.985     .8659272     1.15814
+             |
+household_~e |   .9718022   .0267927    -1.04   0.300      .920683     1.02576
+             |
+rural_urban5 |
+Urban min..  |   .9281237   .1222995    -0.57   0.571     .7168734    1.201626
+Urban cit..  |   1.021832   .1137219     0.19   0.846     .8215755    1.270901
+Rural tow..  |   1.056699   .1168988     0.50   0.618     .8507186    1.312553
+Rural vil..  |   1.030475   .1045509     0.30   0.767     .8446477    1.257186
+             |
+  comorb_cat |
+1 comorbi..  |   1.013242   .1289762     0.10   0.918     .7895201    1.300359
+2+ comorb..  |   1.018963   .1183613     0.16   0.872      .811492    1.279478
+             |
+  start_week |
+23Nov-29Nov  |   1.058996   .0937577     0.65   0.517      .890294    1.259664
+30Nov-06Dec  |   .9804824   .0938756    -0.21   0.837     .8127222    1.182871
+07Dec-13Dec  |   1.024989   .1051947     0.24   0.810     .8382241    1.253366
+14Dec-20Dec  |   1.049903   .1166413     0.44   0.661     .8444679    1.305315
+21Dec-27Dec  |   .9260775   .1204794    -0.59   0.555     .7176439    1.195049
+28Dec-04Jan  |   1.208315   .1650337     1.39   0.166     .9245312    1.579206
+             |
+        age1 |   .9952441    .005854    -0.81   0.418     .9838363    1.006784
+        age2 |   1.013108   .0195455     0.68   0.500      .975515     1.05215
+        age3 |   .9663805   .0528718    -0.63   0.532     .8681163    1.075767
+------------------------------------------------------------------------------
+                                                             Stratified by stp
+
+. 
+. 
+. 
+. **************************************************
+. /* Fully adjusted HR - age grouped, cat hh size */
+. **************************************************
+. 
+. * Stratified by STP
+. stcox i.sgtf i.agegroup i.male ib1.imd ib1.eth5 ib1.smoke_nomiss ib1.obese4ca
+> t ///
+>                          ib1.hh_total_cat ib1.rural_urban5 ib0.comorb_cat ib1
+> .start_week, strata(stp)
+
+         failure _d:  cox_death
+   analysis time _t:  (stime_death-origin)
+             origin:  time study_start
+                 id:  patient_id
+
+Iteration 0:   log likelihood = -10011.735
+Iteration 1:   log likelihood = -9977.8001
+Iteration 2:   log likelihood = -9977.7587
+Iteration 3:   log likelihood = -9977.7586
+Refining estimates:
+Iteration 0:   log likelihood = -9977.7586
+
+Stratified Cox regr. -- Breslow method for ties
+
+No. of subjects =       66,471                  Number of obs    =      66,471
+No. of failures =        1,187
+Time at risk    =      2251904
+                                                LR chi2(36)      =       67.95
+Log likelihood  =   -9977.7586                  Prob > chi2      =      0.0010
+
+------------------------------------------------------------------------------
+          _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   1.465978   .0869446     6.45   0.000     1.305101    1.646686
+             |
+    agegroup |
+     18-<30  |   .9011571   .0862485    -1.09   0.277     .7470217    1.087096
+     30-<40  |   .8183915   .0848396    -1.93   0.053     .6679134    1.002772
+     40-<50  |   .9257386    .093424    -0.76   0.445     .7596028    1.128211
+     50-<60  |   .8477976   .0866851    -1.61   0.106     .6938395    1.035918
+     60-<70  |   1.025597   .1055951     0.25   0.806     .8381804    1.254921
+     70-<80  |   .8706051   .1043298    -1.16   0.248     .6883616    1.101097
+        80+  |   .8425068   .1243809    -1.16   0.246      .630825    1.125221
+             |
+        male |
+          M  |   1.027108   .0596572     0.46   0.645     .9165922     1.15095
+             |
+         imd |
+          2  |   1.039768   .0858427     0.47   0.637     .8844267    1.222394
+          3  |    .983241    .082495    -0.20   0.840     .8341482    1.158982
+          4  |    1.01487   .0844957     0.18   0.859     .8620681    1.194757
+5 most de..  |   .8780359   .0981611    -1.16   0.245      .705263    1.093134
+             |
+        eth5 |
+South Asian  |   1.017808   .1358708     0.13   0.895     .7834943    1.322196
+      Black  |   1.139338   .1475673     1.01   0.314     .8839038     1.46859
+      Mixed  |    1.07597   .1383733     0.57   0.569     .8362437    1.384419
+      Other  |   .9980062   .0971735    -0.02   0.984     .8246198    1.207849
+             |
+smoke_nomiss |
+     Former  |   1.158336   .2219865     0.77   0.443     .7956244    1.686402
+    Current  |   .8670171   .0821253    -1.51   0.132     .7201126     1.04389
+             |
+   obese4cat |
+Obese I ..)  |   .8554877   .0729939    -1.83   0.067     .7237451    1.011211
+Obese II..)  |   1.025253   .0828012     0.31   0.757     .8751578     1.20109
+Obese II..)  |   1.006048   .0753865     0.08   0.936     .8686307    1.165204
+             |
+hh_total_cat |
+        3-5  |   .9312065   .0541099    -1.23   0.220     .8309692    1.043535
+       6-10  |   .5510012   .5516356    -0.60   0.552      .077441    3.920433
+             |
+rural_urban5 |
+Urban min..  |   .9178312   .1223216    -0.64   0.520       .70684    1.191803
+Urban cit..  |   1.011779   .1137963     0.10   0.917     .8116147    1.261309
+Rural tow..  |   1.043996   .1166862     0.39   0.700     .8386118     1.29968
+Rural vil..  |   1.015954   .1040706     0.15   0.877     .8311515    1.241847
+             |
+  comorb_cat |
+1 comorbi..  |    .998735   .1281612    -0.01   0.992     .7766424    1.284338
+2+ comorb..  |   1.004045   .1174469     0.03   0.972     .7983347    1.262762
+             |
+  start_week |
+23Nov-29Nov  |   1.061995   .0951374     0.67   0.502     .8909819    1.265833
+30Nov-06Dec  |   .9761416   .0946645    -0.25   0.803     .8071696    1.180486
+07Dec-13Dec  |   1.007605   .1051387     0.07   0.942     .8212431    1.236258
+14Dec-20Dec  |   1.037439   .1167819     0.33   0.744     .8320416    1.293541
+21Dec-27Dec  |   .9291855   .1217761    -0.56   0.575     .7186984    1.201319
+28Dec-04Jan  |   1.181686   .1640448     1.20   0.229     .9001937    1.551201
+------------------------------------------------------------------------------
+                                                             Stratified by stp
+
+.                          
+.                          
+.                          
+. *********************************************************************
+. /* Causal min adjustment set - age as spline, comorbidities,       */
+. /* deprivation index, and smoking status                                     
+>               */
+. *********************************************************************
+. 
+. stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss age1 age2 age3
+
+         failure _d:  cox_death
+   analysis time _t:  (stime_death-origin)
+             origin:  time study_start
+                 id:  patient_id
+
+Iteration 0:   log likelihood = -18067.377
+Iteration 1:   log likelihood = -18036.582
+Iteration 2:   log likelihood = -18036.572
+Iteration 3:   log likelihood = -18036.572
+Refining estimates:
+Iteration 0:   log likelihood = -18036.572
+
+Cox regression -- Breslow method for ties
+
+No. of subjects =       90,750                  Number of obs    =      90,750
+No. of failures =        1,636
+Time at risk    =      3072340
+                                                LR chi2(12)      =       61.61
+Log likelihood  =   -18036.572                  Prob > chi2      =      0.0000
+
+------------------------------------------------------------------------------
+          _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   1.456839   .0735188     7.46   0.000     1.319642      1.6083
+             |
+  comorb_cat |
+1 comorbi..  |   .9646302   .1047137    -0.33   0.740     .7797586    1.193333
+2+ comorb..  |   .9861856    .097112    -0.14   0.888     .8130903     1.19613
+             |
+         imd |
+          2  |   1.008961   .0717341     0.13   0.900     .8777212    1.159825
+          3  |   1.034816   .0728632     0.49   0.627      .901423    1.187949
+          4  |    .997048   .0710824    -0.04   0.967     .8670246     1.14657
+5 most de..  |   .8871964   .0840241    -1.26   0.206     .7368934    1.068157
+             |
+smoke_nomiss |
+     Former  |   1.037426   .1800496     0.21   0.832     .7382907    1.457762
+    Current  |   .9320906   .0728668    -0.90   0.368     .7996775    1.086429
+             |
+        age1 |   .9951886   .0050864    -0.94   0.345     .9852693    1.005208
+        age2 |    1.01796   .0170179     1.06   0.287     .9851462    1.051867
+        age3 |   .9499347   .0449976    -1.08   0.278     .8657112    1.042352
+------------------------------------------------------------------------------
+
+. 
+. * Stratified by STP
+. stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss age1 age2 age3, strata(stp)
+
+         failure _d:  cox_death
+   analysis time _t:  (stime_death-origin)
+             origin:  time study_start
+                 id:  patient_id
+
+Iteration 0:   log likelihood = -14299.578
+Iteration 1:   log likelihood =  -14268.76
+Iteration 2:   log likelihood =  -14268.75
+Iteration 3:   log likelihood =  -14268.75
+Refining estimates:
+Iteration 0:   log likelihood =  -14268.75
+
+Stratified Cox regr. -- Breslow method for ties
+
+No. of subjects =       90,750                  Number of obs    =      90,750
+No. of failures =        1,636
+Time at risk    =      3072340
+                                                LR chi2(12)      =       61.66
+Log likelihood  =    -14268.75                  Prob > chi2      =      0.0000
+
+------------------------------------------------------------------------------
+          _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   1.457093     .07354     7.46   0.000     1.319857    1.608599
+             |
+  comorb_cat |
+1 comorbi..  |   .9636972   .1046193    -0.34   0.733     .7789936    1.192195
+2+ comorb..  |   .9852436   .0970266    -0.15   0.880     .8123019    1.195005
+             |
+         imd |
+          2  |   1.006945   .0715994     0.10   0.922     .8759521    1.157526
+          3  |   1.032849   .0727317     0.46   0.646     .8996972    1.185706
+          4  |   .9961069   .0710214    -0.05   0.956      .866196    1.145502
+5 most de..  |   .8860941    .083931    -1.28   0.202     .7359594    1.066856
+             |
+smoke_nomiss |
+     Former  |   1.039971   .1805144     0.23   0.821     .7400698    1.461402
+    Current  |   .9330572   .0729448    -0.89   0.375     .8005026    1.087561
+             |
+        age1 |   .9950544   .0050869    -0.97   0.332     .9851341    1.005075
+        age2 |   1.018314   .0170281     1.09   0.278     .9854805    1.052241
+        age3 |   .9492615   .0449806    -1.10   0.272     .8650711    1.041645
+------------------------------------------------------------------------------
+                                                             Stratified by stp
+
+.                          
+. 
+.                          
+. log close
+      name:  <unnamed>
+       log:  /workspace/logs/an_cox_models.log
+  log type:  text
+ closed on:  11 Feb 2021, 12:20:51
+-------------------------------------------------------------------------------

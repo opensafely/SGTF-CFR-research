@@ -211,8 +211,8 @@ lincom 1.sgtf + 1.sgtf#2.start_week, eform	// week 2
 lincom 1.sgtf + 1.sgtf#3.start_week, eform	// week 3
 lincom 1.sgtf + 1.sgtf#4.start_week, eform	// week 4
 lincom 1.sgtf + 1.sgtf#5.start_week, eform	// week 5
-lincom 1.sgtf + 1.sgtf#6.start_week, eform	// week 6
-lincom 1.sgtf + 1.sgtf#7.start_week, eform	// week 7
+capture lincom 1.sgtf + 1.sgtf#6.start_week, eform	// week 6
+capture lincom 1.sgtf + 1.sgtf#7.start_week, eform	// week 7
 
 * Epi week marginal risks
 margins sgtf, over(start_week)
@@ -251,6 +251,20 @@ lincom 1.sgtf + 1.sgtf#8.region, eform	// Yorks & Hum
 * NHS region marginal risks
 margins sgtf, over(region)
 
+
+
+*********************************************************************
+/* Causal min adjustment set - age as spline, comorbidities,	   */
+/* deprivation index, and smoking status						   */
+*********************************************************************
+
+glm risk_28 i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss age1 age2 age3, ///
+			family(bin) link(log) eform
+
+
+* Adjusted absolute risk
+margins sgtf
+margins sgtf, asbalanced
 
 
 log close

@@ -131,7 +131,7 @@ study = StudyDefinition(
         round_to_nearest=100,
         return_expectations={
             "rate": "universal",
-            "category": {"ratios": {"100": 0.1, "200": 0.2, "300": 0.7}},
+            "category": {"ratios": {"100": 0.1, "200": 0.2, "300": 0.2, "400": 0.2, "500": 0.2, "600": 0.1}},
         },
     ),
 
@@ -183,7 +183,8 @@ study = StudyDefinition(
                     "West Midlands": 0.1,
                     "East of England": 0.1,
                     "London": 0.2,
-                    "South East": 0.2,
+                    "South East": 0.1,
+                    "South West": 0.1,
                 },
             },
         },
