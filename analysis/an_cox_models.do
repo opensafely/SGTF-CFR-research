@@ -110,7 +110,7 @@ stcox i.sgtf i.male ib1.imd ib1.eth5 ib1.smoke_nomiss ib1.obese4cat household_si
 stcox i.sgtf i.agegroup i.male ib1.imd ib1.eth5 ib1.smoke_nomiss ib1.obese4cat ///
 			 ib1.hh_total_cat ib1.rural_urban5 ib0.comorb_cat ib1.start_week, strata(stp)
 			 
-			 
+*/			 
 			 
 *********************************************************************
 /* Causal min adjustment set - age as spline, comorbidities,	   */
@@ -122,6 +122,31 @@ stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss age1 age2 age3
 * Stratified by STP
 stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss age1 age2 age3, strata(stp)
 			 
-*/
+* Plot scaled schoenfeld residuals
+estat phtest, plot(1.sgtf)
+graph export ./output/minadj_cox_shoen.svg, as(svg) replace
+
+* KM plot
+sts graph,	surv by(sgtf) ///
+			ylabel(0.8(0.05)1) ///
+			legend(label(1 "non-VOC") label(2 "VOC"))
+graph export ./output/minadj_cox_km.svg, as(svg) replace
+		
+* Smoothed hazard plot
+sts graph,	haz by(sgtf) ///
+			legend(label(1 "non-VOC") label(2 "VOC"))
+graph export ./output/minadj_cox_haz.svg, as(svg) replace
+
+* Interaction with time
+stcox i.sgtf, tvc(i.sgtf) strata(stp)
+
+
+
+* Stratified by region
+stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss age1 age2 age3, strata(region)
+
+* Stratified by UTLA
+capture stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss age1 age2 age3, strata(utla_group)
+
 			 
 log close

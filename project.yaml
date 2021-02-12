@@ -62,3 +62,6 @@ actions:
         figure1: output/unadj_cox_shoen.svg
         figure2: output/unadj_cox_km.svg
         figure3: output/unadj_cox_haz.svg
+        figure4: output/minadj_cox_shoen.svg
+        figure5: output/minadj_cox_km.svg
+        figure6: output/minadj_cox_haz.svg
