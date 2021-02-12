@@ -63,8 +63,8 @@ drop if date(died_date_ons, "YMD") <= study_start
 
 * DROP IF COVID POSITIVE ON/BEFORE STUDY START DATE
 noi di "COVID POSITIVE BEFORE STUDY START DATE:" 
-drop if date(covid_tpp_probable, "YMD") <= study_start
-drop if date(first_pos_test_sgss, "YMD") <= study_start
+drop if date(covid_tpp_probable, "YMD") < study_start
+drop if date(first_pos_test_sgss, "YMD") < study_start
 
 * DROP IF VACCINATED ON/BEFORE STUDY START DATE
 noi di "VACCINATED ON/BEFORE STUDY START DATE:" 
