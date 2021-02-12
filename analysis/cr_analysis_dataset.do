@@ -93,7 +93,8 @@ desc sgtf
 
 replace sgtf=99 if sgtf==.
 
-gen has_sgtf = 1 if inrange(sgtf,0,1)
+gen has_sgtf=0
+replace has_sgtf=1 if inrange(sgtf,0,1)
 
 * DROP IF NO DATA ON SGTF
 noi di "DROPPING NO SGTF DATA" 
