@@ -890,7 +890,7 @@ tab comorb_cat, m
 
 /*  28-day risk censoring dates  */
 noi di "REMEMBER TO UPDATE DATE OF ONS DATA UPLOAD"
-gen ons_data_date = date("29jan2021", "DMY")
+gen ons_data_date = date("12feb2021", "DMY")
 gen ons_data_cens = ons_data_date-14			// Censor 14 days prior to ONS death data upload
 gen risk_28_days = study_start+28
 gen risk_40_days = study_start+40
