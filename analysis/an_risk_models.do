@@ -49,7 +49,7 @@ glm risk_28 i.sgtf, family(bin) link(log) eform
 * Absolute risk
 margins sgtf
 
-
+/*
 
 *********************************************************************
 /* Demographically adjusted RR - age as spline, continuous hh size */
@@ -190,7 +190,7 @@ lincom 1.sgtf + 1.sgtf#3.imd, eform	// 3
 lincom 1.sgtf + 1.sgtf#4.imd, eform	// 4
 lincom 1.sgtf + 1.sgtf#5.imd, eform	// 5 most deprived
 
-* Epi week marginal risks
+* IMD marginal risks
 margins sgtf, over(imd)
 
 
@@ -251,7 +251,7 @@ lincom 1.sgtf + 1.sgtf#8.region, eform	// Yorks & Hum
 * NHS region marginal risks
 margins sgtf, over(region)
 
-
+*/
 
 *********************************************************************
 /* Causal min adjustment set - age as spline, comorbidities,	   */
@@ -265,6 +265,70 @@ glm risk_28 i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss age1 age2 age3, ///
 * Adjusted absolute risk
 margins sgtf
 margins sgtf, asbalanced
+
+
+**********************************
+/* Causal min subgroup analyses */
+**********************************
+
+/* Causal min adjusted RR */
+
+glm risk_28 i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss age1 age2 age3, ///
+			family(bin) link(log) eform
+			
+est store e_no_int
+
+* Constant VOC effect over subgroups
+lincom 1.sgtf, eform
+margins sgtf
+
+
+/* Age group */
+replace agegroupA=2 if agegroupA==1
+
+glm risk_28 i.sgtf##i.agegroupA i.comorb_cat ib1.imd i.smoke_nomiss, ///
+			family(bin) link(log) eform
+			
+est store e_ageX
+
+lrtest e_no_int e_ageX
+
+* Age group VOC vs. non-VOC RR
+*lincom 1.sgtf, eform						// <50
+lincom 1.sgtf + 1.sgtf#2.agegroupA, eform	// 50-<65
+lincom 1.sgtf + 1.sgtf#3.agegroupA, eform	// 65-<75
+lincom 1.sgtf + 1.sgtf#4.agegroupA, eform	// 75-<85
+lincom 1.sgtf + 1.sgtf#5.agegroupA, eform	// 85+
+
+* Age group marginal risks
+margins sgtf, over(agegroupA)
+
+
+/* Epi week */
+glm risk_28 i.sgtf i.start_week i.comorb_cat ib1.imd i.smoke_nomiss age1 age2 age3, ///
+			family(bin) link(log) eform
+			
+est store e_week
+			
+glm risk_28 i.sgtf##i.start_week i.comorb_cat ib1.imd i.smoke_nomiss age1 age2 age3, ///
+			family(bin) link(log) eform
+			
+est store e_weekX
+
+* Test for interaction
+lrtest e_week e_weekX
+
+* Epi week VOC vs. non-VOC RR
+lincom 1.sgtf, eform						// week 1
+lincom 1.sgtf + 1.sgtf#2.start_week, eform	// week 2
+lincom 1.sgtf + 1.sgtf#3.start_week, eform	// week 3
+lincom 1.sgtf + 1.sgtf#4.start_week, eform	// week 4
+capture lincom 1.sgtf + 1.sgtf#5.start_week, eform	// week 5
+capture lincom 1.sgtf + 1.sgtf#6.start_week, eform	// week 6
+capture lincom 1.sgtf + 1.sgtf#7.start_week, eform	// week 7
+
+* Epi week marginal risks
+margins sgtf, over(start_week)
 
 
 log close

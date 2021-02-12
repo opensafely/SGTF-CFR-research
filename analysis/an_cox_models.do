@@ -68,6 +68,7 @@ graph export ./output/unadj_cox_haz.svg, as(svg) replace
 * Interaction with time
 stcox i.sgtf, tvc(i.sgtf) strata(stp)
 
+/*
 
 *********************************************************************
 /* Demographically adjusted HR - age as spline, continuous hh size */
@@ -121,6 +122,6 @@ stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss age1 age2 age3
 * Stratified by STP
 stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss age1 age2 age3, strata(stp)
 			 
-
+*/
 			 
 log close

@@ -30,7 +30,7 @@ study = StudyDefinition(
     population=patients.satisfying(
         "one_practice AND sgss_pos_inrange",
         one_practice=patients.registered_with_one_practice_between(
-        "2019-11-16", "2020-11-16"
+            "2019-11-16", "2020-11-16"
         ),
     ),
 
@@ -193,7 +193,7 @@ study = StudyDefinition(
                 "ratios": {
                     "North East": 0.1,
                     "North West": 0.1,
-                    "Yorkshire and the Humber": 0.1,
+                    "Yorkshire and The Humber": 0.1,
                     "East Midlands": 0.1,
                     "West Midlands": 0.1,
                     "East of England": 0.1,
