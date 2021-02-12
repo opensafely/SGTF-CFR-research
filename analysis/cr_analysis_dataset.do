@@ -85,20 +85,21 @@ noi di "DROPPING GENDER NOT M/F:"
 drop if inlist(sex, "I", "U")
 
 
-********************************
-*  CREATE DUMMY SGTF VARIABLE  *
-********************************
+**************************
+*  CREATE SGTF VARIABLE  *
+**************************
 
-gen has_sgtf = rbinomial(1,0.5)
+desc sgtf
+
+replace sgtf=99 if sgtf==.
+
+gen has_sgtf = 1 if inrange(sgtf,0,1)
 
 * DROP IF NO DATA ON SGTF
 noi di "DROPPING NO SGTF DATA" 
 drop if has_sgtf==0
 
-gen sgtf = rbinomial(1,0.5)
-replace sgtf = rbinomial(1,0.6) if died_date_ons != ""
-
-label define sgtfLab 0 "non-VOC" 1 "VOC"
+label define sgtfLab 0 "non-VOC" 1 "VOC" 9 "Unclassified" 99 "Blank"
 label values sgtf sgtfLab
 
 
@@ -336,7 +337,7 @@ label define regionLab	0 "East" ///
 						5 "South East" ///
 						6 "South West" ///
 						7 "West Midlands" ///
-						8 "Yorkshire and The Humber"
+						8 "Yorkshire and Humber"
 						
 label values region regionLab
 

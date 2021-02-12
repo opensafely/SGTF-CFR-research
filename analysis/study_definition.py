@@ -105,6 +105,18 @@ study = StudyDefinition(
        },
     ), 
 
+    sgtf=patients.with_test_result_in_sgss(
+       pathogen="SARS-CoV-2",
+       test_result="positive",
+       find_first_match_in_period=True,
+       between=["2020-11-16", "2021-01-04"],
+       returning="s_gene_target_failure",
+       return_expectations={
+            "rate": "universal",
+            "category": {"ratios": {"0": 0.4, "1": 0.4, "9": 0.1, "": 0.1}},
+       },
+    ), 
+
 
     ### DEMOGRAPHIC COVARIATES
     # AGE
