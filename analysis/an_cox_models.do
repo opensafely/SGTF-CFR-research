@@ -50,11 +50,8 @@ stcox i.sgtf
 * Stratified by STP
 stcox i.sgtf, strata(stp)
 
-* Test for non-PH
-stphtest, log detail
-
 * Plot scaled schoenfeld residuals
-stphtest, plot(1.sgtf) yline(0)
+estat phtest, plot(1.sgtf)
 graph export ./output/unadj_cox_shoen.svg, as(svg) replace
 
 * KM plot
@@ -68,6 +65,8 @@ sts graph,	haz by(sgtf) ///
 			legend(label(1 "non-VOC") label(2 "VOC"))
 graph export ./output/unadj_cox_haz.svg, as(svg) replace
 
+* Interaction with time
+stcox i.sgtf, tvc(i.sgtf) strata(stp)
 
 
 *********************************************************************

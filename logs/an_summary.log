@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /workspace/logs/an_summary.log
   log type:  text
- opened on:  12 Feb 2021, 16:16:09
+ opened on:  12 Feb 2021, 16:27:42
 
 . 
 . clear
@@ -1105,7 +1105,7 @@ of study    |      non-VOC           VOC  Unclassified         Blank
 . line phe_sgtf os_sgtf start_week, by(region) ///
 >         ytitle("% of positive tests with SGTF") ///
 >         xlabel(1(1)10, valuelabel) ///
->         legend(label(1 "PHE") label(2 "OS-TPP") position(12))
+>         legend(label(1 "PHE") label(2 "TPP"))
 
 . graph export ./output/sgtf_perc_region.svg, as(svg) replace
 (note: file ./output/sgtf_perc_region.svg not found)
@@ -1117,5 +1117,5 @@ of study    |      non-VOC           VOC  Unclassified         Blank
       name:  <unnamed>
        log:  /workspace/logs/an_summary.log
   log type:  text
- closed on:  12 Feb 2021, 16:16:19
+ closed on:  12 Feb 2021, 16:27:51
 -------------------------------------------------------------------------------
