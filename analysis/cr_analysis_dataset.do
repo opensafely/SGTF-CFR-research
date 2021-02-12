@@ -193,6 +193,8 @@ label values smoke smoke_nomissLab
 drop smoking_status
 
 * Ethnicity (5 category)
+tab ethnicity
+
 replace ethnicity = . if ethnicity==.
 label define ethnicityLab 	1 "White"  					///
 							2 "Mixed" 					///
@@ -262,6 +264,8 @@ label define ethnicity_16_combinemixed 	///
 label values ethnicity_16_combinemixed ethnicity_16_combinemixed
 
 * STP 
+tab stp
+
 rename stp stp_old
 bysort stp_old: gen stp = 1 if _n==1
 replace stp = sum(stp)
@@ -317,7 +321,7 @@ tab utla_group
 tab region
 
 gen region2=.
-replace region2=0 if region=="East of England"
+replace region2=0 if region=="East"
 replace region2=1 if region=="East Midlands"
 replace region2=2 if region=="London"
 replace region2=3 if region=="North East"
@@ -325,7 +329,7 @@ replace region2=4 if region=="North West"
 replace region2=5 if region=="South East"
 replace region2=6 if region=="South West"
 replace region2=7 if region=="West Midlands"
-replace region2=8 if region=="Yorkshire and the Humber"
+replace region2=8 if region=="Yorkshire and The Humber"
 
 drop region
 rename region2 region
@@ -338,7 +342,7 @@ label define regionLab	0 "East" ///
 						5 "South East" ///
 						6 "South West" ///
 						7 "West Midlands" ///
-						8 "Yorkshire and Humber"
+						8 "Yorkshire and the Humber"
 						
 label values region regionLab
 

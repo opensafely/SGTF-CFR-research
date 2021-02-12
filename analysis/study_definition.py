@@ -27,8 +27,11 @@ study = StudyDefinition(
     },
 
    # STUDY POPULATION - registered 1 year prior to November 16th 2020
-    population=patients.registered_with_one_practice_between(
+    population=patients.satisfying(
+        "one_practice AND sgss_pos_inrange",
+        one_practice=patients.registered_with_one_practice_between(
         "2019-11-16", "2020-11-16"
+        ),
     ),
 
     dereg_date=patients.date_deregistered_from_all_supported_practices(
