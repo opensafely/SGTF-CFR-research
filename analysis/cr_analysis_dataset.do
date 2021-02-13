@@ -220,6 +220,8 @@ label values eth5 eth5Lab
 recode eth5 2/4=5, gen(eth2)
 order eth2, after(eth5)
 
+label values eth2 eth5Lab
+
 tab eth2, m
 
 
@@ -293,7 +295,7 @@ summ count2, d
 gen utla_group = utla_name
 tab utla_group
 
-/*
+
 replace utla_group = "Redbridge, Barking and Dagenham" if utla_name == "Barking and Dagenham"
 replace utla_group = "Redbridge, Barking and Dagenham" if utla_name == "Redbridge"
 
@@ -317,7 +319,7 @@ replace utla_group = "Bolton and Tameside" if utla_name == "Bolton"
 replace utla_group = "Bolton and Tameside" if utla_name == "Tameside"
 
 tab utla_group
-*/
+
 
 
 * NHS England regions
@@ -445,6 +447,8 @@ label values smoke_nomiss smoke_nomissLab
 
 recode smoke 3=2, gen(smoke_nomiss2)
 order smoke_nomiss2, after(smoke_nomiss)
+
+label values smoke_nomiss2 smoke_nomissLab
 
 tab smoke_nomiss2
 

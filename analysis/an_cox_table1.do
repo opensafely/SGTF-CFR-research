@@ -30,7 +30,6 @@ use ./output/cr_analysis_dataset.dta
 
 
 
-
 ********************************************************************************
 *	PROGRAMS TO AUTOMATE TABULATIONS
 *
@@ -187,6 +186,10 @@ end
 * INVOKE PROGRAMS FOR TABLE 1 
 *
 ********************************************************************************
+
+* DROP IF NO DATA ON SGTF
+noi di "DROPPING NO SGTF DATA" 
+drop if has_sgtf==0
 
 noi di "SUBSETTING ON COX POPULATION"
 keep if cox_pop==1

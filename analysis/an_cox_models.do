@@ -33,6 +33,10 @@ use "C:\Users\EIDEDGRI\Documents\GitHub\SGTF-CFR-research\output\cr_analysis_dat
 
 use ./output/cr_analysis_dataset.dta
 
+* DROP IF NO DATA ON SGTF
+noi di "DROPPING NO SGTF DATA" 
+drop if has_sgtf==0
+
 noi di "SUBSETTING ON COX CENSORED POPULATION"
 keep if cox_pop==1
 
@@ -49,6 +53,10 @@ stcox i.sgtf
 
 * Stratified by STP
 stcox i.sgtf, strata(stp)
+
+* Stratified by region
+stcox i.sgtf, strata(region)
+
 
 * Plot scaled schoenfeld residuals
 estat phtest, plot(1.sgtf)
@@ -68,16 +76,16 @@ graph export ./output/unadj_cox_haz.svg, as(svg) replace
 * Interaction with time
 stcox i.sgtf, tvc(i.sgtf) strata(stp)
 
-/*
+
 
 *********************************************************************
 /* Demographically adjusted HR - age as spline, continuous hh size */
 /* Not adjusting for comorbidities, obesity, or smoking	status	   */
 *********************************************************************
 
-* Stratified by STP
-stcox i.sgtf i.male ib1.imd ib1.eth5 household_size ///
-			 ib1.rural_urban5 ib1.start_week age1 age2 age3, strata(stp)
+* Stratified by region
+stcox i.sgtf i.male ib1.imd ib1.eth2 household_size ///
+			 ib1.rural_urban5 ib1.start_week age1 age2 age3, strata(region)
 
 			 
 			 
@@ -86,9 +94,9 @@ stcox i.sgtf i.male ib1.imd ib1.eth5 household_size ///
 /* Not adjusting for comorbidities, obesity, or smoking	status	   */
 *********************************************************************
 
-* Stratified by STP
-stcox i.sgtf i.male ib1.imd ib1.eth5 ib1.hh_total_cat ///
-			 ib1.rural_urban5 ib1.start_week i.agegroup, strata(stp)
+* Stratified by region
+stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat ///
+			 ib1.rural_urban5 ib1.start_week ib2.agegroupA, strata(region)
 
 
 			 
@@ -96,9 +104,9 @@ stcox i.sgtf i.male ib1.imd ib1.eth5 ib1.hh_total_cat ///
 /* Fully adjusted HR - age as spline, continuous hh size */
 ***********************************************************
 
-* Stratified by STP
-stcox i.sgtf i.male ib1.imd ib1.eth5 ib1.smoke_nomiss ib1.obese4cat household_size ///
-			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 age2 age3, strata(stp)
+* Stratified by region
+stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat household_size ///
+			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 age2 age3, strata(region)
 
 
 
@@ -106,22 +114,25 @@ stcox i.sgtf i.male ib1.imd ib1.eth5 ib1.smoke_nomiss ib1.obese4cat household_si
 /* Fully adjusted HR - age grouped, cat hh size */
 **************************************************
 
-* Stratified by STP
-stcox i.sgtf i.agegroup i.male ib1.imd ib1.eth5 ib1.smoke_nomiss ib1.obese4cat ///
-			 ib1.hh_total_cat ib1.rural_urban5 ib0.comorb_cat ib1.start_week, strata(stp)
+* Stratified by region
+stcox i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
+			 ib1.hh_total_cat ib1.rural_urban5 ib0.comorb_cat ib1.start_week, strata(region)
 			 
-*/			 
+			 
 			 
 *********************************************************************
 /* Causal min adjustment set - age as spline, comorbidities,	   */
 /* deprivation index, and smoking status						   */
 *********************************************************************
 
-stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss age1 age2 age3
+stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3
 
 * Stratified by STP
-stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss age1 age2 age3, strata(stp)
+stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3, strata(stp)
 			 
+* Stratified by region
+stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3, strata(region)
+
 * Plot scaled schoenfeld residuals
 estat phtest, plot(1.sgtf)
 graph export ./output/minadj_cox_shoen.svg, as(svg) replace
@@ -138,15 +149,11 @@ sts graph,	haz by(sgtf) ///
 graph export ./output/minadj_cox_haz.svg, as(svg) replace
 
 * Interaction with time
-stcox i.sgtf, tvc(i.sgtf) strata(stp)
+stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss age1 age2 age3, strata(region) tvc(i.sgtf)
 
-
-
-* Stratified by region
-stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss age1 age2 age3, strata(region)
 
 * Stratified by UTLA
-capture stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss age1 age2 age3, strata(utla_group)
+stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3, strata(utla_group)
 
 			 
 log close
