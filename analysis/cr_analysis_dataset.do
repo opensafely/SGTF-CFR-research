@@ -96,10 +96,6 @@ replace sgtf=99 if sgtf==.
 gen has_sgtf=0
 replace has_sgtf=1 if inrange(sgtf,0,1)
 
-* DROP IF NO DATA ON SGTF
-noi di "DROPPING NO SGTF DATA" 
-drop if has_sgtf==0
-
 label define sgtfLab 0 "non-VOC" 1 "VOC" 9 "Unclassified" 99 "Blank"
 label values sgtf sgtfLab
 
@@ -193,7 +189,7 @@ label values smoke smoke_nomissLab
 drop smoking_status
 
 * Ethnicity (5 category)
-tab ethnicity
+tab ethnicity, m
 
 replace ethnicity = . if ethnicity==.
 label define ethnicityLab 	1 "White"  					///
@@ -210,15 +206,22 @@ replace eth5=2 if ethnicity==3
 replace eth5=3 if ethnicity==4
 replace eth5=4 if ethnicity==2
 replace eth5=5 if ethnicity==5
-replace eth5=. if ethnicity==.
+replace eth5=9 if ethnicity==.
 
 label define eth5Lab	1 "White"  					///
 						2 "South Asian"				///
 						3 "Black"  					///
 						4 "Mixed" 					///
-						5 "Other"					
+						5 "Other"					///
+						9 "Missing"
  
 label values eth5 eth5Lab
+
+recode eth5 2/4=5, gen(eth2)
+order eth2, after(eth5)
+
+tab eth2, m
+
 
 * Ethnicity (16 category)
 replace ethnicity_16 = . if ethnicity==.
@@ -375,17 +378,15 @@ label define agegroupLab 	0 "0-<18" ///
 label values agegroup agegroupLab
 
 * For subgroup analysis
-recode age 	0/49.9999=1 ///
-			50/64.9999=2 ///
-			65/74.9999=3 ///
-			75/84.9999=4 ///
-			85/max=5, gen(agegroupA) 
+recode age 	0/64.9999=1 ///
+			65/74.9999=2 ///
+			75/84.9999=3 ///
+			85/max=4, gen(agegroupA) 
 
-label define agegroupALab 	1 "0-<50"  ///
-							2 "50-<65" ///
-							3 "65-<75" ///
-							4 "75-<85" ///
-							5 "85+"
+label define agegroupALab 	1 "0-<65" ///
+							2 "65-<75" ///
+							3 "75-<85" ///
+							4 "85+"
 							
 label values agegroupA agegroupALab
 
@@ -398,8 +399,9 @@ assert age<.
 assert agegroup<.
 assert age70<.
 
-* Create restricted cubic splines fir age
-mkspline age = age, cubic nknots(4)
+* Create restricted cubic splines for age centred on 65
+gen age65 = age - 65
+mkspline age = age65, cubic nknots(4)
 
 
 /*  Body Mass Index  */
@@ -441,6 +443,10 @@ recode smoke .=1, gen(smoke_nomiss)
 order smoke_nomiss, after(smoke)
 label values smoke_nomiss smoke_nomissLab
 
+recode smoke 3=2, gen(smoke_nomiss2)
+order smoke_nomiss2, after(smoke_nomiss)
+
+tab smoke_nomiss2
 
 /*  Asthma  */
 
@@ -957,9 +963,9 @@ label var age 							"Age (years)"
 label var agegroup						"Grouped age"
 label var agegroupA						"Age subgroups"
 label var age70 						"70 years and older"
-label var age1 							"Age spline 1"
-label var age2 							"Age spline 2"
-label var age3 							"Age spline 3"
+label var age1 							"Age65 spline 1"
+label var age2 							"Age65 spline 2"
+label var age3 							"Age65 spline 3"
 label var male 							"Male"
 label var bmi 							"Body Mass Index (BMI, kg/m2)"
 label var bmicat 						"Grouped BMI"
@@ -967,8 +973,10 @@ label var bmi_date  					"Body Mass Index (BMI, kg/m2), date measured"
 label var obese4cat						"Evidence of obesity (missing set to none)"
 label var smoke		 					"Smoking status"
 label var smoke_nomiss	 				"Smoking status (missing set to never)"
+label var smoke_nomiss2	 				"Binary smoking status (missing set to never)"
 label var imd 							"Index of Multiple Deprivation (IMD)"
 label var eth5							"Ethnicity in 5 categories"
+label var eth2							"Ethnicity in 2 catergories"
 label var ethnicity_16					"Ethnicity in 16 categories"
 label var ethnicity_16_combinemixed		"Ethnicity detailed with mixed groups combined"
 label var stp 							"Sustainability and Transformation Partnership"
@@ -1059,7 +1067,8 @@ label var cox_pop						"1=Population for Cox analysis"
 label var stime_death					"Date of study exit"
 label var cox_death						"Outcome for Cox"
 label var cox_time						"Survival time"
-label var sgtf							"Exposure: 0=VOC; 1=non-VOC"
+label var sgtf							"SGTF (exposure)"
+label var has_sgtf						"1=Has SGTF data"
 
 
 ***************

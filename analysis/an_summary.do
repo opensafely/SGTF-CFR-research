@@ -33,14 +33,18 @@ use "C:\Users\EIDEDGRI\Documents\GitHub\SGTF-CFR-research\output\cr_analysis_dat
 
 use ./output/cr_analysis_dataset.dta
 
+* DROP IF NO DATA ON SGTF
+noi di "DROPPING NO SGTF DATA" 
+drop if has_sgtf==0
+
 
 * Tabulate number of deaths by SGTF and covariates
 
-foreach var of varlist agegroup male imd eth5 smoke_nomiss obese4cat hh_total_cat stp region ///
-			utla_group rural_urban5 comorb_cat start_week {
+foreach var of varlist agegroup agegroupA male imd eth5 eth2 smoke_nomiss smoke_nomiss2 ///
+			obese4cat hh_total_cat stp region rural_urban5 comorb_cat start_week {
 			
 			noi disp "Table `var'"
-			table `var' sgtf, missing contents(count patient_id sum risk_28 sum cox_death)	
+			table `var' sgtf, contents(count patient_id sum risk_28 mean risk_28 sum cox_death)	
 			}
 
 
