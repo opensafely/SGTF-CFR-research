@@ -163,7 +163,7 @@ est store e_ethX
 * Test for interaction
 lrtest e_no_int e_ethX
 
-* Comorbidities VOC vs. non-VOC RR
+* Ethnicity VOC vs. non-VOC RR
 lincom 1.sgtf, eform					// White
 *lincom 1.sgtf + 1.sgtf#2.eth5, eform	// S Asian
 *lincom 1.sgtf + 1.sgtf#3.eth5, eform	// Black
@@ -171,7 +171,7 @@ lincom 1.sgtf, eform					// White
 lincom 1.sgtf + 1.sgtf#5.eth2, eform	// Other
 lincom 1.sgtf + 1.sgtf#9.eth2, eform	// Missing
 
-* Comorbidity marginal risks
+* Ethnicity marginal risks
 margins sgtf, over(eth2)
 
 
