@@ -92,7 +92,7 @@ stcox i.sgtf if study_start >= date("01dec2020", "DMY"), tvc(i.sgtf) strata(utla
 *********************************************************************
 
 * Stratified by region
-stcox i.sgtf i.male ib1.imd ib1.eth2 household_size care_home_type ///
+stcox i.sgtf i.male ib1.imd ib1.eth2 household_size i.home_bin ///
 			 ib1.rural_urban5 ib1.start_week age1 age2 age3 ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
@@ -105,7 +105,7 @@ stcox i.sgtf i.male ib1.imd ib1.eth2 household_size care_home_type ///
 *********************************************************************
 
 * Stratified by region
-stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat care_home_type ///
+stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat i.home_bin ///
 			 ib1.rural_urban5 ib1.start_week ib2.agegroupA ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
@@ -118,7 +118,7 @@ stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat care_home_type ///
 
 * Stratified by region
 stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat household_size ///
-			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 age2 age3 care_home_type ///
+			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 age2 age3 i.home_bin ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
 			 
@@ -128,7 +128,7 @@ est store e_no_int
 
 * Epi week
 stcox i.sgtf##ib1.start_week i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat household_size ///
-			 ib1.rural_urban5 ib0.comorb_cat age1 age2 age3 care_home_type ///
+			 ib1.rural_urban5 ib0.comorb_cat age1 age2 age3 i.home_bin ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
 
@@ -150,7 +150,7 @@ lincom 1.sgtf + 1.sgtf#7.start_week, eform	// week 7
 
 * Comorbidities
 stcox i.sgtf##ib0.comorb_cat i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat household_size ///
-			 ib1.rural_urban5 ib1.start_week age1 age2 age3 care_home_type ///
+			 ib1.rural_urban5 ib1.start_week age1 age2 age3 i.home_bin ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
 
@@ -168,7 +168,7 @@ lincom 1.sgtf + 1.sgtf#2.comorb_cat, eform	// 2+ comorbs
 
 * Ethnicity
 stcox i.sgtf##ib1.eth2 i.male ib1.imd ib0.comorb_cat ib1.smoke_nomiss2 ib1.obese4cat household_size ///
-			 ib1.rural_urban5 ib1.start_week age1 age2 age3 care_home_type ///
+			 ib1.rural_urban5 ib1.start_week age1 age2 age3 i.home_bin ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
 
@@ -189,14 +189,14 @@ lincom 1.sgtf + 1.sgtf#5.eth2, eform	// Other
 
 * Age group
 stcox i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat household_size ///
-			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week care_home_type ///
+			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.home_bin ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
 			 
 est store e_age
 
 stcox i.sgtf##ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat household_size ///
-			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week care_home_type ///
+			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.home_bin ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
 			 
@@ -216,7 +216,7 @@ lincom 1.sgtf + 1.sgtf#4.agegroupA, eform	// 85+
 * Include with 28-days follow-up
 * Stratified by region
 stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat household_size ///
-			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 age2 age3 care_home_type ///
+			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 age2 age3 i.home_bin ///
 			 if eth2 != 6 & risk_pop==1 ///
 			 , strata(utla_group)
 
@@ -228,7 +228,7 @@ stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat household_s
 
 * Stratified by region
 stcox i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
-			 ib1.hh_total_cat ib1.rural_urban5 ib0.comorb_cat ib1.start_week care_home_type ///
+			 ib1.hh_total_cat ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.home_bin ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
 			 
@@ -239,13 +239,13 @@ stcox i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4c
 /* deprivation index, and smoking status						   */
 *********************************************************************
 
-stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3
+stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3 i.home_bin
 
 * Stratified by STP
-stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3, strata(stp)
+stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3 i.home_bin, strata(stp)
 			 
 * Stratified by region
-stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3, strata(utla_group)
+stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3 i.home_bin, strata(utla_group)
 
 * Plot scaled schoenfeld residuals
 estat phtest, d

@@ -59,7 +59,7 @@ margins sgtf
 /* Not adjusting for comorbidities, obesity, or smoking	status	   */
 *********************************************************************
 
-glm risk_28 i.sgtf i.male ib1.imd ib1.eth2 household_size care_home_type ///
+glm risk_28 i.sgtf i.male ib1.imd ib1.eth2 household_size i.home_bin ///
 			i.region ib1.rural_urban5 ib1.start_week age1 age2 age3 ///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
@@ -76,7 +76,7 @@ margins sgtf, asbalanced
 /* Not adjusting for comorbidities, obesity, or smoking	status	   */
 *********************************************************************
 
-glm risk_28 i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat care_home_type ///
+glm risk_28 i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat i.home_bin ///
 			i.region ib1.rural_urban5 ib1.start_week ib2.agegroupA ///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
@@ -93,7 +93,7 @@ margins sgtf, asbalanced
 ***********************************************************
 
 glm risk_28 i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat household_size ///
-			i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 age2 age3 care_home_type ///
+			i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 age2 age3 i.home_bin ///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
 
@@ -109,7 +109,7 @@ margins sgtf, asbalanced
 **************************************************
 
 glm risk_28 i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
-			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week care_home_type ///
+			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.home_bin ///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
 
@@ -181,7 +181,7 @@ list risk_labels risk r_lb r_ub in 1/22
 /* Fully adjusted OR - age grouped, cat hh size */
 
 glm risk_28 i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
-			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week care_home_type ///
+			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.home_bin ///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
 			
@@ -194,7 +194,7 @@ margins sgtf
 
 /* Age group */
 glm risk_28 i.sgtf##ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
-			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week care_home_type ///
+			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.home_bin ///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
 			
@@ -214,7 +214,7 @@ margins sgtf, over(agegroupA)
 
 /* Ethnicity */
 glm risk_28 i.sgtf##ib1.eth2 ib0.comorb_cat ib2.agegroupA i.male ib1.imd ib1.smoke_nomiss2 ib1.obese4cat ///
-			ib1.hh_total_cat i.region ib1.rural_urban5 ib1.start_week care_home_type///
+			ib1.hh_total_cat i.region ib1.rural_urban5 ib1.start_week i.home_bin///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
 			
@@ -238,7 +238,7 @@ margins sgtf, over(eth2)
 
 /* Comorbidities */
 glm risk_28 i.sgtf##ib0.comorb_cat ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
-			ib1.hh_total_cat i.region ib1.rural_urban5 ib1.start_week care_home_type ///
+			ib1.hh_total_cat i.region ib1.rural_urban5 ib1.start_week i.home_bin ///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
 			
@@ -258,7 +258,7 @@ margins sgtf, over(comorb_cat)
 
 /* IMD */
 glm risk_28 i.sgtf##ib1.imd ib2.agegroupA i.male ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
-			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week care_home_type///
+			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.home_bin///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
 			
@@ -281,7 +281,7 @@ margins sgtf, over(imd)
 
 /* Epi week */
 glm risk_28 i.sgtf##ib1.start_week ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
-			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat care_home_type ///
+			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat i.home_bin ///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
 			
@@ -314,7 +314,7 @@ est store e_region
 */
 
 glm risk_28 i.sgtf##i.region ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
-			ib1.hh_total_cat ib1.rural_urban5 ib0.comorb_cat ib1.start_week care_home_type ///
+			ib1.hh_total_cat ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.home_bin ///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
 			
@@ -344,7 +344,7 @@ margins sgtf, over(region)
 /* deprivation index, and smoking status						   */
 *********************************************************************
 
-glm risk_28 i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3, ///
+glm risk_28 i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3 i.home_bin, ///
 			family(bin) link(logit) eform
 
 * Adjusted absolute odds
@@ -353,7 +353,7 @@ margins sgtf, asbalanced
 
 
 * Age grouped
-glm risk_28 i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 ib2.agegroupA, ///
+glm risk_28 i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 ib2.agegroupA i.home_bin, ///
 			family(bin) link(logit) eform
 
 * Adjusted absolute odds
@@ -362,7 +362,7 @@ margins sgtf, asbalanced
 
 
 * With region
-glm risk_28 i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 ib2.agegroupA i.region, ///
+glm risk_28 i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 ib2.agegroupA i.home_bin i.region, ///
 			family(bin) link(logit) eform
 
 
