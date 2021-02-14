@@ -111,21 +111,24 @@ glm risk_28 i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.o
 
 
 * Adjusted absolute odds
-*margins sgtf
 margins agegroupA#male, over(sgtf) post
 
-matrix list e(b)
+* Save odds estimates
 matrix est = e(b)
 matrix inv_est = est'
 svmat inv_est
 
-matrix list e(V)
+* Save SE estimates
 matrix var = e(V)
 matrix diag_var = vecdiag(var)
 matrix inv_var = diag_var'
 svmat inv_var
 gen sq_var = sqrt(inv_var)
 
+noi disp "CHECK MARGINS ARE CORRECTLY CALCULATED TO MATCH ABOVE"
+list inv_est sq_var in 1/22
+
+* Re-Calculate CI
 gen lb = inv_est1 - 1.96*sq_var
 gen ub = inv_est1 + 1.96*sq_var
 
@@ -135,6 +138,35 @@ order lb ub, after(inv_est1)
 gen risk = inv_est1 / (1 + inv_est1)
 gen r_lb = lb / (1 + lb)
 gen r_ub = ub / (1 + ub)
+
+gen risk_labels = "non-VOC: 0-<65 :F" in 1
+replace risk_labels = "non-VOC: 0-<65 :M" in 2
+replace risk_labels = "non-VOC: 65-<75 :F" in 3
+replace risk_labels = "non-VOC: 65-<75 :M" in 4
+replace risk_labels = "non-VOC: 75-<85 : F" in 5
+replace risk_labels = "non-VOC: 75-<85 : M" in 6
+replace risk_labels = "non-VOC: 85+ : F" in 7
+replace risk_labels = "non-VOC: 85+ : M" in 8
+
+replace risk_labels = "VOC: 0-<65 :F" in 9
+replace risk_labels = "VOC: 0-<65 :M" in 10
+replace risk_labels = "VOC: 65-<75 :F" in 11
+replace risk_labels = "VOC: 65-<75 :M" in 12
+replace risk_labels = "VOC: 75-<85 : F" in 13
+replace risk_labels = "VOC: 75-<85 : M" in 14
+replace risk_labels = "VOC: 85+ : F" in 15
+replace risk_labels = "VOC: 85+ : M" in 16
+
+replace risk_labels = "non-VOC: None" in 17
+replace risk_labels = "non-VOC: 1" in 18
+replace risk_labels = "non-VOC: 2+" in 19
+
+replace risk_labels = "VOC: None" in 20
+replace risk_labels = "VOC: 1" in 21
+replace risk_labels = "VOC: 2+" in 22
+
+noi disp "ABSOLUTE RISK ESTIMATES"
+list risk_labels risk r_lb r_ub
 
 
 
