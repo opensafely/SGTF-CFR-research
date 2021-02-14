@@ -111,7 +111,7 @@ glm risk_28 i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.o
 
 
 * Adjusted absolute odds
-margins agegroupA#male, over(sgtf) post
+margins agegroupA#male comorb_cat, over(sgtf) post
 
 * Save odds estimates
 matrix est = e(b)
@@ -166,7 +166,7 @@ replace risk_labels = "VOC: 1" in 21
 replace risk_labels = "VOC: 2+" in 22
 
 noi disp "ABSOLUTE RISK ESTIMATES"
-list risk_labels risk r_lb r_ub
+list risk_labels risk r_lb r_ub in 1/22
 
 
 

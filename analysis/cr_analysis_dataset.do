@@ -318,12 +318,12 @@ replace utla_group = "Rutland and Lincoln" if utla_name == "Lincolnshire"
 replace utla_group = "Bolton and Tameside" if utla_name == "Bolton"
 replace utla_group = "Bolton and Tameside" if utla_name == "Tameside"
 
-tab utla_group
+tab utla_group, m
 
 
 
 * NHS England regions
-tab region
+tab region, m
 
 gen region2=.
 replace region2=0 if region=="East"
@@ -437,6 +437,8 @@ label define obese4catLab 	1 "No record of obesity" 	///
 label values obese4cat obese4catLab
 order obese4cat, after(bmicat)
 
+tab obese4cat, m
+
 
 /*  Smoking  */
 
@@ -450,7 +452,7 @@ order smoke_nomiss2, after(smoke_nomiss)
 
 label values smoke_nomiss2 smoke_nomissLab
 
-tab smoke_nomiss2
+tab smoke_nomiss2, m
 
 /*  Asthma  */
 
@@ -511,7 +513,7 @@ gen hh_total_cat=.
 replace hh_total_cat=1 if household_size >=1 & household_size<=2
 replace hh_total_cat=2 if household_size >=3 & household_size<=5
 replace hh_total_cat=3 if household_size >=6 & household_size<=10
-replace hh_total_cat=4 if household_size >=11
+replace hh_total_cat=4 if household_size >=11 & household_size !=.
 
 label define hh_total_catLab	1 "1-2" ///
 								2 "3-5" ///
@@ -519,6 +521,8 @@ label define hh_total_catLab	1 "1-2" ///
 								4 "11+"
 											
 label values hh_total_cat hh_total_catLab
+
+tab hh_total_cat, m
 
 
 /*  RURAL OR URBAN  */
