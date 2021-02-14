@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /workspace/logs/cr_analysis_dataset.log
   log type:  text
- opened on:  13 Feb 2021, 17:29:25
+ opened on:  14 Feb 2021, 20:47:38
 
 . 
 . clear
@@ -863,134 +863,135 @@ variable utla_group was str20 now str31
 (834 real changes made)
 
 . 
-. tab utla_group
+. tab utla_group, m
 
                      utla_group |      Freq.     Percent        Cum.
 --------------------------------+-----------------------------------
-                         Barnet |      1,123        0.60        0.60
-                       Barnsley |        836        0.45        1.05
-            Bath and North East |        705        0.38        1.43
-                        Bedford |        574        0.31        1.74
-                         Bexley |        774        0.42        2.16
-                     Birmingham |      3,621        1.95        4.11
-           Blackburn with Darwe |        464        0.25        4.36
-                      Blackpool |        475        0.26        4.61
-            Bolton and Tameside |      1,817        0.98        5.59
-           Bournemouth, Christc |      1,387        0.75        6.34
-               Bracknell Forest |        414        0.22        6.56
-                       Bradford |      1,675        0.90        7.46
-                          Brent |        897        0.48        7.94
-              Brighton and Hove |        901        0.48        8.43
-               Bristol, City of |      1,499        0.81        9.24
-                        Bromley |      1,107        0.60        9.83
-   Bucks/Ox/West. Berks/Swindon |      5,512        2.97       12.80
-                           Bury |        713        0.38       13.18
-                     Calderdale |        730        0.39       13.58
-                 Cambridgeshire |      2,055        1.11       14.68
-         Camden and Westminster |      1,460        0.79       15.47
-           Central Bedfordshire |        873        0.47       15.94
-                  Cheshire East |      1,374        0.74       16.68
-           Cheshire West and Ch |      1,309        0.70       17.38
-                 City of London |         20        0.01       17.39
-                       Cornwall |      2,007        1.08       18.47
-                  County Durham |      1,847        0.99       19.47
-                       Coventry |      1,121        0.60       20.07
-                        Croydon |      1,165        0.63       20.70
-                        Cumbria |      1,794        0.97       21.66
-                     Darlington |        440        0.24       21.90
-                          Derby |        813        0.44       22.34
-                     Derbyshire |      2,773        1.49       23.83
-                          Devon |      2,954        1.59       25.42
-                      Doncaster |      1,038        0.56       25.98
-                         Dorset |      1,303        0.70       26.68
-                         Dudley |      1,204        0.65       27.33
-                         Ealing |      1,099        0.59       27.92
-           East Riding of Yorks |      1,197        0.64       28.56
-                    East Sussex |      1,915        1.03       29.59
-                        Enfield |        997        0.54       30.13
-                          Essex |      4,908        2.64       32.77
-                      Gateshead |        756        0.41       33.18
-                Gloucestershire |      2,059        1.11       34.29
-                      Greenwich |        918        0.49       34.78
-                        Hackney |        787        0.42       35.20
-                         Halton |        415        0.22       35.43
-           Hammersmith and Fulh |        687        0.37       35.80
-                      Hampshire |      4,494        2.42       38.21
-                       Haringey |        988        0.53       38.75
-                         Harrow |        825        0.44       39.19
-                     Hartlepool |        335        0.18       39.37
-                       Havering |        808        0.43       39.81
-           Herefordshire, Count |        660        0.36       40.16
-                  Hertfordshire |      4,188        2.25       42.41
-                     Hillingdon |        868        0.47       42.88
-                  Isle of Wight |        488        0.26       43.14
-                      Islington |        597        0.32       43.47
-           Kensington and Chels |        595        0.32       43.79
-                           Kent |      5,061        2.72       46.51
-            Kingston upon Hull, |        885        0.48       46.99
-           Kingston upon Thames |        562        0.30       47.29
-                       Kirklees |      1,606        0.86       48.15
-                       Knowsley |        520        0.28       48.43
-                        Lambeth |        935        0.50       48.94
-                     Lancashire |      4,218        2.27       51.21
-                          Leeds |      2,930        1.58       52.78
-                      Leicester |      1,020        0.55       53.33
-                 Leicestershire |      2,308        1.24       54.57
-                       Lewisham |      1,027        0.55       55.13
+                                |         37        0.02        0.02
+                         Barnet |      1,123        0.60        0.62
+                       Barnsley |        836        0.45        1.07
+            Bath and North East |        705        0.38        1.45
+                        Bedford |        574        0.31        1.76
+                         Bexley |        774        0.42        2.18
+                     Birmingham |      3,621        1.95        4.13
+           Blackburn with Darwe |        464        0.25        4.38
+                      Blackpool |        475        0.26        4.63
+            Bolton and Tameside |      1,817        0.98        5.61
+           Bournemouth, Christc |      1,387        0.75        6.36
+               Bracknell Forest |        414        0.22        6.58
+                       Bradford |      1,675        0.90        7.48
+                          Brent |        897        0.48        7.96
+              Brighton and Hove |        901        0.48        8.45
+               Bristol, City of |      1,499        0.81        9.25
+                        Bromley |      1,107        0.60        9.85
+   Bucks/Ox/West. Berks/Swindon |      5,512        2.97       12.82
+                           Bury |        713        0.38       13.20
+                     Calderdale |        730        0.39       13.59
+                 Cambridgeshire |      2,055        1.11       14.70
+         Camden and Westminster |      1,460        0.79       15.48
+           Central Bedfordshire |        873        0.47       15.95
+                  Cheshire East |      1,374        0.74       16.69
+           Cheshire West and Ch |      1,309        0.70       17.40
+                 City of London |         20        0.01       17.41
+                       Cornwall |      2,007        1.08       18.49
+                  County Durham |      1,847        0.99       19.48
+                       Coventry |      1,121        0.60       20.09
+                        Croydon |      1,165        0.63       20.71
+                        Cumbria |      1,794        0.97       21.68
+                     Darlington |        440        0.24       21.91
+                          Derby |        813        0.44       22.35
+                     Derbyshire |      2,773        1.49       23.84
+                          Devon |      2,954        1.59       25.43
+                      Doncaster |      1,038        0.56       25.99
+                         Dorset |      1,303        0.70       26.69
+                         Dudley |      1,204        0.65       27.34
+                         Ealing |      1,099        0.59       27.93
+           East Riding of Yorks |      1,197        0.64       28.58
+                    East Sussex |      1,915        1.03       29.61
+                        Enfield |        997        0.54       30.14
+                          Essex |      4,908        2.64       32.78
+                      Gateshead |        756        0.41       33.19
+                Gloucestershire |      2,059        1.11       34.30
+                      Greenwich |        918        0.49       34.79
+                        Hackney |        787        0.42       35.22
+                         Halton |        415        0.22       35.44
+           Hammersmith and Fulh |        687        0.37       35.81
+                      Hampshire |      4,494        2.42       38.23
+                       Haringey |        988        0.53       38.76
+                         Harrow |        825        0.44       39.20
+                     Hartlepool |        335        0.18       39.38
+                       Havering |        808        0.43       39.82
+           Herefordshire, Count |        660        0.36       40.17
+                  Hertfordshire |      4,188        2.25       42.43
+                     Hillingdon |        868        0.47       42.89
+                  Isle of Wight |        488        0.26       43.16
+                      Islington |        597        0.32       43.48
+           Kensington and Chels |        595        0.32       43.80
+                           Kent |      5,061        2.72       46.52
+            Kingston upon Hull, |        885        0.48       47.00
+           Kingston upon Thames |        562        0.30       47.30
+                       Kirklees |      1,606        0.86       48.16
+                       Knowsley |        520        0.28       48.44
+                        Lambeth |        935        0.50       48.95
+                     Lancashire |      4,218        2.27       51.22
+                          Leeds |      2,930        1.58       52.79
+                      Leicester |      1,020        0.55       53.34
+                 Leicestershire |      2,308        1.24       54.58
+                       Lewisham |      1,027        0.55       55.14
                       Liverpool |      1,652        0.89       56.02
-                          Luton |        619        0.33       56.35
-                     Manchester |      1,570        0.84       57.19
-                         Medway |        990        0.53       57.73
-                         Merton |        670        0.36       58.09
-                  Middlesbrough |        533        0.29       58.37
-                  Milton Keynes |        900        0.48       58.86
-            Newcastle upon Tyne |        847        0.46       59.31
+                          Luton |        619        0.33       56.36
+                     Manchester |      1,570        0.84       57.20
+                         Medway |        990        0.53       57.74
+                         Merton |        670        0.36       58.10
+                  Middlesbrough |        533        0.29       58.38
+                  Milton Keynes |        900        0.48       58.87
+            Newcastle upon Tyne |        847        0.46       59.32
                          Newham |      1,044        0.56       59.88
-                        Norfolk |      3,021        1.63       61.50
-           North East Lincolnsh |        611        0.33       61.83
-             North Lincolnshire |        651        0.35       62.18
-                 North Somerset |        692        0.37       62.55
-                 North Tyneside |        816        0.44       62.99
-                North Yorkshire |      2,076        1.12       64.11
-               Northamptonshire |      2,467        1.33       65.44
-                 Northumberland |      1,127        0.61       66.04
-                     Nottingham |      1,032        0.56       66.60
+                        Norfolk |      3,021        1.63       61.51
+           North East Lincolnsh |        611        0.33       61.84
+             North Lincolnshire |        651        0.35       62.19
+                 North Somerset |        692        0.37       62.56
+                 North Tyneside |        816        0.44       63.00
+                North Yorkshire |      2,076        1.12       64.12
+               Northamptonshire |      2,467        1.33       65.45
+                 Northumberland |      1,127        0.61       66.05
+                     Nottingham |      1,032        0.56       66.61
                 Nottinghamshire |      2,691        1.45       68.05
-                         Oldham |        874        0.47       68.52
-                   Peterborough |        584        0.31       68.83
-                       Plymouth |        874        0.47       69.30
+                         Oldham |        874        0.47       68.53
+                   Peterborough |        584        0.31       68.84
+                       Plymouth |        874        0.47       69.31
                      Portsmouth |        638        0.34       69.65
-                        Reading |        452        0.24       69.89
+                        Reading |        452        0.24       69.90
 Redbridge, Barking and Dagenham |      1,407        0.76       70.65
-           Redcar and Cleveland |        544        0.29       70.94
-          Richmond and Hounslow |      1,393        0.75       71.69
+           Redcar and Cleveland |        544        0.29       70.95
+          Richmond and Hounslow |      1,393        0.75       71.70
                        Rochdale |        680        0.37       72.06
-                      Rotherham |        906        0.49       72.54
-            Rutland and Lincoln |      2,615        1.41       73.95
-                        Salford |        820        0.44       74.39
-                       Sandwell |      1,075        0.58       74.97
-                         Sefton |      1,063        0.57       75.54
-                      Sheffield |      1,952        1.05       76.59
-                     Shropshire |      1,035        0.56       77.15
+                      Rotherham |        906        0.49       72.55
+            Rutland and Lincoln |      2,615        1.41       73.96
+                        Salford |        820        0.44       74.40
+                       Sandwell |      1,075        0.58       74.98
+                         Sefton |      1,063        0.57       75.55
+                      Sheffield |      1,952        1.05       76.60
+                     Shropshire |      1,035        0.56       77.16
                          Slough |        370        0.20       77.35
                        Solihull |        762        0.41       77.76
                        Somerset |      2,036        1.10       78.86
            South Gloucestershir |        873        0.47       79.33
-                 South Tyneside |        593        0.32       79.64
+                 South Tyneside |        593        0.32       79.65
                     Southampton |        866        0.47       80.11
-                Southend-on-Sea |        432        0.23       80.34
-                      Southwark |        908        0.49       80.83
+                Southend-on-Sea |        432        0.23       80.35
+                      Southwark |        908        0.49       80.84
                      St. Helens |        553        0.30       81.13
-                  Staffordshire |      3,039        1.64       82.76
-                      Stockport |      1,129        0.61       83.37
-               Stockton-on-Tees |        650        0.35       83.72
-                 Stoke-on-Trent |        929        0.50       84.22
+                  Staffordshire |      3,039        1.64       82.77
+                      Stockport |      1,129        0.61       83.38
+               Stockton-on-Tees |        650        0.35       83.73
+                 Stoke-on-Trent |        929        0.50       84.23
                         Suffolk |      2,415        1.30       85.52
                      Sunderland |        984        0.53       86.05
                          Surrey |      4,085        2.20       88.25
                          Sutton |        633        0.34       88.59
              Telford and Wrekin |        627        0.34       88.93
-                       Thurrock |        568        0.31       89.23
+                       Thurrock |        568        0.31       89.24
                          Torbay |        477        0.26       89.49
                   Tower Hamlets |        837        0.45       89.94
                        Trafford |        738        0.40       90.34
@@ -1010,13 +1011,13 @@ Redbridge, Barking and Dagenham |      1,407        0.76       70.65
                  Worcestershire |      2,318        1.25       99.65
                            York |        643        0.35      100.00
 --------------------------------+-----------------------------------
-                          Total |    185,807      100.00
+                          Total |    185,844      100.00
 
 . 
 . 
 . 
 . * NHS England regions
-. tab region
+. tab region, m
 
                   region |      Freq.     Percent        Cum.
 -------------------------+-----------------------------------
@@ -1211,6 +1212,18 @@ Yorkshire and The Humber |     18,495        9.95      100.00
 . order obese4cat, after(bmicat)
 
 . 
+. tab obese4cat, m
+
+    RECODE of bmicat |      Freq.     Percent        Cum.
+---------------------+-----------------------------------
+No record of obesity |     75,602       40.68       40.68
+   Obese I (30-34.9) |     33,632       18.10       58.78
+  Obese II (35-39.9) |     33,815       18.20       76.97
+     Obese III (40+) |     42,795       23.03      100.00
+---------------------+-----------------------------------
+               Total |    185,844      100.00
+
+. 
 . 
 . /*  Smoking  */
 . 
@@ -1223,8 +1236,8 @@ Yorkshire and The Humber |     18,495        9.95      100.00
 . label values smoke_nomiss smoke_nomissLab
 
 . 
-. recode smoke 3=2, gen(smoke_nomiss2)
-(22413 differences between smoke and smoke_nomiss2)
+. recode smoke_nomiss 3=2, gen(smoke_nomiss2)
+(22413 differences between smoke_nomiss and smoke_nomiss2)
 
 . order smoke_nomiss2, after(smoke_nomiss)
 
@@ -1232,15 +1245,17 @@ Yorkshire and The Humber |     18,495        9.95      100.00
 . label values smoke_nomiss2 smoke_nomissLab
 
 . 
-. tab smoke_nomiss2
+. tab smoke_nomiss2, m
 
   RECODE of |
-      smoke |      Freq.     Percent        Cum.
+smoke_nomis |
+  s (RECODE |
+  of smoke) |      Freq.     Percent        Cum.
 ------------+-----------------------------------
-      Never |      7,390       22.10       22.10
-     Former |     26,042       77.90      100.00
+      Never |    159,802       85.99       85.99
+     Former |     26,042       14.01      100.00
 ------------+-----------------------------------
-      Total |     33,432      100.00
+      Total |    185,844      100.00
 
 . 
 . /*  Asthma  */
@@ -1371,7 +1386,7 @@ DROPPING IF NO IMD
 . replace hh_total_cat=3 if household_size >=6 & household_size<=10
 (251 real changes made)
 
-. replace hh_total_cat=4 if household_size >=11
+. replace hh_total_cat=4 if household_size >=11 & household_size !=.
 (0 real changes made)
 
 . 
@@ -1383,6 +1398,19 @@ DROPPING IF NO IMD
 .                                                                              
 >            
 . label values hh_total_cat hh_total_catLab
+
+. 
+. tab hh_total_cat, m
+
+hh_total_ca |
+          t |      Freq.     Percent        Cum.
+------------+-----------------------------------
+        1-2 |     88,857       47.81       47.81
+        3-5 |     92,474       49.76       97.57
+       6-10 |        251        0.14       97.71
+          . |      4,262        2.29      100.00
+------------+-----------------------------------
+      Total |    185,844      100.00
 
 . 
 . 
@@ -2768,5 +2796,5 @@ file ./output/cr_analysis_dataset.dta saved
       name:  <unnamed>
        log:  /workspace/logs/cr_analysis_dataset.log
   log type:  text
- closed on:  13 Feb 2021, 17:29:58
+ closed on:  14 Feb 2021, 20:48:18
 -------------------------------------------------------------------------------

@@ -206,14 +206,14 @@ replace eth5=2 if ethnicity==3
 replace eth5=3 if ethnicity==4
 replace eth5=4 if ethnicity==2
 replace eth5=5 if ethnicity==5
-replace eth5=9 if ethnicity==.
+replace eth5=6 if ethnicity==.
 
 label define eth5Lab	1 "White"  					///
 						2 "South Asian"				///
 						3 "Black"  					///
 						4 "Mixed" 					///
 						5 "Other"					///
-						9 "Missing"
+						6 "Missing"
  
 label values eth5 eth5Lab
 
@@ -447,7 +447,7 @@ recode smoke .=1, gen(smoke_nomiss)
 order smoke_nomiss, after(smoke)
 label values smoke_nomiss smoke_nomissLab
 
-recode smoke 3=2, gen(smoke_nomiss2)
+recode smoke_nomiss 3=2, gen(smoke_nomiss2)
 order smoke_nomiss2, after(smoke_nomiss)
 
 label values smoke_nomiss2 smoke_nomissLab

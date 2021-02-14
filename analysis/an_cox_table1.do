@@ -234,7 +234,7 @@ tabulatevariable, variable(agegroup) min(1) max(7)
 file write tablecontent _n 
 
 *ETHNICITY
-tabulatevariable, variable(eth5) min(1) max(5) 
+tabulatevariable, variable(eth5) min(1) max(6) 
 file write tablecontent _n 
 
 *BMI

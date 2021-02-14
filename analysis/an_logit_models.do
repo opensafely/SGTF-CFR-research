@@ -60,8 +60,9 @@ margins sgtf
 *********************************************************************
 
 glm risk_28 i.sgtf i.male ib1.imd ib1.eth2 household_size ///
-			i.region ib1.rural_urban5 ib1.start_week age1 age2 age3, ///
-			family(bin) link(logit) eform
+			i.region ib1.rural_urban5 ib1.start_week age1 age2 age3 ///
+			if eth2 != 6 ///
+			, family(bin) link(logit) eform
 
 
 * Adjusted absolute odds
@@ -76,8 +77,9 @@ margins sgtf, asbalanced
 *********************************************************************
 
 glm risk_28 i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat ///
-			i.region ib1.rural_urban5 ib1.start_week ib2.agegroupA, ///
-			family(bin) link(logit) eform
+			i.region ib1.rural_urban5 ib1.start_week ib2.agegroupA ///
+			if eth2 != 6 ///
+			, family(bin) link(logit) eform
 
 
 * Adjusted absolute odds
@@ -91,8 +93,9 @@ margins sgtf, asbalanced
 ***********************************************************
 
 glm risk_28 i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat household_size ///
-			i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 age2 age3, ///
-			family(bin) link(logit) eform
+			i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 age2 age3 ///
+			if eth2 != 6 ///
+			, family(bin) link(logit) eform
 
 
 * Adjusted absolute odds
@@ -106,8 +109,9 @@ margins sgtf, asbalanced
 **************************************************
 
 glm risk_28 i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
-			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week, ///
-			family(bin) link(logit) eform
+			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week ///
+			if eth2 != 6 ///
+			, family(bin) link(logit) eform
 
 
 * Adjusted absolute odds
@@ -177,8 +181,9 @@ list risk_labels risk r_lb r_ub in 1/22
 /* Fully adjusted OR - age grouped, cat hh size */
 
 glm risk_28 i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
-			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week, ///
-			family(bin) link(logit) eform
+			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week ///
+			if eth2 != 6 ///
+			, family(bin) link(logit) eform
 			
 est store e_no_int
 
@@ -189,8 +194,9 @@ margins sgtf
 
 /* Age group */
 glm risk_28 i.sgtf##ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
-			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week, ///
-			family(bin) link(logit) eform
+			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week ///
+			if eth2 != 6 ///
+			, family(bin) link(logit) eform
 			
 est store e_ageX
 
@@ -208,8 +214,9 @@ margins sgtf, over(agegroupA)
 
 /* Ethnicity */
 glm risk_28 i.sgtf##ib1.eth2 ib0.comorb_cat ib2.agegroupA i.male ib1.imd ib1.smoke_nomiss2 ib1.obese4cat ///
-			ib1.hh_total_cat i.region ib1.rural_urban5 ib1.start_week, ///
-			family(bin) link(logit) eform
+			ib1.hh_total_cat i.region ib1.rural_urban5 ib1.start_week ///
+			if eth2 != 6 ///
+			, family(bin) link(logit) eform
 			
 est store e_ethX
 
@@ -222,7 +229,7 @@ lincom 1.sgtf, eform					// White
 *lincom 1.sgtf + 1.sgtf#3.eth5, eform	// Black
 *lincom 1.sgtf + 1.sgtf#4.eth5, eform	// Mixed
 lincom 1.sgtf + 1.sgtf#5.eth2, eform	// Other
-lincom 1.sgtf + 1.sgtf#9.eth2, eform	// Missing
+*lincom 1.sgtf + 1.sgtf#6.eth2, eform	// Missing
 
 * Ethnicity marginal odds
 margins sgtf, over(eth2)
@@ -231,8 +238,9 @@ margins sgtf, over(eth2)
 
 /* Comorbidities */
 glm risk_28 i.sgtf##ib0.comorb_cat ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
-			ib1.hh_total_cat i.region ib1.rural_urban5 ib1.start_week, ///
-			family(bin) link(logit) eform
+			ib1.hh_total_cat i.region ib1.rural_urban5 ib1.start_week ///
+			if eth2 != 6 ///
+			, family(bin) link(logit) eform
 			
 est store e_comorbX
 
@@ -250,8 +258,9 @@ margins sgtf, over(comorb_cat)
 
 /* IMD */
 glm risk_28 i.sgtf##ib1.imd ib2.agegroupA i.male ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
-			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week, ///
-			family(bin) link(logit) eform
+			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week ///
+			if eth2 != 6 ///
+			, family(bin) link(logit) eform
 			
 est store e_imdX
 
@@ -272,8 +281,9 @@ margins sgtf, over(imd)
 
 /* Epi week */
 glm risk_28 i.sgtf##ib1.start_week ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
-			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat, ///
-			family(bin) link(logit) eform
+			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat ///
+			if eth2 != 6 ///
+			, family(bin) link(logit) eform
 			
 est store e_weekX
 
@@ -304,8 +314,9 @@ est store e_region
 */
 
 glm risk_28 i.sgtf##i.region ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
-			ib1.hh_total_cat ib1.rural_urban5 ib0.comorb_cat ib1.start_week, ///
-			family(bin) link(logit) eform
+			ib1.hh_total_cat ib1.rural_urban5 ib0.comorb_cat ib1.start_week ///
+			if eth2 != 6 ///
+			, family(bin) link(logit) eform
 			
 est store e_regionX
 

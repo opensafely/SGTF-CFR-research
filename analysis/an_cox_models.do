@@ -81,6 +81,8 @@ stcox i.sgtf, tvc(i.sgtf) strata(utla_group)
 
 * Interaction with time excluding November
 stcox i.sgtf if study_start >= date("01dec2020", "DMY"), strata(utla_group)
+estat phtest, d
+
 stcox i.sgtf if study_start >= date("01dec2020", "DMY"), tvc(i.sgtf) strata(utla_group)
 
 
@@ -91,7 +93,9 @@ stcox i.sgtf if study_start >= date("01dec2020", "DMY"), tvc(i.sgtf) strata(utla
 
 * Stratified by region
 stcox i.sgtf i.male ib1.imd ib1.eth2 household_size ///
-			 ib1.rural_urban5 ib1.start_week age1 age2 age3, strata(utla_group)
+			 ib1.rural_urban5 ib1.start_week age1 age2 age3 ///
+			 if eth2 != 6///
+			 , strata(utla_group)
 
 			 
 			 
@@ -102,7 +106,9 @@ stcox i.sgtf i.male ib1.imd ib1.eth2 household_size ///
 
 * Stratified by region
 stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat ///
-			 ib1.rural_urban5 ib1.start_week ib2.agegroupA, strata(utla_group)
+			 ib1.rural_urban5 ib1.start_week ib2.agegroupA ///
+			 if eth2 != 6 ///
+			 , strata(utla_group)
 
 
 			 
@@ -112,7 +118,9 @@ stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat ///
 
 * Stratified by region
 stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat household_size ///
-			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 age2 age3, strata(utla_group)
+			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 age2 age3 ///
+			 if eth2 != 6///
+			 , strata(utla_group)
 			 
 est store e_no_int
 
@@ -120,7 +128,9 @@ est store e_no_int
 
 * Epi week
 stcox i.sgtf##ib1.start_week i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat household_size ///
-			 ib1.rural_urban5 ib0.comorb_cat age1 age2 age3, strata(utla_group)
+			 ib1.rural_urban5 ib0.comorb_cat age1 age2 age3 ///
+			 if eth2 != 6///
+			 , strata(utla_group)
 
 est store e_weekX
 
@@ -140,7 +150,9 @@ lincom 1.sgtf + 1.sgtf#7.start_week, eform	// week 7
 
 * Comorbidities
 stcox i.sgtf##ib0.comorb_cat i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat household_size ///
-			 ib1.rural_urban5 ib1.start_week age1 age2 age3, strata(utla_group)
+			 ib1.rural_urban5 ib1.start_week age1 age2 age3 ///
+			 if eth2 != 6///
+			 , strata(utla_group)
 
 est store e_comorbX
 
@@ -156,7 +168,9 @@ lincom 1.sgtf + 1.sgtf#2.comorb_cat, eform	// 2+ comorbs
 
 * Ethnicity
 stcox i.sgtf##ib1.eth2 i.male ib1.imd ib0.comorb_cat ib1.smoke_nomiss2 ib1.obese4cat household_size ///
-			 ib1.rural_urban5 ib1.start_week age1 age2 age3, strata(utla_group)
+			 ib1.rural_urban5 ib1.start_week age1 age2 age3 ///
+			 if eth2 != 6///
+			 , strata(utla_group)
 
 est store e_eth2X
 
@@ -169,18 +183,22 @@ lincom 1.sgtf, eform					// White
 *lincom 1.sgtf + 1.sgtf#3.eth5, eform	// Black
 *lincom 1.sgtf + 1.sgtf#4.eth5, eform	// Mixed
 lincom 1.sgtf + 1.sgtf#5.eth2, eform	// Other
-lincom 1.sgtf + 1.sgtf#9.eth2, eform	// Missing
+*lincom 1.sgtf + 1.sgtf#6.eth2, eform	// Missing
 
 
 
 * Age group
 stcox i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat household_size ///
-			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week, strata(utla_group)
+			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week ///
+			 if eth2 != 6///
+			 , strata(utla_group)
 			 
 est store e_age
 
 stcox i.sgtf##ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat household_size ///
-			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week, strata(utla_group)
+			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week ///
+			 if eth2 != 6///
+			 , strata(utla_group)
 			 
 est store e_ageX
 
@@ -199,7 +217,7 @@ lincom 1.sgtf + 1.sgtf#4.agegroupA, eform	// 85+
 * Stratified by region
 stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat household_size ///
 			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 age2 age3 ///
-			 if risk_pop==1 ///
+			 if eth2 != 6 & risk_pop==1 ///
 			 , strata(utla_group)
 
 
@@ -210,7 +228,9 @@ stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat household_s
 
 * Stratified by region
 stcox i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
-			 ib1.hh_total_cat ib1.rural_urban5 ib0.comorb_cat ib1.start_week, strata(utla_group)
+			 ib1.hh_total_cat ib1.rural_urban5 ib0.comorb_cat ib1.start_week ///
+			 if eth2 != 6///
+			 , strata(utla_group)
 			 
 			 
 			 
@@ -228,12 +248,13 @@ stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3, strata(stp)
 stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3, strata(utla_group)
 
 * Plot scaled schoenfeld residuals
+estat phtest, d
 estat phtest, plot(1.sgtf)
 graph export ./output/minadj_cox_shoen.svg, as(svg) replace
 
 * KM plot
 sts graph,	surv by(sgtf) ///
-			ylabel(0.8(0.05)1) ///
+			ylabel(0.95(0.01)1) ///
 			legend(label(1 "non-VOC") label(2 "VOC"))
 graph export ./output/minadj_cox_km.svg, as(svg) replace
 		
@@ -243,7 +264,9 @@ sts graph,	haz by(sgtf) ///
 graph export ./output/minadj_cox_haz.svg, as(svg) replace
 
 * Interaction with time
-stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss age1 age2 age3, strata(utla_group) tvc(i.sgtf)
+stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss age1 age2 age3 ///
+			 if eth2 != 6///
+			 , strata(utla_group) tvc(i.sgtf)
 
 
 			 

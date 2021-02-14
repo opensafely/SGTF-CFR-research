@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /workspace/logs/an_risk28_table1.log
   log type:  text
- opened on:  13 Feb 2021, 17:30:29
+ opened on:  14 Feb 2021, 20:48:36
 
 . 
 . clear
@@ -14,7 +14,7 @@
 > */
 . 
 . use ./output/cr_analysis_dataset.dta
-(SGTF CFR ANALYSIS DATASET: 13 Feb 2021)
+(SGTF CFR ANALYSIS DATASET: 14 Feb 2021)
 
 . 
 . 
@@ -387,7 +387,7 @@ SUBSETTING ON 28-DAY RISK POPULATION
 
 . 
 . *ETHNICITY
-. tabulatevariable, variable(eth5) min(1) max(5) 
+. tabulatevariable, variable(eth5) min(1) max(9) 
   141,311
 
     Variable |        Obs        Mean    Std. Dev.       Min        Max
@@ -438,6 +438,46 @@ SUBSETTING ON 28-DAY RISK POPULATION
   5,217
   70,831
   5,297
+  141,311
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+        eth5 |          0
+  0
+  70,480
+  0
+  70,831
+  0
+  141,311
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+        eth5 |          0
+  0
+  70,480
+  0
+  70,831
+  0
+  141,311
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+        eth5 |          0
+  0
+  70,480
+  0
+  70,831
+  0
+  141,311
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+        eth5 |     35,511           9           0          9          9
+  35,511
+  70,480
+  17,836
+  70,831
+  17,675
 
 . file write tablecontent _n 
 
@@ -833,5 +873,5 @@ rural_urban5 |     56,589           5           0          5          5
       name:  <unnamed>
        log:  /workspace/logs/an_risk28_table1.log
   log type:  text
- closed on:  13 Feb 2021, 17:30:34
+ closed on:  14 Feb 2021, 20:48:40
 -------------------------------------------------------------------------------
