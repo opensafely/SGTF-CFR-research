@@ -1,7 +1,7 @@
 version: '3.0'
 
 expectations:
-  population_size: 400000
+  population_size: 150000
 
 actions:
 
@@ -52,6 +52,13 @@ actions:
     outputs:
       moderately_sensitive:
         log: logs/an_risk_models.log
+
+  anODDS_MOD:
+    run: stata-mp:latest analysis/an_logit_models.do
+    needs: [crMAIN]
+    outputs:
+      moderately_sensitive:
+        log: logs/an_logit_models.log
 
   anCOX_MOD:
     run: stata-mp:latest analysis/an_cox_models.do

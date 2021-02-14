@@ -195,6 +195,15 @@ lincom 1.sgtf + 1.sgtf#4.agegroupA, eform	// 85+
 
 
 
+* Include with 28-days follow-up
+* Stratified by region
+stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat household_size ///
+			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 age2 age3 ///
+			 if risk_pop==1 ///
+			 , strata(utla_group)
+
+
+
 **************************************************
 /* Fully adjusted HR - age grouped, cat hh size */
 **************************************************
