@@ -41,7 +41,7 @@ drop if has_sgtf==0
 * Tabulate number of deaths by SGTF and covariates
 
 foreach var of varlist agegroup agegroupA male imd eth5 eth2 smoke_nomiss smoke_nomiss2 ///
-			obese4cat hh_total_cat stp region rural_urban5 comorb_cat start_week {
+			obese4cat hh_total_cat care_home_type stp region rural_urban5 comorb_cat start_week {
 			
 			noi disp "Table `var'"
 			table `var' sgtf, contents(count patient_id sum risk_28 mean risk_28 sum cox_death)	

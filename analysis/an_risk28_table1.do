@@ -255,6 +255,10 @@ file write tablecontent _n
 
 *HOUSEHOLD SIZE
 tabulatevariable, variable(hh_total_cat) min(1) max(4) 
+file write tablecontent _n
+
+*CARE HOME
+tabulatevariable, variable(care_home_type) min(0) max(1) 
 file write tablecontent _n 
 
 *REGION
