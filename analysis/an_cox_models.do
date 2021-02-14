@@ -151,7 +151,7 @@ lincom 1.sgtf + 1.sgtf#7.start_week, eform	// week 7
 * Comorbidities
 stcox i.sgtf##ib0.comorb_cat i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat household_size ///
 			 ib1.rural_urban5 ib1.start_week age1 age2 age3 ///
-			 if eth2 != 6///
+			 if eth2 != 6 ///
 			 , strata(utla_group)
 
 est store e_comorbX
