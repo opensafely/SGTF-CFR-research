@@ -48,7 +48,7 @@ cap file close tablecontent
 
 file open tablecontent using ./output/table2_hr.txt, write text replace
 
-file write tablecontent ("Table 2: Hazard ratios for VOC vs. non-VOC") _n
+file write tablecontent ("Table 2: Hazard ratios for VOC vs. non-VOC") _n _n
 
 file write tablecontent ("Estimate")	_tab ///
 						("HR (95% CI)")	_tab ///
@@ -74,7 +74,7 @@ stcox i.sgtf, strata(utla_group)
 
 * Output unadjusted
 lincom 1.sgtf, eform
-file write tablecontent ("Unadjusted") _tab 
+file write tablecontent _n ("Unadjusted") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
 
@@ -145,6 +145,8 @@ stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_tota
 			 
 est store e_no_int
 
+estat phtest, d
+
 lincom 1.sgtf, eform
 file write tablecontent ("Fully adj.") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
@@ -165,7 +167,7 @@ est store e_weekX
 * Test for interaction
 lrtest e_no_int e_weekX
 
-file write tablecontent ("Epi. week") _tab _tab %6.4f (r(p)) _n
+file write tablecontent _n ("Epi. week") _tab _tab %6.4f (r(p)) _n
 
 * Epi week VOC vs. non-VOC HR
 lincom 1.sgtf, eform						// week 1
@@ -209,7 +211,7 @@ est store e_comorbX
 * Test for interaction
 lrtest e_no_int e_comorbX
 
-file write tablecontent ("Comorbidities") _tab _tab %6.4f (r(p)) _n
+file write tablecontent _n ("Comorbidities") _tab _tab %6.4f (r(p)) _n
 
 * Comorbidities VOC vs. non-VOC HR
 lincom 1.sgtf, eform						// no comorbs
@@ -237,7 +239,7 @@ est store e_eth2X
 * Test for interaction
 lrtest e_no_int e_eth2X
 
-file write tablecontent ("Ethnicity") _tab _tab %6.4f (r(p)) _n
+file write tablecontent _n ("Ethnicity") _tab _tab %6.4f (r(p)) _n
 
 * Ethnicity VOC vs. non-VOC HR
 lincom 1.sgtf, eform					// White
@@ -273,7 +275,7 @@ est store e_ageX
 * Test for interaction
 lrtest e_age e_ageX
 
-file write tablecontent ("Age group") _tab _tab %6.4f (r(p)) _n
+file write tablecontent _n ("Age group") _tab _tab %6.4f (r(p)) _n
 
 * Age group VOC vs. non-VOC HR
 lincom 1.sgtf, eform						// 0-<65

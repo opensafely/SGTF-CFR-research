@@ -59,6 +59,8 @@ actions:
     outputs:
       moderately_sensitive:
         log: logs/an_logit_models.log
+        table1text: output/table3_abs_risk.txt
+        table1xlsx: output/table3_abs_risk.xlsx
 
   anCOX_MOD:
     run: stata-mp:latest analysis/an_cox_models.do

@@ -17,8 +17,8 @@
 *
 ********************************************************************************
 *
-*	Purpose:		This do-file runs risk models, calculating relative (glm) and
-*					absolute risk (margins)
+*	Purpose:		This do-file runs logit models, calculating relative (glm) and
+*					absolute odds (margins)
 *  
 ********************************************************************************
 
@@ -113,9 +113,10 @@ glm risk_28 i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.o
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
 
+est store fully
 
 * Adjusted absolute odds
-margins agegroupA#male comorb_cat, over(sgtf) post
+margins male#agegroupA if sgtf==0, post
 
 * Save odds estimates
 matrix est = e(b)
@@ -127,10 +128,10 @@ matrix var = e(V)
 matrix diag_var = vecdiag(var)
 matrix inv_var = diag_var'
 svmat inv_var
-gen sq_var = sqrt(inv_var)
+gen sq_var = sqrt(inv_var1)
 
 noi disp "CHECK MARGINS ARE CORRECTLY CALCULATED TO MATCH ABOVE"
-list inv_est sq_var in 1/22
+list inv_est1 sq_var in 1/8
 
 * Re-Calculate CI
 gen lb = inv_est1 - 1.96*sq_var
@@ -139,38 +140,81 @@ gen ub = inv_est1 + 1.96*sq_var
 order lb ub, after(inv_est1)
 
 * Convert to risk
-gen risk = inv_est1 / (1 + inv_est1)
-gen r_lb = lb / (1 + lb)
-gen r_ub = ub / (1 + ub)
+gen risk0 = (inv_est1 / (1 + inv_est1))*100
+gen r_lb0 = (lb / (1 + lb))*100
+gen r_ub0 = (ub / (1 + ub))*100
 
-gen risk_labels = "non-VOC: 0-<65 :F" in 1
-replace risk_labels = "non-VOC: 0-<65 :M" in 2
-replace risk_labels = "non-VOC: 65-<75 :F" in 3
-replace risk_labels = "non-VOC: 65-<75 :M" in 4
-replace risk_labels = "non-VOC: 75-<85 : F" in 5
-replace risk_labels = "non-VOC: 75-<85 : M" in 6
-replace risk_labels = "non-VOC: 85+ : F" in 7
-replace risk_labels = "non-VOC: 85+ : M" in 8
 
-replace risk_labels = "VOC: 0-<65 :F" in 9
-replace risk_labels = "VOC: 0-<65 :M" in 10
-replace risk_labels = "VOC: 65-<75 :F" in 11
-replace risk_labels = "VOC: 65-<75 :M" in 12
-replace risk_labels = "VOC: 75-<85 : F" in 13
-replace risk_labels = "VOC: 75-<85 : M" in 14
-replace risk_labels = "VOC: 85+ : F" in 15
-replace risk_labels = "VOC: 85+ : M" in 16
+est restore fully
 
-replace risk_labels = "non-VOC: None" in 17
-replace risk_labels = "non-VOC: 1" in 18
-replace risk_labels = "non-VOC: 2+" in 19
+* Adjusted absolute odds
+margins male#agegroupA if sgtf==1, post
 
-replace risk_labels = "VOC: None" in 20
-replace risk_labels = "VOC: 1" in 21
-replace risk_labels = "VOC: 2+" in 22
+* Save odds estimates
+matrix est1 = e(b)
+matrix inv_estx = est1'
+svmat inv_estx
+
+* Save SE estimates
+matrix var1 = e(V)
+matrix diag_var1 = vecdiag(var1)
+matrix inv_varx = diag_var1'
+svmat inv_varx
+gen sq_varx = sqrt(inv_varx1)
+
+noi disp "CHECK MARGINS ARE CORRECTLY CALCULATED TO MATCH ABOVE"
+list inv_estx1 sq_varx in 1/8
+
+* Re-Calculate CI
+gen lb1 = inv_estx1 - 1.96*sq_varx
+gen ub1 = inv_estx1 + 1.96*sq_varx
+
+order lb1 ub1, after(inv_estx1)
+
+* Convert to risk
+gen risk1 = (inv_estx1 / (1 + inv_estx1))*100
+gen r_lb1 = (lb1 / (1 + lb1))*100
+gen r_ub1 = (ub1 / (1 + ub1))*100
+
+
+gen risk_labels = "F: 0-<65" in 1
+replace risk_labels = "F: 65-<75" in 2
+replace risk_labels = "F: 75-<85" in 3
+replace risk_labels = "F: 85+" in 4
+
+replace risk_labels = "M: 0-<65" in 5
+replace risk_labels = "M: 65-<75" in 6
+replace risk_labels = "M: 75-<85" in 7
+replace risk_labels = "M: 85+" in 8
 
 noi disp "ABSOLUTE RISK ESTIMATES"
-list risk_labels risk r_lb r_ub in 1/22
+list risk_labels risk0 r_lb0 r_ub0 risk1 r_lb1 r_ub1 in 1/8
+
+
+***********************************
+/* Output table of absolute risk */
+***********************************
+
+cap file close tablecontent
+
+file open tablecontent using ./output/table3_abs_risk.txt, write text replace
+
+file write tablecontent ("Table 3: Absolute risk of death by 28-days") _n _n
+
+file write tablecontent ("Sex/Age group")		_tab ///
+						("non-VOC (95% CI)")	_tab ///
+						("VOC (95% CI)")		_n
+
+forvalues i=1/8 {
+	
+	preserve
+		keep if _n == `i'
+		file write tablecontent %9s (risk_labels) _tab %4.2f (risk0) (" (") %4.2f (r_lb0) ("-") %4.2f (r_ub0) (")") _tab %4.2f (risk1) (" (") %4.2f (r_lb1) ("-") %4.2f (r_ub1) (")") _n
+	restore
+
+}
+
+file close tablecontent
 
 
 
@@ -373,3 +417,8 @@ margins sgtf, asbalanced
 
 
 log close
+
+
+
+insheet using ./output/table3_abs_risk.txt, clear
+export excel using ./output/table3_abs_risk.xlsx, replace
