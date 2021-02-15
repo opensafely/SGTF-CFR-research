@@ -104,17 +104,21 @@ stcox i.sgtf if study_start >= date("01dec2020", "DMY"), tvc(i.sgtf) strata(utla
 
 
 *********************************************************************
-/* Demographically adjusted HR - age as spline, continuous hh size */
+/* Demographically adjusted HR - age as spline, cat hh size 	   */
 /* Not adjusting for comorbidities, obesity, or smoking	status	   */
 *********************************************************************
 
 * Stratified by region
-stcox i.sgtf i.male ib1.imd ib1.eth2 household_size i.home_bin ///
+stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat i.home_bin ///
 			 ib1.rural_urban5 ib1.start_week age1 age2 age3 ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
 
-			 
+lincom 1.sgtf, eform
+file write tablecontent ("Demographically adj.") _tab 
+file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+
 			 
 *********************************************************************
 /* Demographically adjusted HR - age grouped, cat hh size		   */
@@ -127,9 +131,6 @@ stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat i.home_bin ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
 
-lincom 1.sgtf, eform
-file write tablecontent ("Demographically adj.") _tab 
-file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
 			 
 ****************************************************
