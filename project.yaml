@@ -72,3 +72,5 @@ actions:
         figure4: output/minadj_cox_shoen.svg
         figure5: output/minadj_cox_km.svg
         figure6: output/minadj_cox_haz.svg
+        table1text: output/table2_hr.txt
+        table1xlsx: output/table2_hr.xlsx
