@@ -141,15 +141,15 @@ estat phtest, plot(1.sgtf)
 graph export ./output/cox_shoen.svg, as(svg) replace
 
 * KM plot
-sts graph,	surv by(sgtf) ci risktable ///
+sts graph,	surv by(sgtf) ci risktable(, order(1 "non-VOC" 2 "VOC") size(small)) ///
 			ylabel(0.994(0.001)1, format(%5.3f)) ///
-			legend(label(1 "non-VOC") label(2 "VOC"))
+			legend(order(2 4) label(2 "non-VOC") label(4 "VOC") rows(1))
 graph export ./output/cox_km.svg, as(svg) replace
 
 * Cumulative hazard plot
 sts graph,	cumhaz by(sgtf) ci ///
 			ylabel(minmax, format(%5.3f)) ///
-			legend(label(1 "non-VOC") label(2 "VOC"))
+			legend(order(2 4) label(2 "non-VOC") label(4 "VOC") rows(1))
 graph export ./output/cox_cumhaz.svg, as(svg) replace
 		
 * Smoothed hazard plot
