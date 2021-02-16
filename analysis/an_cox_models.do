@@ -78,21 +78,6 @@ file write tablecontent _n ("Unadjusted") _tab
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
 
-* Plot scaled schoenfeld residuals
-estat phtest, plot(1.sgtf)
-graph export ./output/unadj_cox_shoen.svg, as(svg) replace
-
-* KM plot
-sts graph,	surv by(sgtf) ///
-			ylabel(0.995(0.001)1) ///
-			legend(label(1 "non-VOC") label(2 "VOC"))
-graph export ./output/unadj_cox_km.svg, as(svg) replace
-		
-* Smoothed hazard plot
-sts graph,	haz by(sgtf) ///
-			legend(label(1 "non-VOC") label(2 "VOC"))
-graph export ./output/unadj_cox_haz.svg, as(svg) replace
-
 * Interaction with time
 stcox i.sgtf, tvc(i.sgtf) strata(utla_group)
 
@@ -150,6 +135,27 @@ estat phtest, d
 lincom 1.sgtf, eform
 file write tablecontent ("Fully adj.") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+* Plot scaled schoenfeld residuals
+estat phtest, plot(1.sgtf)
+graph export ./output/cox_shoen.svg, as(svg) replace
+
+* KM plot
+sts graph,	surv by(sgtf) ci risktable ///
+			ylabel(0.994(0.001)1, format(%5.3f)) ///
+			legend(label(1 "non-VOC") label(2 "VOC"))
+graph export ./output/cox_km.svg, as(svg) replace
+
+* Cumulative hazard plot
+sts graph,	cumhaz by(sgtf) ci ///
+			ylabel(minmax, format(%5.3f)) ///
+			legend(label(1 "non-VOC") label(2 "VOC"))
+graph export ./output/cox_cumhaz.svg, as(svg) replace
+		
+* Smoothed hazard plot
+sts graph,	haz by(sgtf) ///
+			legend(label(1 "non-VOC") label(2 "VOC"))
+graph export ./output/cox_haz.svg, as(svg) replace
 
 
 /* Subgroup analyses */
@@ -257,6 +263,42 @@ file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(
 
 
 
+* IMD
+stcox i.sgtf##ib1.imd i.male ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
+			 ib1.rural_urban5 ib1.start_week ib0.comorb_cat age1 age2 age3 i.home_bin ///
+			 if eth2 != 6 ///
+			 , strata(utla_group)
+
+est store e_imdX
+
+* Test for interaction
+lrtest e_no_int e_imdX
+
+file write tablecontent _n ("IMD") _tab _tab %6.4f (r(p)) _n
+
+* IMD VOC vs. non-VOC HR
+lincom 1.sgtf, eform						// 1
+file write tablecontent ("1 Least deprived") _tab 
+file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+lincom 1.sgtf + 1.sgtf#2.imd, eform	// 2
+file write tablecontent ("2") _tab 
+file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+lincom 1.sgtf + 1.sgtf#3.imd, eform	// 3
+file write tablecontent ("3") _tab 
+file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+lincom 1.sgtf + 1.sgtf#4.imd, eform	// 4
+file write tablecontent ("4") _tab 
+file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+lincom 1.sgtf + 1.sgtf#5.imd, eform	// 5
+file write tablecontent ("5 Most deprived") _tab 
+file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+
+
 * Age group
 stcox i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
 			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.home_bin ///
@@ -352,22 +394,6 @@ lincom 1.sgtf, eform
 file write tablecontent ("Causal min. adjustment") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
-
-* Plot scaled schoenfeld residuals
-estat phtest, d
-estat phtest, plot(1.sgtf)
-graph export ./output/minadj_cox_shoen.svg, as(svg) replace
-
-* KM plot
-sts graph,	surv by(sgtf) ///
-			ylabel(0.995(0.001)1) ///
-			legend(label(1 "non-VOC") label(2 "VOC"))
-graph export ./output/minadj_cox_km.svg, as(svg) replace
-		
-* Smoothed hazard plot
-sts graph,	haz by(sgtf) ///
-			legend(label(1 "non-VOC") label(2 "VOC"))
-graph export ./output/minadj_cox_haz.svg, as(svg) replace
 
 * Interaction with time
 stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss age1 age2 age3 ///

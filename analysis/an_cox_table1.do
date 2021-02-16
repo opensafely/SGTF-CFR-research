@@ -218,8 +218,12 @@ patient_id age ageCat hh_id hh_size hh_composition case_date case eth5 eth16 eth
 tabulatevariable, variable(cox_death) min(0) max(1) 
 file write tablecontent _n
 
-*SURVIVAL TIME
+*FOLLOW-UP TIME
 summarizevariable, variable(cox_time) 
+file write tablecontent _n
+
+*TIME TO DEATH
+summarizevariable, variable(cox_time_d) 
 file write tablecontent _n
 
 *SEX

@@ -950,6 +950,7 @@ gen cox_death = (died_date_ons < .)
 replace cox_death = 0 if (died_date_ons > stime_death)
 
 gen cox_time = stime_death-study_start
+gen cox_time_d = stime_death-study_start if cox_death==1
 
 * Format date variables
 format ons_data_date ons_data_cens risk_28_days risk_40_days stime_death %td 
@@ -1074,7 +1075,8 @@ label var risk_40						"40-day outcome"
 label var cox_pop						"1=Population for Cox analysis"
 label var stime_death					"Date of study exit"
 label var cox_death						"Outcome for Cox"
-label var cox_time						"Survival time"
+label var cox_time						"Follow-up time"
+label var cox_time_d					"Time to death"
 label var sgtf							"SGTF (exposure)"
 label var has_sgtf						"1=Has SGTF data"
 
