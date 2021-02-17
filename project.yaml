@@ -71,6 +71,15 @@ actions:
         table1text: output/table3_abs_risk.txt
         table1xlsx: output/table3_abs_risk.xlsx
 
+  anODDS_MOD40:
+    run: stata-mp:latest analysis/an_logit_models_40.do
+    needs: [crMAIN]
+    outputs:
+      moderately_sensitive:
+        log: logs/an_logit_models_40.log
+        table1text: output/table3_abs_risk40.txt
+        table1xlsx: output/table3_abs_risk40.xlsx
+
   anCOX_MOD:
     run: stata-mp:latest analysis/an_cox_models.do
     needs: [crMAIN]
@@ -83,3 +92,10 @@ actions:
         figure4: output/cox_haz.svg
         table1text: output/table2_hr.txt
         table1xlsx: output/table2_hr.xlsx
+
+  anCOX_SENS:
+    run: stata-mp:latest analysis/an_cox_models_sgtf_sens.do
+    needs: [crMAIN]
+    outputs:
+      moderately_sensitive:
+        log: logs/an_cox_models_sgtf_sens.log

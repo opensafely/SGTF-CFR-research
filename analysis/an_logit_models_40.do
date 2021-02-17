@@ -1,6 +1,6 @@
 ********************************************************************************
 *
-*	Do-file:		an_logit_models.do
+*	Do-file:		an_logit_models_40.do
 *
 *	Project:		SGTF CFR
 *
@@ -24,7 +24,7 @@
 
 * Open a log file
 cap log close
-log using ./logs/an_logit_models, replace t
+log using ./logs/an_logit_models_40, replace t
 
 clear
 
@@ -38,10 +38,10 @@ use ./output/cr_analysis_dataset.dta
 noi di "DROPPING NO SGTF DATA" 
 drop if has_sgtf==0
 
-noi di "SUBSETTING ON 28-DAY RISK POPULATION"
-keep if risk_pop==1
+noi di "SUBSETTING ON 40-DAY RISK POPULATION"
+keep if risk_pop_40==1
 
-tab sgtf risk_28, row
+tab sgtf risk_40, row
 
 
 
@@ -49,45 +49,10 @@ tab sgtf risk_28, row
 /* Unadjusted OR */
 *******************
 
-glm risk_28 i.sgtf, family(bin) link(logit) eform
+glm risk_40 i.sgtf, family(bin) link(logit) eform
 
 * Absolute odds
 margins sgtf
-
-
-
-*********************************************************************
-/* Demographically adjusted OR - age as spline, continuous hh size */
-/* Not adjusting for comorbidities, obesity, or smoking	status	   */
-*********************************************************************
-
-glm risk_28 i.sgtf i.male ib1.imd ib1.eth2 household_size i.home_bin ///
-			i.region ib1.rural_urban5 ib1.start_week age1 age2 age3 ///
-			if eth2 != 6 ///
-			, family(bin) link(logit) eform
-
-
-
-*********************************************************************
-/* Demographically adjusted OR - age grouped, cat hh size		   */
-/* Not adjusting for comorbidities, obesity, or smoking	status	   */
-*********************************************************************
-
-glm risk_28 i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat i.home_bin ///
-			i.region ib1.rural_urban5 ib1.start_week ib2.agegroupA ///
-			if eth2 != 6 ///
-			, family(bin) link(logit) eform
-
-
-
-***********************************************************
-/* Fully adjusted OR - age as spline, continuous hh size */
-***********************************************************
-
-glm risk_28 i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat household_size ///
-			i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 age2 age3 i.home_bin ///
-			if eth2 != 6 ///
-			, family(bin) link(logit) eform
 
 
 
@@ -95,7 +60,7 @@ glm risk_28 i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat house
 /* Fully adjusted OR - age grouped, cat hh size */
 **************************************************
 
-glm risk_28 i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
+glm risk_40 i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
 			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.home_bin ///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
@@ -195,9 +160,9 @@ replace risk_labels = "85+" in 25
 
 cap file close tablecontent
 
-file open tablecontent using ./output/table3_abs_risk.txt, write text replace
+file open tablecontent using ./output/table3_abs_risk40.txt, write text replace
 
-file write tablecontent ("Table 3: Absolute risk of death by 28-days") _n _n
+file write tablecontent ("Table S3: Absolute risk of death by 40-days") _n _n
 
 file write tablecontent ("Comorbidities/Sex/Age group")		_tab ///
 						("non-VOC (95% CI)")				_tab ///
@@ -242,7 +207,7 @@ margins sgtf comorb_cat#male#agegroupA if sgtf==1, post asbalanced
 
 /* Fully adjusted OR - age grouped, cat hh size */
 
-glm risk_28 i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
+glm risk_40 i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
 			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.home_bin ///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
@@ -255,7 +220,7 @@ lincom 1.sgtf, eform
 
 
 /* Age group */
-glm risk_28 i.sgtf##ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
+glm risk_40 i.sgtf##ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
 			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.home_bin ///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
@@ -273,7 +238,7 @@ lincom 1.sgtf + 1.sgtf#4.agegroupA, eform	// 85+
 
 
 /* Ethnicity */
-glm risk_28 i.sgtf##ib1.eth2 ib0.comorb_cat ib2.agegroupA i.male ib1.imd ib1.smoke_nomiss2 ib1.obese4cat ///
+glm risk_40 i.sgtf##ib1.eth2 ib0.comorb_cat ib2.agegroupA i.male ib1.imd ib1.smoke_nomiss2 ib1.obese4cat ///
 			ib1.hh_total_cat i.region ib1.rural_urban5 ib1.start_week i.home_bin ///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
@@ -294,7 +259,7 @@ lincom 1.sgtf + 1.sgtf#5.eth2, eform	// Other
 
 
 /* Comorbidities */
-glm risk_28 i.sgtf##ib0.comorb_cat ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
+glm risk_40 i.sgtf##ib0.comorb_cat ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
 			ib1.hh_total_cat i.region ib1.rural_urban5 ib1.start_week i.home_bin ///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
@@ -312,7 +277,7 @@ lincom 1.sgtf + 1.sgtf#2.comorb_cat, eform	// 2+ comorbs
 
 
 /* IMD */
-glm risk_28 i.sgtf##ib1.imd ib2.agegroupA i.male ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
+glm risk_40 i.sgtf##ib1.imd ib2.agegroupA i.male ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
 			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.home_bin ///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
@@ -332,7 +297,7 @@ lincom 1.sgtf + 1.sgtf#5.imd, eform	// 5 most deprived
 
 
 /* Epi week */
-glm risk_28 i.sgtf##ib1.start_week ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
+glm risk_40 i.sgtf##ib1.start_week ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
 			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat i.home_bin ///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
@@ -356,14 +321,14 @@ lincom 1.sgtf + 1.sgtf#7.start_week, eform	// week 7
 /* NHS region */
 
 /*
-glm risk_28 i.sgtf i.agegroupA i.male ib1.imd ib1.eth5 ib1.smoke_nomiss ib1.obese4cat ///
+glm risk_40 i.sgtf i.agegroupA i.male ib1.imd ib1.eth5 ib1.smoke_nomiss ib1.obese4cat ///
 			ib1.hh_total_cat ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.region, ///
 			family(bin) link(log) eform
 			
 est store e_region
 */
 
-glm risk_28 i.sgtf##i.region ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
+glm risk_40 i.sgtf##i.region ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
 			ib1.hh_total_cat ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.home_bin ///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
@@ -391,19 +356,19 @@ lincom 1.sgtf + 1.sgtf#8.region, eform	// Yorks & Hum
 /* deprivation index, and smoking status						   */
 *********************************************************************
 
-glm risk_28 i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3 i.home_bin, ///
+glm risk_40 i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3 i.home_bin, ///
 			family(bin) link(logit) eform
 
 
 
 * Age grouped
-glm risk_28 i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 ib2.agegroupA i.home_bin, ///
+glm risk_40 i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 ib2.agegroupA i.home_bin, ///
 			family(bin) link(logit) eform
 
 
 
 * With region
-glm risk_28 i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 ib2.agegroupA i.home_bin i.region, ///
+glm risk_40 i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 ib2.agegroupA i.home_bin i.region, ///
 			family(bin) link(logit) eform
 
 
@@ -413,5 +378,5 @@ log close
 
 
 
-insheet using ./output/table3_abs_risk.txt, clear
-export excel using ./output/table3_abs_risk.xlsx, replace
+insheet using ./output/table3_abs_risk40.txt, clear
+export excel using ./output/table3_abs_risk40.xlsx, replace
