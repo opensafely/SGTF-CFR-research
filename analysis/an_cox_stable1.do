@@ -57,7 +57,7 @@ syntax, variable(varname) condition(string)
 	file write tablecontent %9.0gc (`rowdenom')  (" (") %3.1f (`colpct') (")") _tab
 
 	/*this loops through groups*/
-	forvalues i=0 1 9 99 {
+	foreach i in 0 1 9 99 {
 	cou if sgtf == `i'
 	local rowdenom = r(N)
 	cou if sgtf == `i' & `variable' `condition'
@@ -84,7 +84,7 @@ syntax, variable(varname) condition(string)
 	local colpct = 100*(r(N)/`overalldenom')
 	file write tablecontent %9.0gc (`rowdenom')  (" (") %3.1f (`colpct') (")") _tab
 
-	forvalues i=0 1 9 99 {
+	foreach i in 0 1 9 99 {
 	cou if sgtf == `i'
 	local rowdenom = r(N)
 	cou if sgtf == `i' & `variable' `condition'
@@ -159,7 +159,7 @@ syntax, variable(varname)
 	file write tablecontent ("Mean (SD)") _tab 
 	file write tablecontent  %3.1f (r(mean)) (" (") %3.1f (r(sd)) (")") _tab
 	
-	forvalues i=0 1 9 99 {							
+	foreach i in 0 1 9 99 {							
 	qui summarize `variable' if sgtf == `i', d
 	file write tablecontent  %3.1f (r(mean)) (" (") %3.1f (r(sd)) (")") _tab
 	}
@@ -171,7 +171,7 @@ file write tablecontent _n
 	file write tablecontent ("Median (IQR)") _tab 
 	file write tablecontent %3.1f (r(p50)) (" (") %3.1f (r(p25)) ("-") %3.1f (r(p75)) (")") _tab
 	
-	forvalues i=0 1 9 99 {
+	foreach i in 0 1 9 99 {
 	qui summarize `variable' if sgtf == `i', d
 	file write tablecontent %3.1f (r(p50)) (" (") %3.1f (r(p25)) ("-") %3.1f (r(p75)) (")") _tab
 	}
@@ -195,6 +195,7 @@ keep if cox_pop==1
 cap file close tablecontent
 
 file open tablecontent using ./output/stable1_cox.txt, write text replace
+file open tablecontent using "C:\Users\EIDEDGRI\Documents\GitHub\SGTF-CFR-research\output\test.txt", write text replace
 
 file write tablecontent ("Table S1: Demographic and Clinical Characteristics") _n
 
@@ -216,6 +217,10 @@ patient_id age ageCat hh_id hh_size hh_composition case_date case eth5 eth16 eth
 tabulatevariable, variable(cox_death) min(0) max(1) 
 file write tablecontent _n
 
+*TIME TO DEATH
+summarizevariable, variable(cox_time_d) 
+file write tablecontent _n
+
 *FOLLOW-UP TIME
 summarizevariable, variable(cox_time) 
 file write tablecontent _n
@@ -223,10 +228,6 @@ file write tablecontent _n
 *EPI WEEK
 tabulatevariable, variable(start_week) min(1) max(7) 
 file write tablecontent _n 
-
-*TIME TO DEATH
-summarizevariable, variable(cox_time_d) 
-file write tablecontent _n
 
 *SEX
 tabulatevariable, variable(male) min(0) max(1) 
