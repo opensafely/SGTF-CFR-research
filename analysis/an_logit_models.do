@@ -44,6 +44,7 @@ keep if risk_pop==1
 tab sgtf risk_28, row
 
 
+
 *******************
 /* Unadjusted OR */
 *******************
@@ -52,6 +53,7 @@ glm risk_28 i.sgtf, family(bin) link(logit) eform
 
 * Absolute odds
 margins sgtf
+
 
 
 *********************************************************************
@@ -63,11 +65,6 @@ glm risk_28 i.sgtf i.male ib1.imd ib1.eth2 household_size i.home_bin ///
 			i.region ib1.rural_urban5 ib1.start_week age1 age2 age3 ///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
-
-
-* Adjusted absolute odds
-margins sgtf
-margins sgtf, asbalanced
 
 
 
@@ -82,11 +79,6 @@ glm risk_28 i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat i.home_bin ///
 			, family(bin) link(logit) eform
 
 
-* Adjusted absolute odds
-margins sgtf
-margins sgtf, asbalanced
-
-
 
 ***********************************************************
 /* Fully adjusted OR - age as spline, continuous hh size */
@@ -96,11 +88,6 @@ glm risk_28 i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat house
 			i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 age2 age3 i.home_bin ///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
-
-
-* Adjusted absolute odds
-margins sgtf
-margins sgtf, asbalanced
 
 
 
@@ -115,10 +102,10 @@ glm risk_28 i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.o
 
 est store fully
 
-* Adjusted absolute odds
-margins male#agegroupA if sgtf==0, post
+* Adjusted absolute risks
+margins sgtf comorb_cat#male#agegroupA if sgtf==0, post asobserved
 
-* Save odds estimates
+* Save risk estimates
 matrix est = e(b)
 matrix inv_est = est'
 svmat inv_est
@@ -131,24 +118,20 @@ svmat inv_var
 gen sq_var = sqrt(inv_var1)
 
 noi disp "CHECK MARGINS ARE CORRECTLY CALCULATED TO MATCH ABOVE"
-list inv_est1 sq_var in 1/8
+list inv_est1 sq_var in 1/25
 
 * Re-Calculate CI
-gen lb = inv_est1 - 1.96*sq_var
-gen ub = inv_est1 + 1.96*sq_var
+gen risk0 = inv_est1*100
+gen lb0 = (inv_est1 - invnormal(0.975)*sq_var)*100
+gen ub0 = (inv_est1 + invnormal(0.975)*sq_var)*100
 
-order lb ub, after(inv_est1)
-
-* Convert to risk
-gen risk0 = (inv_est1 / (1 + inv_est1))*100
-gen r_lb0 = (lb / (1 + lb))*100
-gen r_ub0 = (ub / (1 + ub))*100
+order lb ub, after(risk0)
 
 
 est restore fully
 
 * Adjusted absolute odds
-margins male#agegroupA if sgtf==1, post
+margins sgtf comorb_cat#male#agegroupA if sgtf==1, post asobserved
 
 * Save odds estimates
 matrix est1 = e(b)
@@ -163,32 +146,47 @@ svmat inv_varx
 gen sq_varx = sqrt(inv_varx1)
 
 noi disp "CHECK MARGINS ARE CORRECTLY CALCULATED TO MATCH ABOVE"
-list inv_estx1 sq_varx in 1/8
+list inv_estx1 sq_varx in 1/25
 
 * Re-Calculate CI
-gen lb1 = inv_estx1 - 1.96*sq_varx
-gen ub1 = inv_estx1 + 1.96*sq_varx
+gen risk1 = inv_estx1*100
+gen lb1 = (inv_estx1 - invnormal(0.975)*sq_varx)*100
+gen ub1 = (inv_estx1 + invnormal(0.975)*sq_varx)*100
 
-order lb1 ub1, after(inv_estx1)
-
-* Convert to risk
-gen risk1 = (inv_estx1 / (1 + inv_estx1))*100
-gen r_lb1 = (lb1 / (1 + lb1))*100
-gen r_ub1 = (ub1 / (1 + ub1))*100
+order lb1 ub1, after(risk1)
 
 
-gen risk_labels = "F: 0-<65" in 1
-replace risk_labels = "F: 65-<75" in 2
-replace risk_labels = "F: 75-<85" in 3
-replace risk_labels = "F: 85+" in 4
+gen risk_labels = "Overall" in 1
 
-replace risk_labels = "M: 0-<65" in 5
-replace risk_labels = "M: 65-<75" in 6
-replace risk_labels = "M: 75-<85" in 7
-replace risk_labels = "M: 85+" in 8
+replace risk_labels = "Female: 0-<65" in 2
+replace risk_labels = "65-<75" in 3
+replace risk_labels = "75-<85" in 4
+replace risk_labels = "85+" in 5
 
-noi disp "ABSOLUTE RISK ESTIMATES"
-list risk_labels risk0 r_lb0 r_ub0 risk1 r_lb1 r_ub1 in 1/8
+replace risk_labels = "Male: 0-<65" in 6
+replace risk_labels = "65-<75" in 7
+replace risk_labels = "75-<85" in 8
+replace risk_labels = "85+" in 9
+
+replace risk_labels = "Female: 0-<65" in 10
+replace risk_labels = "65-<75" in 11
+replace risk_labels = "75-<85" in 12
+replace risk_labels = "85+" in 13
+
+replace risk_labels = "Male: 0-<65" in 14
+replace risk_labels = "65-<75" in 15
+replace risk_labels = "75-<85" in 16
+replace risk_labels = "85+" in 17
+
+replace risk_labels = "Female: 0-<65" in 18
+replace risk_labels = "65-<75" in 19
+replace risk_labels = "75-<85" in 20
+replace risk_labels = "85+" in 21
+
+replace risk_labels = "Male: 0-<65" in 22
+replace risk_labels = "65-<75" in 23
+replace risk_labels = "75-<85" in 24
+replace risk_labels = "85+" in 25
 
 
 ***********************************
@@ -201,20 +199,40 @@ file open tablecontent using ./output/table3_abs_risk.txt, write text replace
 
 file write tablecontent ("Table 3: Absolute risk of death by 28-days") _n _n
 
-file write tablecontent ("Sex/Age group")		_tab ///
-						("non-VOC (95% CI)")	_tab ///
-						("VOC (95% CI)")		_n
+file write tablecontent ("Comorbidities/Sex/Age group")		_tab ///
+						("non-VOC (95% CI)")				_tab ///
+						("VOC (95% CI)")					_n
 
-forvalues i=1/8 {
+forvalues i=1/25 {
 	
 	preserve
 		keep if _n == `i'
-		file write tablecontent %9s (risk_labels) _tab %4.2f (risk0) (" (") %4.2f (r_lb0) ("-") %4.2f (r_ub0) (")") _tab %4.2f (risk1) (" (") %4.2f (r_lb1) ("-") %4.2f (r_ub1) (")") _n
+		if inlist(`i',1,6,14,22) {
+			file write tablecontent _n
+		}
+		if `i'==2 {
+			file write tablecontent _n ("No comorbidities") _n
+		}
+		if `i'==10 {
+			file write tablecontent _n ("1 comorbidity") _n
+		}
+		if `i'==18 {
+			file write tablecontent _n ("2+ comorbidities") _n
+		}
+		file write tablecontent %9s (risk_labels) _tab %3.1f (risk0) (" (") %3.1f (lb0) ("-") %3.1f (ub0) (")") _tab %3.1f (risk1) (" (") %3.1f (lb1) ("-") %3.1f (ub1) (")") _n
 	restore
 
 }
 
 file close tablecontent
+
+
+* Risks as balanced
+est restore fully
+margins sgtf comorb_cat#male#agegroupA if sgtf==0, post asbalanced
+
+est restore fully
+margins sgtf comorb_cat#male#agegroupA if sgtf==1, post asbalanced
 
 
 
@@ -233,7 +251,7 @@ est store e_no_int
 
 * Constant VOC effect over subgroups
 lincom 1.sgtf, eform
-margins sgtf
+
 
 
 /* Age group */
@@ -252,8 +270,6 @@ lincom 1.sgtf + 1.sgtf#2.agegroupA, eform	// 65-<75
 lincom 1.sgtf + 1.sgtf#3.agegroupA, eform	// 75-<85
 lincom 1.sgtf + 1.sgtf#4.agegroupA, eform	// 85+
 
-* Age group marginal odds
-margins sgtf, over(agegroupA)
 
 
 /* Ethnicity */
@@ -275,9 +291,6 @@ lincom 1.sgtf, eform					// White
 lincom 1.sgtf + 1.sgtf#5.eth2, eform	// Other
 *lincom 1.sgtf + 1.sgtf#6.eth2, eform	// Missing
 
-* Ethnicity marginal odds
-margins sgtf, over(eth2)
-
 
 
 /* Comorbidities */
@@ -296,8 +309,6 @@ lincom 1.sgtf, eform						// no comorbs
 lincom 1.sgtf + 1.sgtf#1.comorb_cat, eform	// 1 comorb
 lincom 1.sgtf + 1.sgtf#2.comorb_cat, eform	// 2+ comorbs
 
-* Comorbidity marginal odds
-margins sgtf, over(comorb_cat)
 
 
 /* IMD */
@@ -317,9 +328,6 @@ lincom 1.sgtf + 1.sgtf#2.imd, eform	// 2
 lincom 1.sgtf + 1.sgtf#3.imd, eform	// 3
 lincom 1.sgtf + 1.sgtf#4.imd, eform	// 4
 lincom 1.sgtf + 1.sgtf#5.imd, eform	// 5 most deprived
-
-* IMD marginal odds
-margins sgtf, over(imd)
 
 
 
@@ -343,8 +351,6 @@ lincom 1.sgtf + 1.sgtf#5.start_week, eform	// week 5
 lincom 1.sgtf + 1.sgtf#6.start_week, eform	// week 6
 lincom 1.sgtf + 1.sgtf#7.start_week, eform	// week 7
 
-* Epi week marginal odds
-margins sgtf, over(start_week)
 
 
 /* NHS region */
@@ -378,9 +384,6 @@ lincom 1.sgtf + 1.sgtf#6.region, eform	// South W
 lincom 1.sgtf + 1.sgtf#7.region, eform	// West mids
 lincom 1.sgtf + 1.sgtf#8.region, eform	// Yorks & Hum
 
-* NHS region marginal odds
-margins sgtf, over(region)
-
 
 
 *********************************************************************
@@ -391,28 +394,18 @@ margins sgtf, over(region)
 glm risk_28 i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3 i.home_bin, ///
 			family(bin) link(logit) eform
 
-* Adjusted absolute odds
-margins sgtf
-margins sgtf, asbalanced
 
 
 * Age grouped
 glm risk_28 i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 ib2.agegroupA i.home_bin, ///
 			family(bin) link(logit) eform
 
-* Adjusted absolute odds
-margins sgtf
-margins sgtf, asbalanced
 
 
 * With region
 glm risk_28 i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 ib2.agegroupA i.home_bin i.region, ///
 			family(bin) link(logit) eform
 
-
-* Adjusted absolute odds
-margins sgtf
-margins sgtf, asbalanced
 
 
 
