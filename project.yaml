@@ -46,6 +46,15 @@ actions:
         table1text: output/table1_cox.txt
         table1xlsx: output/table1_cox.xlsx
 
+  anCOX_STAB1:
+    run: stata-mp:latest analysis/an_cox_stable1.do
+    needs: [crMAIN]
+    outputs:
+      moderately_sensitive:
+        log: logs/an_cox_stable1.log
+        table1text: output/stable1_cox.txt
+        table1xlsx: output/stable1_cox.xlsx
+
 #  anRISK_MOD:
 #    run: stata-mp:latest analysis/an_risk_models.do
 #    needs: [crMAIN]
