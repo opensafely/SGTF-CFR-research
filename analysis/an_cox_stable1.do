@@ -195,7 +195,6 @@ keep if cox_pop==1
 cap file close tablecontent
 
 file open tablecontent using ./output/stable1_cox.txt, write text replace
-file open tablecontent using "C:\Users\EIDEDGRI\Documents\GitHub\SGTF-CFR-research\output\test.txt", write text replace
 
 file write tablecontent ("Table S1: Demographic and Clinical Characteristics") _n
 
