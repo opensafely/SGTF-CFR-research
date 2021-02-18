@@ -184,7 +184,7 @@ forvalues i=1/25 {
 		if `i'==18 {
 			file write tablecontent _n ("2+ Comorbidities") _n
 		}
-		file write tablecontent %9s (risk_labels) _tab %3.1f (risk0) (" (") %3.1f (lb0) ("-") %3.1f (ub0) (")") _tab %3.1f (risk1) (" (") %3.1f (lb1) ("-") %3.1f (ub1) (")") _n
+		file write tablecontent %9s (risk_labels) _tab %4.2f (risk0) (" (") %4.2f (lb0) ("-") %4.2f (ub0) (")") _tab %4.2f (risk1) (" (") %4.2f (lb1) ("-") %4.2f (ub1) (")") _n
 	restore
 
 }
@@ -319,15 +319,6 @@ capture lincom 1.sgtf + 1.sgtf#7.start_week, eform	// week 7
 
 
 /* NHS region */
-
-/*
-glm risk_40 i.sgtf i.agegroupA i.male ib1.imd ib1.eth5 ib1.smoke_nomiss ib1.obese4cat ///
-			ib1.hh_total_cat ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.region, ///
-			family(bin) link(log) eform
-			
-est store e_region
-*/
-
 glm risk_40 i.sgtf##i.region ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
 			ib1.hh_total_cat ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.home_bin ///
 			if eth2 != 6 ///
