@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /workspace/logs/an_cox_models.log
   log type:  text
- opened on:  14 Feb 2021, 16:29:59
+ opened on:  18 Feb 2021, 20:41:57
 
 . 
 . clear
@@ -14,7 +14,7 @@
 > */
 . 
 . use ./output/cr_analysis_dataset.dta
-(SGTF CFR ANALYSIS DATASET: 13 Feb 2021)
+(SGTF CFR ANALYSIS DATASET: 14 Feb 2021)
 
 . 
 . * DROP IF NO DATA ON SGTF
@@ -52,6 +52,23 @@ SUBSETTING ON COX CENSORED POPULATION
 -------------+----------------------+----------
        Total |   142,877      3,633 |   146,510 
              |     97.52       2.48 |    100.00 
+
+. 
+. 
+. *Set up output file
+. cap file close tablecontent
+
+. 
+. file open tablecontent using ./output/table2_hr.txt, write text replace
+(note: file ./output/table2_hr.txt not found)
+
+. 
+. file write tablecontent ("Table 2: Hazard ratios for VOC vs. non-VOC") _n _n
+
+. 
+. file write tablecontent ("Estimate")    _tab ///
+>                                                 ("HR (95% CI)") _tab ///
+>                                                 ("P-value")             _n
 
 . 
 . 
@@ -200,43 +217,23 @@ Log likelihood  =    -24889.22                  Prob > chi2      =      0.6119
                                                       Stratified by utla_group
 
 . 
+. * Output unadjusted
+. lincom 1.sgtf, eform
+
+ ( 1)  1.sgtf = 0
+
+------------------------------------------------------------------------------
+          _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |    1.01699   .0337736     0.51   0.612     .9529033    1.085387
+------------------------------------------------------------------------------
+
+. file write tablecontent _n ("Unadjusted") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
+
 . 
-. * Plot scaled schoenfeld residuals
-. estat phtest, plot(1.sgtf)
-
-. graph export ./output/unadj_cox_shoen.svg, as(svg) replace
-(note: file ./output/unadj_cox_shoen.svg not found)
-(file ./output/unadj_cox_shoen.svg written in SVG format)
-
-. 
-. * KM plot
-. sts graph,      surv by(sgtf) ///
->                         ylabel(0.8(0.05)1) ///
->                         legend(label(1 "non-VOC") label(2 "VOC"))
-
-         failure _d:  cox_death
-   analysis time _t:  (stime_death-origin)
-             origin:  time study_start
-                 id:  patient_id
-
-. graph export ./output/unadj_cox_km.svg, as(svg) replace
-(note: file ./output/unadj_cox_km.svg not found)
-(file ./output/unadj_cox_km.svg written in SVG format)
-
-.                 
-. * Smoothed hazard plot
-. sts graph,      haz by(sgtf) ///
->                         legend(label(1 "non-VOC") label(2 "VOC"))
-
-         failure _d:  cox_death
-   analysis time _t:  (stime_death-origin)
-             origin:  time study_start
-                 id:  patient_id
-
-. graph export ./output/unadj_cox_haz.svg, as(svg) replace
-(note: file ./output/unadj_cox_haz.svg not found)
-(file ./output/unadj_cox_haz.svg written in SVG format)
-
 . 
 . * Interaction with time
 . stcox i.sgtf, tvc(i.sgtf) strata(utla_group)
@@ -304,6 +301,21 @@ Log likelihood  =   -13618.747                  Prob > chi2      =      0.5613
 ------------------------------------------------------------------------------
                                                       Stratified by utla_group
 
+. estat phtest, d
+
+      Test of proportional-hazards assumption
+
+      Time:  Time
+      ----------------------------------------------------------------
+                  |       rho            chi2       df       Prob>chi2
+      ------------+---------------------------------------------------
+      0b.sgtf     |            .            .        1             .
+      1.sgtf      |     -0.00549         0.06        1         0.8013
+      ------------+---------------------------------------------------
+      global test |                      0.06        1         0.8013
+      ----------------------------------------------------------------
+
+. 
 . stcox i.sgtf if study_start >= date("01dec2020", "DMY"), tvc(i.sgtf) strata(u
 > tla_group)
 
@@ -343,87 +355,15 @@ Note: Variables in tvc equation interacted with _t.
 . 
 . 
 . *********************************************************************
-. /* Demographically adjusted HR - age as spline, continuous hh size */
+. /* Demographically adjusted HR - age as spline, cat hh size        */
 . /* Not adjusting for comorbidities, obesity, or smoking status     */
 . *********************************************************************
 . 
 . * Stratified by region
-. stcox i.sgtf i.male ib1.imd ib1.eth2 household_size ///
->                          ib1.rural_urban5 ib1.start_week age1 age2 age3, stra
-> ta(utla_group)
-
-         failure _d:  cox_death
-   analysis time _t:  (stime_death-origin)
-             origin:  time study_start
-                 id:  patient_id
-
-Iteration 0:   log likelihood = -24889.349
-Iteration 1:   log likelihood = -24880.391
-Iteration 2:   log likelihood = -24880.387
-Refining estimates:
-Iteration 0:   log likelihood = -24880.387
-
-Stratified Cox regr. -- Breslow method for ties
-
-No. of subjects =      146,510                  Number of obs    =     146,482
-No. of failures =        3,633
-Time at risk    =      6651843
-                                                LR chi2(22)      =       17.92
-Log likelihood  =   -24880.387                  Prob > chi2      =      0.7105
-
-------------------------------------------------------------------------------
-          _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
--------------+----------------------------------------------------------------
-        sgtf |
-        VOC  |   1.017173   .0337825     0.51   0.608     .9530699    1.085589
-             |
-        male |
-          M  |   .9892746   .0328648    -0.32   0.745      .926913    1.055832
-             |
-         imd |
-          2  |    1.02232     .04847     0.47   0.642     .9316005    1.121873
-          3  |   .9086589   .0444677    -1.96   0.050     .8255532    1.000131
-          4  |   1.010385   .0479444     0.22   0.828      .920653    1.108863
-5 most de..  |   .9809806   .0594175    -0.32   0.751     .8711712    1.104631
-             |
-        eth2 |
-      Other  |   .9708526   .0431969    -0.66   0.506     .8897748    1.059318
-    Missing  |   .9786009   .0390688    -0.54   0.588     .9049466     1.05825
-             |
-household_~e |   .9836423   .0157215    -1.03   0.302     .9533063    1.014944
-             |
-rural_urban5 |
-Urban min..  |    1.00355   .0754945     0.05   0.962     .8659747    1.162981
-Urban cit..  |   1.081351   .0694882     1.22   0.224     .9533844    1.226494
-Rural tow..  |   1.022605   .0662913     0.34   0.730     .9005915    1.161148
-Rural vil..  |   1.018475   .0603139     0.31   0.757     .9068648    1.143822
-             |
-  start_week |
-23Nov-29Nov  |   1.100306   .0588985     1.79   0.074     .9907163    1.222018
-30Nov-06Dec  |   1.046094   .0596436     0.79   0.429     .9354895    1.169775
-07Dec-13Dec  |   .9943932   .0605748    -0.09   0.926     .8824823    1.120496
-14Dec-20Dec  |    1.07114     .06802     1.08   0.279     .9457859    1.213108
-21Dec-27Dec  |    1.10016   .0751055     1.40   0.162     .9623788    1.257666
-28Dec-04Jan  |   1.054276   .0773919     0.72   0.472     .9129976    1.217416
-             |
-        age1 |   .9966607   .0034042    -0.98   0.327     .9900109    1.003355
-        age2 |   1.011099   .0113129     0.99   0.324     .9891679    1.033517
-        age3 |   .9681171   .0307121    -1.02   0.307     .9097557    1.030222
-------------------------------------------------------------------------------
-                                                      Stratified by utla_group
-
-. 
-.                          
-.                          
-. *********************************************************************
-. /* Demographically adjusted HR - age grouped, cat hh size                  */
-. /* Not adjusting for comorbidities, obesity, or smoking status     */
-. *********************************************************************
-. 
-. * Stratified by region
-. stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat ///
->                          ib1.rural_urban5 ib1.start_week ib2.agegroupA, strat
-> a(utla_group)
+. stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat i.home_bin ///
+>                          ib1.rural_urban5 ib1.start_week age1 age2 age3 ///
+>                          if eth2 != 6 ///
+>                          , strata(utla_group)
 
          failure _d:  cox_death
    analysis time _t:  (stime_death-origin)
@@ -431,148 +371,256 @@ Rural vil..  |   1.018475   .0603139     0.31   0.757     .9068648    1.143822
                  id:  patient_id
 
 Iteration 0:   log likelihood = -24236.374
-Iteration 1:   log likelihood = -24226.847
-Iteration 2:   log likelihood =  -24226.76
-Iteration 3:   log likelihood = -24226.758
-Iteration 4:   log likelihood = -24226.758
+Iteration 1:   log likelihood = -24226.146
+Iteration 2:   log likelihood = -24226.059
+Iteration 3:   log likelihood = -24226.058
+Iteration 4:   log likelihood = -24226.058
 Refining estimates:
-Iteration 0:   log likelihood = -24226.758
+Iteration 0:   log likelihood = -24226.058
 
 Stratified Cox regr. -- Breslow method for ties
 
 No. of subjects =      143,150                  Number of obs    =     143,122
 No. of failures =        3,551
 Time at risk    =      6498741
-                                                LR chi2(23)      =       19.23
-Log likelihood  =   -24226.758                  Prob > chi2      =      0.6877
+                                                LR chi2(24)      =       20.63
+Log likelihood  =   -24226.058                  Prob > chi2      =      0.6603
 
 ------------------------------------------------------------------------------
           _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
         sgtf |
-        VOC  |   1.012067   .0339988     0.36   0.721     .9475769    1.080946
+        VOC  |   1.012002   .0339966     0.36   0.722     .9475157    1.080876
              |
         male |
-          M  |   .9861126   .0331384    -0.42   0.677     .9232553    1.053249
+          M  |   .9860519   .0331373    -0.42   0.676     .9231967    1.053187
              |
          imd |
-          2  |   1.025174    .049235     0.52   0.605     .9330773     1.12636
-          3  |   .9177409   .0454031    -1.74   0.083     .8329307    1.011187
-          4  |   1.015666   .0487807     0.32   0.746     .9244199    1.115919
-5 most de..  |   .9918894   .0606654    -0.13   0.894     .8798376    1.118211
+          2  |    1.02533   .0492424     0.52   0.602     .9332198    1.126532
+          3  |   .9178787   .0454103    -1.73   0.083     .8330551    1.011339
+          4  |   1.015856   .0487899     0.33   0.743     .9245924    1.116128
+5 most de..  |   .9918358   .0606616    -0.13   0.893      .879791     1.11815
              |
         eth2 |
-      Other  |   .9799709   .0440482    -0.45   0.653     .8973316    1.070221
-    Missing  |   .9891799    .039886    -0.27   0.787     .9140141    1.070527
+      Other  |   .9800031   .0440494    -0.45   0.653     .8973615    1.070255
+    Missing  |   .9891153   .0398834    -0.27   0.786     .9139544    1.070457
              |
 hh_total_cat |
-        3-5  |   .9664505   .0324717    -1.02   0.310     .9048575    1.032236
-       6-10  |   .4129598   .2922961    -1.25   0.211     .1031385    1.653464
+        3-5  |   .9663186   .0324679    -1.02   0.308     .9047328    1.032097
+       6-10  |   .4129991   .2923243    -1.25   0.212     .1031481    1.653624
+             |
+    home_bin |
+  Care home  |   1.029794   .0476731     0.63   0.526       .94047    1.127602
              |
 rural_urban5 |
-Urban min..  |    .997737   .0760865    -0.03   0.976     .8592198    1.158585
-Urban cit..  |   1.088795   .0708199     1.31   0.191     .9584734    1.236835
-Rural tow..  |   1.022565   .0671401     0.34   0.734     .8990886       1.163
-Rural vil..  |   1.024494   .0614214     0.40   0.686     .9109137    1.152236
+Urban min..  |   .9975157   .0760695    -0.03   0.974     .8590293    1.158328
+Urban cit..  |   1.088479   .0707992     1.30   0.192      .958196    1.236476
+Rural tow..  |   1.022702   .0671492     0.34   0.732     .8992087    1.163156
+Rural vil..  |   1.024225    .061405     0.40   0.690     .9106758    1.151933
              |
   start_week |
-23Nov-29Nov  |   1.116752   .0604673     2.04   0.041      1.00431    1.241782
-30Nov-06Dec  |   1.052839    .060826     0.89   0.373     .9401244    1.179068
-07Dec-13Dec  |   .9997032   .0617012    -0.00   0.996     .8857993    1.128254
-14Dec-20Dec  |   1.077955   .0693726     1.17   0.243     .9502128     1.22287
-21Dec-27Dec  |   1.121154   .0772276     1.66   0.097     .9795635    1.283211
-28Dec-04Jan  |   1.054299   .0785678     0.71   0.478      .911027    1.220103
+23Nov-29Nov  |   1.116553   .0604562     2.04   0.042     1.004132    1.241561
+30Nov-06Dec  |   1.052802   .0608252     0.89   0.373     .9400885    1.179029
+07Dec-13Dec  |   .9995686   .0616932    -0.01   0.994     .8856794    1.128103
+14Dec-20Dec  |   1.077869    .069367     1.17   0.244     .9501373    1.222773
+21Dec-27Dec  |   1.121492    .077252     1.66   0.096     .9798573      1.2836
+28Dec-04Jan  |   1.054287   .0785664     0.71   0.478     .9110167    1.220088
              |
-   agegroupA |
-      0-<65  |   1.011354   .0571167     0.20   0.842     .9053802    1.129731
-     75-<85  |   .9665582    .085936    -0.38   0.702     .8119856    1.150556
-        85+  |   1.007708   .1207489     0.06   0.949      .796782    1.274472
+        age1 |   .9967783   .0034418    -0.93   0.350     .9900553    1.003547
+        age2 |   1.010195   .0114284     0.90   0.370     .9880425    1.032845
+        age3 |   .9711073   .0311481    -0.91   0.361     .9119376    1.034116
 ------------------------------------------------------------------------------
                                                       Stratified by utla_group
 
 . 
+. lincom 1.sgtf, eform
+
+ ( 1)  1.sgtf = 0
+
+------------------------------------------------------------------------------
+          _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   1.012002   .0339966     0.36   0.722     .9475157    1.080876
+------------------------------------------------------------------------------
+
+. file write tablecontent ("Demographically adj.") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+. 
 . 
 .                          
-. ***********************************************************
-. /* Fully adjusted HR - age as spline, continuous hh size */
-. ***********************************************************
+. *********************************************************************
+. /* Demographically adjusted HR - age grouped, cat hh size                  */
+. /* Not adjusting for comorbidities, obesity, or smoking status     */
+. *********************************************************************
 . 
 . * Stratified by region
-. stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat househol
-> d_size ///
->                          ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 
-> age2 age3, strata(utla_group)
+. stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat i.home_bin ///
+>                          ib1.rural_urban5 ib1.start_week ib2.agegroupA ///
+>                          if eth2 != 6 ///
+>                          , strata(utla_group)
 
          failure _d:  cox_death
    analysis time _t:  (stime_death-origin)
              origin:  time study_start
                  id:  patient_id
 
-Iteration 0:   log likelihood = -3278.2477
-Iteration 1:   log likelihood = -3268.4684
-Iteration 2:   log likelihood = -3268.4613
-Iteration 3:   log likelihood = -3268.4613
+Iteration 0:   log likelihood = -24236.374
+Iteration 1:   log likelihood = -24226.647
+Iteration 2:   log likelihood =  -24226.56
+Iteration 3:   log likelihood = -24226.559
+Iteration 4:   log likelihood = -24226.559
 Refining estimates:
-Iteration 0:   log likelihood = -3268.4613
+Iteration 0:   log likelihood = -24226.559
 
 Stratified Cox regr. -- Breslow method for ties
 
-No. of subjects =       26,323                  Number of obs    =      26,317
-No. of failures =          649
-Time at risk    =      1196769
-                                                LR chi2(28)      =       19.57
-Log likelihood  =   -3268.4613                  Prob > chi2      =      0.8795
+No. of subjects =      143,150                  Number of obs    =     143,122
+No. of failures =        3,551
+Time at risk    =      6498741
+                                                LR chi2(24)      =       19.63
+Log likelihood  =   -24226.559                  Prob > chi2      =      0.7176
 
 ------------------------------------------------------------------------------
           _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
         sgtf |
-        VOC  |   .9942545   .0784873    -0.07   0.942     .8517321    1.160626
+        VOC  |   1.012029   .0339976     0.36   0.722     .9475412    1.080906
              |
         male |
-          M  |   .9789499   .0772271    -0.27   0.787     .8387086    1.142641
+          M  |   .9862167   .0331423    -0.41   0.680     .9233519    1.053361
              |
          imd |
-          2  |   1.062316   .1227498     0.52   0.601     .8470287    1.332323
-          3  |    .968362   .1143204    -0.27   0.785     .7683317    1.220469
-          4  |   1.185589   .1324679     1.52   0.128     .9524191    1.475844
-5 most de..  |   1.140431   .1596344     0.94   0.348     .8668029    1.500438
+          2  |   1.025279   .0492404     0.52   0.603     .9331727    1.126476
+          3  |   .9178794   .0454106    -1.73   0.083     .8330552    1.011341
+          4  |   1.015812   .0487884     0.33   0.744     .9245516    1.116081
+5 most de..  |   .9917971     .06066    -0.13   0.893     .8797554    1.118108
              |
         eth2 |
-      Other  |   1.060555   .1111834     0.56   0.575     .8635698    1.302474
-    Missing  |   1.047387   .0989217     0.49   0.624     .8703912    1.260375
+      Other  |    .979973   .0440483    -0.45   0.653     .8973334    1.070223
+    Missing  |   .9891859   .0398861    -0.27   0.787     .9140198    1.070533
              |
-smoke_nomi~2 |
-     Former  |   1.077671   .1045402     0.77   0.441     .8910762     1.30334
+hh_total_cat |
+        3-5  |   .9664519   .0324718    -1.02   0.310     .9048588    1.032238
+       6-10  |   .4124488   .2919355    -1.25   0.211     .1030104    1.651426
              |
-   obese4cat |
-Obese I ..)  |   1.053161   .1125487     0.48   0.628     .8541399    1.298556
-Obese II..)  |   .8729725   .0996908    -1.19   0.234     .6979044    1.091956
-Obese II..)  |   .8347576   .0891697    -1.69   0.091     .6770709    1.029169
-             |
-household_~e |   .9578443   .0363062    -1.14   0.256     .8892644    1.031713
+    home_bin |
+  Care home  |   1.029774   .0476723     0.63   0.526     .9404519     1.12758
              |
 rural_urban5 |
-Urban min..  |   1.100058   .1886548     0.56   0.578     .7860287    1.539546
-Urban cit..  |   1.072136   .1622025     0.46   0.645     .7970258    1.442206
-Rural tow..  |   .9216715   .1427178    -0.53   0.598     .6804095    1.248481
-Rural vil..  |   .9628657   .1347378    -0.27   0.787     .7319031    1.266712
-             |
-  comorb_cat |
-1 comorbi..  |   1.034793   .1844003     0.19   0.848      .729742    1.467364
-2+ comorb..  |   1.010012   .1653159     0.06   0.951     .7328321    1.392031
+Urban min..  |   .9976405   .0760791    -0.03   0.975     .8591368    1.158473
+Urban cit..  |   1.088701    .070814     1.31   0.191     .9583913     1.23673
+Rural tow..  |    1.02255    .067139     0.34   0.734     .8990749    1.162982
+Rural vil..  |   1.024491   .0614211     0.40   0.687     .9109113    1.152232
              |
   start_week |
-23Nov-29Nov  |    .996256   .1274624    -0.03   0.977      .775295    1.280191
-30Nov-06Dec  |   1.163682   .1526923     1.16   0.248     .8997957    1.504958
-07Dec-13Dec  |   .9225757   .1367255    -0.54   0.587      .690008    1.233531
-14Dec-20Dec  |   1.064885    .159882     0.42   0.675     .7934199     1.42923
-21Dec-27Dec  |   1.155635   .1889016     0.88   0.376      .838846    1.592059
-28Dec-04Jan  |   1.036226   .1849121     0.20   0.842     .7303979    1.470109
+23Nov-29Nov  |   1.116713   .0604653     2.04   0.041     1.004275     1.24174
+30Nov-06Dec  |   1.052912   .0608302     0.89   0.372     .9401899     1.17915
+07Dec-13Dec  |   .9996745   .0616993    -0.01   0.996     .8857741    1.128221
+14Dec-20Dec  |   1.077985   .0693745     1.17   0.243     .9502394    1.222904
+21Dec-27Dec  |   1.121163   .0772281     1.66   0.097     .9795718    1.283221
+28Dec-04Jan  |   1.054312   .0785688     0.71   0.478     .9110379    1.220118
              |
-        age1 |   .9912849   .0081302    -1.07   0.286     .9754774    1.007349
-        age2 |    1.03831   .0278066     1.40   0.160     .9852157    1.094266
-        age3 |    .893335   .0678727    -1.48   0.138     .7697378    1.036778
+   agegroupA |
+      0-<65  |   1.011423   .0571207     0.20   0.841     .9054421    1.129809
+     75-<85  |   .9666577   .0859449    -0.38   0.703      .812069    1.150674
+        85+  |   1.007606   .1207366     0.06   0.950     .7967005    1.274342
+------------------------------------------------------------------------------
+                                                      Stratified by utla_group
+
+. 
+. 
+.                          
+. ****************************************************
+. /* Fully adjusted HR - age as spline, cat hh size */
+. ****************************************************
+. 
+. * Stratified by region
+. stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_t
+> otal_cat ///
+>                          ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 
+> age2 age3 i.home_bin ///
+>                          if eth2 != 6 ///
+>                          , strata(utla_group)
+
+         failure _d:  cox_death
+   analysis time _t:  (stime_death-origin)
+             origin:  time study_start
+                 id:  patient_id
+
+Iteration 0:   log likelihood = -24236.374
+Iteration 1:   log likelihood = -24224.863
+Iteration 2:   log likelihood = -24224.773
+Iteration 3:   log likelihood = -24224.772
+Iteration 4:   log likelihood = -24224.772
+Refining estimates:
+Iteration 0:   log likelihood = -24224.772
+
+Stratified Cox regr. -- Breslow method for ties
+
+No. of subjects =      143,150                  Number of obs    =     143,122
+No. of failures =        3,551
+Time at risk    =      6498741
+                                                LR chi2(30)      =       23.20
+Log likelihood  =   -24224.772                  Prob > chi2      =      0.8068
+
+------------------------------------------------------------------------------
+          _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   1.011771   .0339904     0.35   0.728     .9472969    1.080633
+             |
+        male |
+          M  |   .9856891   .0331265    -0.43   0.668     .9228545    1.052802
+             |
+         imd |
+          2  |   1.025402   .0492467     0.52   0.601     .9332838    1.126612
+          3  |    .917847   .0454091    -1.73   0.083     .8330257    1.011305
+          4  |   1.015918   .0487932     0.33   0.742     .9246484    1.116197
+5 most de..  |    .991555   .0606452    -0.14   0.890     .8795406    1.117835
+             |
+        eth2 |
+      Other  |   .9802659   .0440628    -0.44   0.657     .8975994    1.070546
+    Missing  |   .9892053   .0398878    -0.27   0.788     .9140362    1.070556
+             |
+smoke_nomi~2 |
+     Former  |   1.011375   .0488409     0.23   0.815     .9200391    1.111778
+             |
+   obese4cat |
+Obese I ..)  |   .9925019   .0470885    -0.16   0.874     .9043711    1.089221
+Obese II..)  |   .9861592   .0468655    -0.29   0.769     .8984526    1.082428
+Obese II..)  |   1.000771   .0437898     0.02   0.986     .9185215    1.090385
+             |
+hh_total_cat |
+        3-5  |   .9662582   .0324662    -1.02   0.307     .9046755    1.032033
+       6-10  |    .413134   .2924254    -1.25   0.212     .1031791    1.654209
+             |
+rural_urban5 |
+Urban min..  |   .9973172   .0760556    -0.04   0.972     .8588564      1.1581
+Urban cit..  |    1.08861   .0708084     1.31   0.192     .9583103    1.236626
+Rural tow..  |    1.02265   .0671468     0.34   0.733     .8991609    1.163099
+Rural vil..  |   1.024388   .0614161     0.40   0.688     .9108181    1.152119
+             |
+  comorb_cat |
+1 comorbi..  |   .8974427   .0654411    -1.48   0.138     .7779246    1.035323
+2+ comorb..  |   .9044109   .0597802    -1.52   0.129     .7945161    1.029506
+             |
+  start_week |
+23Nov-29Nov  |   1.115976   .0604282     2.03   0.043     1.003607    1.240927
+30Nov-06Dec  |   1.052953    .060835     0.89   0.372     .9402221    1.179201
+07Dec-13Dec  |   .9989495   .0616583    -0.02   0.986     .8851252    1.127411
+14Dec-20Dec  |   1.077411   .0693397     1.16   0.247     .9497302    1.222258
+21Dec-27Dec  |   1.121604   .0772615     1.67   0.096     .9799516    1.283732
+28Dec-04Jan  |   1.053701    .078524     0.70   0.483     .9105085    1.219412
+             |
+        age1 |    .996787   .0034418    -0.93   0.351     .9900639    1.003556
+        age2 |   1.010193   .0114285     0.90   0.370     .9880404    1.032843
+        age3 |   .9711106   .0311487    -0.91   0.361     .9119397    1.034121
+             |
+    home_bin |
+  Care home  |   1.029597   .0476649     0.63   0.529     .9402883    1.127388
 ------------------------------------------------------------------------------
                                                       Stratified by utla_group
 
@@ -580,99 +628,236 @@ Rural vil..  |   .9628657   .1347378    -0.27   0.787     .7319031    1.266712
 . est store e_no_int
 
 . 
-. /* Subgroup analyses */
+. estat phtest, d
+
+      Test of proportional-hazards assumption
+
+      Time:  Time
+      ----------------------------------------------------------------
+                  |       rho            chi2       df       Prob>chi2
+      ------------+---------------------------------------------------
+      0b.sgtf     |            .            .        1             .
+      1.sgtf      |      0.02788         2.76        1         0.0966
+      0b.male     |            .            .        1             .
+      1.male      |     -0.00918         0.30        1         0.5840
+      1b.imd      |            .            .        1             .
+      2.imd       |      0.00174         0.01        1         0.9176
+      3.imd       |      0.02067         1.52        1         0.2181
+      4.imd       |     -0.00544         0.11        1         0.7457
+      5.imd       |     -0.01393         0.69        1         0.4067
+      1b.eth2     |            .            .        1             .
+      5.eth2      |      0.02746         2.68        1         0.1015
+      9.eth2      |      0.01665         0.99        1         0.3208
+      1b.smoke_n~2|            .            .        1             .
+      2.smoke_no~2|      0.02260         1.82        1         0.1778
+      1b.obese4cat|            .            .        1             .
+      2.obese4cat |     -0.01381         0.68        1         0.4102
+      3.obese4cat |     -0.01151         0.47        1         0.4925
+      4.obese4cat |     -0.01184         0.50        1         0.4809
+      1b.hh_tota~t|            .            .        1             .
+      2.hh_total~t|     -0.00863         0.26        1         0.6072
+      3.hh_total~t|     -0.00518         0.10        1         0.7574
+      1b.rural_u~5|            .            .        1             .
+      2.rural_ur~5|      0.01343         0.64        1         0.4237
+      3.rural_ur~5|      0.00551         0.11        1         0.7427
+      4.rural_ur~5|      0.01045         0.39        1         0.5334
+      5.rural_ur~5|      0.00980         0.34        1         0.5596
+      0b.comorb_~t|            .            .        1             .
+      1.comorb_cat|      0.00489         0.09        1         0.7706
+      2.comorb_cat|      0.01805         1.15        1         0.2825
+      1b.start_w~k|            .            .        1             .
+      2.start_week|     -0.01017         0.37        1         0.5440
+      3.start_week|     -0.02287         1.85        1         0.1737
+      4.start_week|     -0.01018         0.37        1         0.5451
+      5.start_week|      0.00147         0.01        1         0.9305
+      6.start_week|     -0.00067         0.00        1         0.9684
+      7.start_week|      0.00136         0.01        1         0.9354
+      age1        |     -0.01688         0.99        1         0.3206
+      age2        |      0.01575         0.87        1         0.3507
+      age3        |     -0.01503         0.80        1         0.3712
+      0b.home_bin |            .            .        1             .
+      1.home_bin  |     -0.00877         0.27        1         0.6012
+      ------------+---------------------------------------------------
+      global test |                     20.03       30         0.9158
+      ----------------------------------------------------------------
+
 . 
-. * Epi week
-. stcox i.sgtf##ib1.start_week i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.ob
-> ese4cat household_size ///
->                          ib1.rural_urban5 ib0.comorb_cat age1 age2 age3, stra
-> ta(utla_group)
+. lincom 1.sgtf, eform
+
+ ( 1)  1.sgtf = 0
+
+------------------------------------------------------------------------------
+          _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   1.011771   .0339904     0.35   0.728     .9472969    1.080633
+------------------------------------------------------------------------------
+
+. file write tablecontent ("Fully adj.") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+. 
+. * Plot scaled schoenfeld residuals
+. estat phtest, plot(1.sgtf)
+
+. graph export ./output/cox_shoen.svg, as(svg) replace
+(note: file ./output/cox_shoen.svg not found)
+(file ./output/cox_shoen.svg written in SVG format)
+
+. 
+. * KM plot
+. sts graph,      surv by(sgtf) ci risktable(, order(1 "non-VOC" 2 "VOC") size(
+> small)) ///
+>                         ylabel(0.994(0.001)1, format(%5.3f)) ///
+>                         legend(order(2 4) label(2 "non-VOC") label(4 "VOC") r
+> ows(1))
 
          failure _d:  cox_death
    analysis time _t:  (stime_death-origin)
              origin:  time study_start
                  id:  patient_id
 
-Iteration 0:   log likelihood = -3278.2477
-Iteration 1:   log likelihood = -3266.0577
-Iteration 2:   log likelihood = -3266.0335
-Iteration 3:   log likelihood = -3266.0335
+. graph export ./output/cox_km.svg, as(svg) replace
+(note: file ./output/cox_km.svg not found)
+(file ./output/cox_km.svg written in SVG format)
+
+. 
+. * Cumulative hazard plot
+. sts graph,      cumhaz by(sgtf) ci ///
+>                         ylabel(minmax, format(%5.3f)) ///
+>                         legend(order(2 4) label(2 "non-VOC") label(4 "VOC") r
+> ows(1))
+
+         failure _d:  cox_death
+   analysis time _t:  (stime_death-origin)
+             origin:  time study_start
+                 id:  patient_id
+
+. graph export ./output/cox_cumhaz.svg, as(svg) replace
+(note: file ./output/cox_cumhaz.svg not found)
+(file ./output/cox_cumhaz.svg written in SVG format)
+
+.                 
+. * Smoothed hazard plot
+. sts graph,      haz by(sgtf) ///
+>                         legend(label(1 "non-VOC") label(2 "VOC"))
+
+         failure _d:  cox_death
+   analysis time _t:  (stime_death-origin)
+             origin:  time study_start
+                 id:  patient_id
+
+. graph export ./output/cox_haz.svg, as(svg) replace
+(note: file ./output/cox_haz.svg not found)
+(file ./output/cox_haz.svg written in SVG format)
+
+. 
+. 
+. /* Subgroup analyses */
+. 
+. file write tablecontent _n ("Subgroup analyses") _n 
+
+. 
+. * Epi week
+. stcox i.sgtf##ib1.start_week i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.ob
+> ese4cat ib1.hh_total_cat ///
+>                          ib1.rural_urban5 ib0.comorb_cat age1 age2 age3 i.hom
+> e_bin ///
+>                          if eth2 != 6 ///
+>                          , strata(utla_group)
+
+         failure _d:  cox_death
+   analysis time _t:  (stime_death-origin)
+             origin:  time study_start
+                 id:  patient_id
+
+Iteration 0:   log likelihood = -24236.374
+Iteration 1:   log likelihood =  -24224.26
+Iteration 2:   log likelihood = -24224.169
+Iteration 3:   log likelihood = -24224.168
+Iteration 4:   log likelihood = -24224.168
 Refining estimates:
-Iteration 0:   log likelihood = -3266.0335
+Iteration 0:   log likelihood = -24224.168
 
 Stratified Cox regr. -- Breslow method for ties
 
-No. of subjects =       26,323                  Number of obs    =      26,317
-No. of failures =          649
-Time at risk    =      1196769
-                                                LR chi2(34)      =       24.43
-Log likelihood  =   -3266.0335                  Prob > chi2      =      0.8867
+No. of subjects =      143,150                  Number of obs    =     143,122
+No. of failures =        3,551
+Time at risk    =      6498741
+                                                LR chi2(36)      =       24.41
+Log likelihood  =   -24224.168                  Prob > chi2      =      0.9288
 
 ------------------------------------------------------------------------------
           _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
         sgtf |
-        VOC  |   1.308109   .2290557     1.53   0.125     .9281002    1.843713
+        VOC  |   1.025529   .0797933     0.32   0.746     .8804776    1.194475
              |
   start_week |
-23Nov-29Nov  |   1.139313    .212095     0.70   0.484     .7910114    1.640979
-30Nov-06Dec  |   1.488039   .2766312     2.14   0.033     1.033649    2.142177
-07Dec-13Dec  |   1.163664   .2396159     0.74   0.462      .777235    1.742219
-14Dec-20Dec  |   1.178859   .2539489     0.76   0.445     .7728529    1.798155
-21Dec-27Dec  |   1.350973   .3136601     1.30   0.195     .8570774    2.129477
-28Dec-04Jan  |    1.30723   .3192751     1.10   0.273     .8099462    2.109831
+23Nov-29Nov  |   1.145931   .0877478     1.78   0.075     .9862319     1.33149
+30Nov-06Dec  |    1.05221   .0861733     0.62   0.534     .8961712    1.235417
+07Dec-13Dec  |      1.006    .086922     0.07   0.945     .8492802    1.191639
+14Dec-20Dec  |   1.053677   .0955581     0.58   0.564      .882088    1.258644
+21Dec-27Dec  |   1.168426   .1113776     1.63   0.102     .9693088    1.408445
+28Dec-04Jan  |   1.041199   .1084686     0.39   0.698     .8489037    1.277053
              |
         sgtf#|
   start_week |
         VOC #|
-23Nov-29Nov  |   .7827161   .1967908    -0.97   0.330     .4781838     1.28119
+23Nov-29Nov  |   .9488125   .1014341    -0.49   0.623     .7694519    1.169982
         VOC #|
-30Nov-06Dec  |   .6225556   .1577893    -1.87   0.062     .3788241    1.023101
+30Nov-06Dec  |   1.001445   .1130123     0.01   0.990     .8027304    1.249351
         VOC #|
-07Dec-13Dec  |   .6366439   .1818863    -1.58   0.114     .3636739    1.114502
+07Dec-13Dec  |   .9863827   .1181528    -0.11   0.909     .7799831      1.2474
         VOC #|
-14Dec-20Dec  |    .833515   .2383915    -0.64   0.524     .4758427    1.460035
+14Dec-20Dec  |   1.045141   .1297849     0.36   0.722     .8193568    1.333142
         VOC #|
-21Dec-27Dec  |    .748448   .2329878    -0.93   0.352     .4066186    1.377641
+21Dec-27Dec  |   .9214503   .1219126    -0.62   0.536     .7109738    1.194236
         VOC #|
-28Dec-04Jan  |   .6376387   .2163703    -1.33   0.185     .3278959    1.239976
+28Dec-04Jan  |   1.024262   .1459714     0.17   0.866     .7746456    1.354313
              |
         male |
-          M  |   .9809168   .0774024    -0.24   0.807     .8403601    1.144983
+          M  |   .9857154    .033128    -0.43   0.669     .9228779    1.052831
              |
          imd |
-          2  |   1.062288   .1227566     0.52   0.601     .8469901    1.332312
-          3  |   .9685435   .1143505    -0.27   0.787     .7684622    1.220719
-          4  |   1.188928   .1328659     1.55   0.121     .9550615    1.480061
-5 most de..  |   1.139048   .1595404     0.93   0.353     .8656034    1.498875
+          2  |   1.025306   .0492434     0.52   0.603     .9331939    1.126509
+          3  |   .9177566   .0454052    -1.73   0.083     .8329425    1.011207
+          4  |   1.015889   .0487921     0.33   0.743     .9246212    1.116165
+5 most de..  |   .9917735   .0606614    -0.14   0.893     .8797294    1.118088
              |
         eth2 |
-      Other  |   1.061651   .1113149     0.57   0.568     .8644355     1.30386
-    Missing  |   1.047415   .0989236     0.49   0.624     .8704154    1.260407
+      Other  |   .9801987   .0440605    -0.44   0.656     .8975365    1.070474
+    Missing  |   .9892857   .0398913    -0.27   0.789     .9141099    1.070644
              |
 smoke_nomi~2 |
-     Former  |   1.078416   .1046248     0.78   0.436     .8916719    1.304269
+     Former  |   1.011378   .0488415     0.23   0.815     .9200408    1.111782
              |
    obese4cat |
-Obese I ..)  |   1.051259   .1123814     0.47   0.640     .8525403    1.296297
-Obese II..)  |   .8689794    .099273    -1.23   0.219     .6946523    1.087055
-Obese II..)  |   .8344808   .0891483    -1.69   0.090     .6768334    1.028847
+Obese I ..)  |   .9925919   .0470947    -0.16   0.875     .9044498    1.089324
+Obese II..)  |   .9859893   .0468583    -0.30   0.767     .8982964    1.082243
+Obese II..)  |   1.000592   .0437838     0.01   0.989     .9183545    1.090194
              |
-household_~e |    .957184   .0363207    -1.15   0.249     .8885796    1.031085
+hh_total_cat |
+        3-5  |   .9661221   .0324621    -1.03   0.305     .9045472    1.031889
+       6-10  |   .4137253   .2928453    -1.25   0.212     .1033261    1.656587
              |
 rural_urban5 |
-Urban min..  |   1.100094   .1886409     0.56   0.578     .7860827    1.539541
-Urban cit..  |   1.069944   .1618992     0.45   0.655     .7953546    1.439332
-Rural tow..  |   .9215955   .1427048    -0.53   0.598     .6803552    1.248375
-Rural vil..  |   .9622087   .1346563    -0.28   0.783     .7313881    1.265874
+Urban min..  |   .9971545   .0760456    -0.04   0.970     .8587122    1.157917
+Urban cit..  |   1.088559   .0708053     1.30   0.192     .9582648    1.236569
+Rural tow..  |   1.022507    .067138     0.34   0.735     .8990343    1.162938
+Rural vil..  |    1.02419   .0614045     0.40   0.690     .9106414    1.151897
              |
   comorb_cat |
-1 comorbi..  |   1.030087   .1835821     0.17   0.868     .7263947    1.460747
-2+ comorb..  |   1.003303   .1642527     0.02   0.984     .7279147    1.382879
+1 comorbi..  |    .897637   .0654588    -1.48   0.139     .7780871    1.035555
+2+ comorb..  |   .9045762   .0597938    -1.52   0.129     .7946567      1.0297
              |
-        age1 |   .9916186    .008134    -1.03   0.305     .9758038     1.00769
-        age2 |   1.037089   .0277775     1.36   0.174     .9840502    1.092986
-        age3 |    .896323    .068117    -1.44   0.150     .7722832    1.040285
+        age1 |   .9967921   .0034417    -0.93   0.352     .9900691    1.003561
+        age2 |   1.010194   .0114285     0.90   0.370      .988041    1.032844
+        age3 |   .9710833   .0311482    -0.91   0.360     .9119135    1.034092
+             |
+    home_bin |
+  Care home  |     1.0296   .0476656     0.63   0.529     .9402907    1.127393
 ------------------------------------------------------------------------------
                                                       Stratified by utla_group
 
@@ -683,8 +868,11 @@ Rural vil..  |   .9622087   .1346563    -0.28   0.783     .7313881    1.265874
 . * Test for interaction
 . lrtest e_no_int e_weekX
 
-Likelihood-ratio test                                 LR chi2(6)  =      4.86
-(Assumption: e_no_int nested in e_weekX)              Prob > chi2 =    0.5625
+Likelihood-ratio test                                 LR chi2(6)  =      1.21
+(Assumption: e_no_int nested in e_weekX)              Prob > chi2 =    0.9765
+
+. 
+. file write tablecontent _n ("Epi. week") _tab _tab %6.4f (r(p)) _n
 
 . 
 . * Epi week VOC vs. non-VOC HR
@@ -695,9 +883,15 @@ Likelihood-ratio test                                 LR chi2(6)  =      4.86
 ------------------------------------------------------------------------------
           _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-         (1) |   1.308109   .2290557     1.53   0.125     .9281002    1.843713
+         (1) |   1.025529   .0797933     0.32   0.746     .8804776    1.194475
 ------------------------------------------------------------------------------
 
+. file write tablecontent ("16Nov-22Nov") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+. 
 . lincom 1.sgtf + 1.sgtf#2.start_week, eform      // week 2
 
  ( 1)  1.sgtf + 1.sgtf#2.start_week = 0
@@ -705,9 +899,15 @@ Likelihood-ratio test                                 LR chi2(6)  =      4.86
 ------------------------------------------------------------------------------
           _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-         (1) |   1.023878   .1848384     0.13   0.896     .7187582    1.458525
+         (1) |   .9730342    .071331    -0.37   0.709     .8428075    1.123383
 ------------------------------------------------------------------------------
 
+. file write tablecontent ("23Nov-29Nov") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+. 
 . lincom 1.sgtf + 1.sgtf#3.start_week, eform      // week 3
 
  ( 1)  1.sgtf + 1.sgtf#3.start_week = 0
@@ -715,9 +915,15 @@ Likelihood-ratio test                                 LR chi2(6)  =      4.86
 ------------------------------------------------------------------------------
           _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-         (1) |   .8143708   .1492299    -1.12   0.262     .5686476    1.166275
+         (1) |    1.02701   .0839479     0.33   0.744     .8749788    1.205458
 ------------------------------------------------------------------------------
 
+. file write tablecontent ("30Nov-06Dec") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+. 
 . lincom 1.sgtf + 1.sgtf#4.start_week, eform      // week 4
 
  ( 1)  1.sgtf + 1.sgtf#4.start_week = 0
@@ -725,9 +931,15 @@ Likelihood-ratio test                                 LR chi2(6)  =      4.86
 ------------------------------------------------------------------------------
           _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-         (1) |   .8327998   .1879621    -0.81   0.418      .535088    1.296152
+         (1) |   1.011564   .0921198     0.13   0.900     .8462078    1.209231
 ------------------------------------------------------------------------------
 
+. file write tablecontent ("07Dec-13Dec") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+. 
 . lincom 1.sgtf + 1.sgtf#5.start_week, eform      // week 5
 
  ( 1)  1.sgtf + 1.sgtf#5.start_week = 0
@@ -735,9 +947,15 @@ Likelihood-ratio test                                 LR chi2(6)  =      4.86
 ------------------------------------------------------------------------------
           _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-         (1) |   1.090329   .2465334     0.38   0.702     .6999917     1.69833
+         (1) |   1.071821   .1037316     0.72   0.474     .8866304    1.295694
 ------------------------------------------------------------------------------
 
+. file write tablecontent ("14Dec-20Dec") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+. 
 . lincom 1.sgtf + 1.sgtf#6.start_week, eform      // week 6
 
  ( 1)  1.sgtf + 1.sgtf#6.start_week = 0
@@ -745,9 +963,15 @@ Likelihood-ratio test                                 LR chi2(6)  =      4.86
 ------------------------------------------------------------------------------
           _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-         (1) |   .9790518   .2519384    -0.08   0.934      .591244     1.62123
+         (1) |   .9449736   .1011182    -0.53   0.597     .7661886    1.165477
 ------------------------------------------------------------------------------
 
+. file write tablecontent ("21Dec-27Dec") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+. 
 . lincom 1.sgtf + 1.sgtf#7.start_week, eform      // week 7
 
  ( 1)  1.sgtf + 1.sgtf#7.start_week = 0
@@ -755,95 +979,108 @@ Likelihood-ratio test                                 LR chi2(6)  =      4.86
 ------------------------------------------------------------------------------
           _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-         (1) |   .8341011   .2424951    -0.62   0.533     .4717936    1.474638
+         (1) |    1.05041   .1254168     0.41   0.680      .831241    1.327365
 ------------------------------------------------------------------------------
+
+. file write tablecontent ("28Dec-04Jan") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
 
 . 
 . 
 . 
 . * Comorbidities
 . stcox i.sgtf##ib0.comorb_cat i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.ob
-> ese4cat household_size ///
->                          ib1.rural_urban5 ib1.start_week age1 age2 age3, stra
-> ta(utla_group)
+> ese4cat ib1.hh_total_cat ///
+>                          ib1.rural_urban5 ib1.start_week age1 age2 age3 i.hom
+> e_bin ///
+>                          if eth2 != 6 ///
+>                          , strata(utla_group)
 
          failure _d:  cox_death
    analysis time _t:  (stime_death-origin)
              origin:  time study_start
                  id:  patient_id
 
-Iteration 0:   log likelihood = -3278.2477
-Iteration 1:   log likelihood = -3266.2873
-Iteration 2:   log likelihood = -3266.2436
-Iteration 3:   log likelihood = -3266.2436
+Iteration 0:   log likelihood = -24236.374
+Iteration 1:   log likelihood = -24223.336
+Iteration 2:   log likelihood = -24223.233
+Iteration 3:   log likelihood = -24223.232
+Iteration 4:   log likelihood = -24223.232
 Refining estimates:
-Iteration 0:   log likelihood = -3266.2436
+Iteration 0:   log likelihood = -24223.232
 
 Stratified Cox regr. -- Breslow method for ties
 
-No. of subjects =       26,323                  Number of obs    =      26,317
-No. of failures =          649
-Time at risk    =      1196769
-                                                LR chi2(30)      =       24.01
-Log likelihood  =   -3266.2436                  Prob > chi2      =      0.7717
+No. of subjects =      143,150                  Number of obs    =     143,122
+No. of failures =        3,551
+Time at risk    =      6498741
+                                                LR chi2(32)      =       26.28
+Log likelihood  =   -24223.232                  Prob > chi2      =      0.7509
 
 ------------------------------------------------------------------------------
           _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
         sgtf |
-        VOC  |   .5363531   .1746931    -1.91   0.056     .2832761    1.015527
+        VOC  |   .8553622   .1080959    -1.24   0.216     .6676978    1.095772
              |
   comorb_cat |
-1 comorbi..  |   .7343303   .1706402    -1.33   0.184     .4656861     1.15795
-2+ comorb..  |   .7655002   .1593118    -1.28   0.199     .5090938    1.151046
+1 comorbi..  |   .7924272   .0803591    -2.29   0.022     .6495911     .966671
+2+ comorb..  |   .8362917    .076056    -1.97   0.049     .6997547      .99947
              |
         sgtf#|
   comorb_cat |
         VOC #|
-1 comorbi..  |   2.131748   .7820973     2.06   0.039     1.038596    4.375477
+1 comorbi..  |   1.284782   .1876954     1.72   0.086     .9648869    1.710734
         VOC #|
-2+ comorb..  |   1.873814   .6349429     1.85   0.064     .9644866    3.640462
+2+ comorb..  |    1.17387   .1554669     1.21   0.226     .9054977    1.521784
              |
         male |
-          M  |   .9774274   .0771089    -0.29   0.772      .837401    1.140868
+          M  |    .985641   .0331248    -0.43   0.667     .9228096     1.05275
              |
          imd |
-          2  |   1.065163   .1231019     0.55   0.585     .8492621     1.33595
-          3  |   .9704971   .1145863    -0.25   0.800     .7700043    1.223194
-          4  |   1.188533   .1328107     1.55   0.122     .9547619    1.479542
-5 most de..  |   1.144896   .1602774     0.97   0.334     .8701696    1.506359
+          2  |   1.025097   .0492331     0.52   0.606     .9330047     1.12628
+          3  |   .9174148   .0453888    -1.74   0.081     .8326315    1.010831
+          4  |   1.015777   .0487869     0.33   0.744     .9245193    1.116043
+5 most de..  |   .9916544   .0606512    -0.14   0.891     .8796288    1.117947
              |
         eth2 |
-      Other  |   1.058813   .1110332     0.54   0.586     .8620996    1.300413
-    Missing  |   1.051061   .0992844     0.53   0.598     .8734184    1.264833
+      Other  |   .9800215   .0440521    -0.45   0.653     .8973749     1.07028
+    Missing  |   .9892018   .0398879    -0.27   0.788     .9140326    1.070553
              |
 smoke_nomi~2 |
-     Former  |   1.078923   .1046817     0.78   0.434     .8920791    1.304902
+     Former  |   1.011686   .0488561     0.24   0.810     .9203213     1.11212
              |
    obese4cat |
-Obese I ..)  |   1.056994   .1129749     0.52   0.604     .8572217    1.303321
-Obese II..)  |    .875209   .0999501    -1.17   0.243     .6996862    1.094763
-Obese II..)  |   .8367144   .0893744    -1.67   0.095      .678665    1.031571
+Obese I ..)  |   .9923598   .0470826    -0.16   0.872     .9042402    1.089067
+Obese II..)  |   .9861124   .0468633    -0.29   0.769       .89841    1.082376
+Obese II..)  |   1.000902   .0437959     0.02   0.984      .918641    1.090528
              |
-household_~e |   .9581968   .0363203    -1.13   0.260     .8895903    1.032094
+hh_total_cat |
+        3-5  |   .9665185   .0324755    -1.01   0.311     .9049184    1.032312
+       6-10  |    .413753   .2928628    -1.25   0.212      .103334    1.656681
              |
 rural_urban5 |
-Urban min..  |   1.101595   .1889273     0.56   0.573      .787115    1.541722
-Urban cit..  |   1.069031   .1617505     0.44   0.659     .7946917    1.438076
-Rural tow..  |    .921212    .142665    -0.53   0.596     .6800437    1.247907
-Rural vil..  |   .9606452   .1344377    -0.29   0.774     .7301993    1.263818
+Urban min..  |   .9963316    .075983    -0.05   0.962     .8580033    1.156961
+Urban cit..  |   1.088449   .0707986     1.30   0.193     .9581674    1.236445
+Rural tow..  |   1.022264   .0671222     0.34   0.737     .8988205    1.162661
+Rural vil..  |   1.023997    .061393     0.40   0.692     .9104697     1.15168
              |
   start_week |
-23Nov-29Nov  |   .9981209   .1277294    -0.01   0.988      .776703    1.282659
-30Nov-06Dec  |   1.166218   .1530426     1.17   0.241     .9017302    1.508283
-07Dec-13Dec  |     .92594   .1372303    -0.52   0.604     .6925152    1.238045
-14Dec-20Dec  |   1.066339   .1601101     0.43   0.669     .7944894    1.431208
-21Dec-27Dec  |   1.159985   .1896256     0.91   0.364     .8419847    1.598086
-28Dec-04Jan  |   1.040441    .185679     0.22   0.824     .7333489     1.47613
+23Nov-29Nov  |   1.116406   .0604524     2.03   0.042     1.003992    1.241406
+30Nov-06Dec  |   1.053661   .0608779     0.90   0.366      .940851    1.179998
+07Dec-13Dec  |    .999603   .0617004    -0.01   0.995     .8857011    1.128153
+14Dec-20Dec  |   1.077832   .0693681     1.16   0.244     .9500981    1.222738
+21Dec-27Dec  |   1.121877   .0772806     1.67   0.095     .9801892    1.284045
+28Dec-04Jan  |   1.054801   .0786086     0.72   0.474     .9114544    1.220691
              |
-        age1 |   .9912732   .0081287    -1.07   0.285     .9754685    1.007334
-        age2 |   1.038494   .0278047     1.41   0.158     .9854028    1.094445
-        age3 |   .8927507   .0678096    -1.49   0.135     .7692659    1.036058
+        age1 |   .9967879   .0034418    -0.93   0.351     .9900649    1.003557
+        age2 |   1.010226   .0114289     0.90   0.368     .9880725    1.032877
+        age3 |    .970986    .031145    -0.92   0.359     .9118222    1.033989
+             |
+    home_bin |
+  Care home  |   1.029733   .0476714     0.63   0.527     .9404124    1.127537
 ------------------------------------------------------------------------------
                                                       Stratified by utla_group
 
@@ -854,8 +1091,11 @@ Rural vil..  |   .9606452   .1344377    -0.29   0.774     .7301993    1.263818
 . * Test for interaction
 . lrtest e_no_int e_comorbX
 
-Likelihood-ratio test                                 LR chi2(2)  =      4.44
-(Assumption: e_no_int nested in e_comorbX)            Prob > chi2 =    0.1089
+Likelihood-ratio test                                 LR chi2(2)  =      3.08
+(Assumption: e_no_int nested in e_comorbX)            Prob > chi2 =    0.2144
+
+. 
+. file write tablecontent _n ("Comorbidities") _tab _tab %6.4f (r(p)) _n
 
 . 
 . * Comorbidities VOC vs. non-VOC HR
@@ -866,9 +1106,15 @@ Likelihood-ratio test                                 LR chi2(2)  =      4.44
 ------------------------------------------------------------------------------
           _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-         (1) |   .5363531   .1746931    -1.91   0.056     .2832761    1.015527
+         (1) |   .8553622   .1080959    -1.24   0.216     .6676978    1.095772
 ------------------------------------------------------------------------------
 
+. file write tablecontent ("None") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+. 
 . lincom 1.sgtf + 1.sgtf#1.comorb_cat, eform      // 1 comorb
 
  ( 1)  1.sgtf + 1.sgtf#1.comorb_cat = 0
@@ -876,9 +1122,15 @@ Likelihood-ratio test                                 LR chi2(2)  =      4.44
 ------------------------------------------------------------------------------
           _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-         (1) |    1.14337   .1932081     0.79   0.428     .8210122    1.592296
+         (1) |   1.098954   .0805673     1.29   0.198     .9518655    1.268772
 ------------------------------------------------------------------------------
 
+. file write tablecontent ("1") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+. 
 . lincom 1.sgtf + 1.sgtf#2.comorb_cat, eform      // 2+ comorbs
 
  ( 1)  1.sgtf + 1.sgtf#2.comorb_cat = 0
@@ -886,92 +1138,309 @@ Likelihood-ratio test                                 LR chi2(2)  =      4.44
 ------------------------------------------------------------------------------
           _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-         (1) |   1.005026   .0936497     0.05   0.957     .8372614    1.206406
+         (1) |   1.004084   .0397886     0.10   0.918     .9290515    1.085177
 ------------------------------------------------------------------------------
 
+. file write tablecontent ("2+") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
+
 . 
-. 
-. 
-. * Ethnicity
-. stcox i.sgtf##ib1.eth2 i.male ib1.imd ib0.comorb_cat ib1.smoke_nomiss2 ib1.ob
-> ese4cat household_size ///
->                          ib1.rural_urban5 ib1.start_week age1 age2 age3, stra
-> ta(utla_group)
+. * Test for trend
+. stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_t
+> otal_cat ///
+>                          ib1.rural_urban5 c.comorb_cat ib1.start_week age1 ag
+> e2 age3 i.home_bin ///
+>                          if eth2 != 6 ///
+>                          , strata(utla_group)
 
          failure _d:  cox_death
    analysis time _t:  (stime_death-origin)
              origin:  time study_start
                  id:  patient_id
 
-Iteration 0:   log likelihood = -3278.2477
-Iteration 1:   log likelihood = -3268.0008
-Iteration 2:   log likelihood = -3267.9934
-Iteration 3:   log likelihood = -3267.9934
+Iteration 0:   log likelihood = -24236.374
+Iteration 1:   log likelihood = -24225.551
+Iteration 2:   log likelihood = -24225.463
+Iteration 3:   log likelihood = -24225.462
+Iteration 4:   log likelihood = -24225.462
 Refining estimates:
-Iteration 0:   log likelihood = -3267.9934
+Iteration 0:   log likelihood = -24225.462
 
 Stratified Cox regr. -- Breslow method for ties
 
-No. of subjects =       26,323                  Number of obs    =      26,317
-No. of failures =          649
-Time at risk    =      1196769
-                                                LR chi2(30)      =       20.51
-Log likelihood  =   -3267.9934                  Prob > chi2      =      0.9026
+No. of subjects =      143,150                  Number of obs    =     143,122
+No. of failures =        3,551
+Time at risk    =      6498741
+                                                LR chi2(29)      =       21.82
+Log likelihood  =   -24225.462                  Prob > chi2      =      0.8274
 
 ------------------------------------------------------------------------------
           _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
         sgtf |
-        VOC  |   .9527956    .101139    -0.46   0.649     .7738289    1.173153
-             |
-        eth2 |
-      Other  |   1.065881   .1587198     0.43   0.668     .7960796     1.42712
-    Missing  |   .9597109   .1301355    -0.30   0.762     .7357303    1.251879
-             |
-   sgtf#eth2 |
-  VOC#Other  |   .9915362   .2077937    -0.04   0.968     .6575434    1.495177
-VOC#Missing  |   1.188578   .2245587     0.91   0.361     .8207476    1.721256
+        VOC  |   1.011959   .0339963     0.35   0.723     .9474742    1.080834
              |
         male |
-          M  |   .9789769   .0772285    -0.27   0.788      .838733    1.142671
+          M  |   .9858521   .0331317    -0.42   0.672     .9230076    1.052976
              |
          imd |
-          2  |   1.063579   .1229025     0.53   0.594     .8480249    1.333923
-          3  |   .9690139   .1144021    -0.27   0.790     .7688417    1.221302
-          4  |   1.187718   .1327425     1.54   0.124     .9540709    1.478583
-5 most de..  |   1.142034   .1598694     0.95   0.343     .8680052    1.502574
+          2  |   1.025476   .0492502     0.52   0.600     .9333514    1.126694
+          3  |   .9178727   .0454104    -1.73   0.083      .833049    1.011334
+          4  |   1.015911   .0487929     0.33   0.742     .9246422    1.116189
+5 most de..  |   .9916219   .0606493    -0.14   0.891        .8796    1.117911
              |
-  comorb_cat |
-1 comorbi..  |   1.038467   .1851058     0.21   0.832     .7322626    1.472715
-2+ comorb..  |   1.013334   .1659042     0.08   0.936     .7351783    1.396729
+        eth2 |
+      Other  |   .9802194   .0440607    -0.44   0.657     .8975569    1.070495
+    Missing  |   .9892525   .0398899    -0.27   0.789     .9140795    1.070608
              |
 smoke_nomi~2 |
-     Former  |   1.078639   .1046439     0.78   0.435     .8918603    1.304533
+     Former  |   1.011239   .0488344     0.23   0.817     .9199157    1.111629
              |
    obese4cat |
-Obese I ..)  |   1.052039   .1124553     0.47   0.635     .8531875    1.297236
-Obese II..)  |   .8720625   .0995933    -1.20   0.231     .6971669    1.090834
-Obese II..)  |   .8344502   .0891377    -1.69   0.090     .6768202    1.028792
+Obese I ..)  |   .9926636    .047096    -0.16   0.877     .9045189    1.089398
+Obese II..)  |   .9861923   .0468671    -0.29   0.770     .8984827    1.082464
+Obese II..)  |   1.000557   .0437803     0.01   0.990     .9183261    1.090152
              |
-household_~e |    .957463   .0362912    -1.15   0.251     .8889114    1.031301
+hh_total_cat |
+        3-5  |   .9663041   .0324677    -1.02   0.308     .9047186    1.032082
+       6-10  |   .4125828   .2920349    -1.25   0.211     .1030416    1.651999
              |
 rural_urban5 |
-Urban min..  |   1.099363   .1885472     0.55   0.581     .7855159    1.538605
-Urban cit..  |   1.071461   .1621085     0.46   0.648      .796512     1.44132
-Rural tow..  |    .921137   .1426358    -0.53   0.596     .6800138    1.247759
-Rural vil..  |   .9620776   .1346459    -0.28   0.782     .7312766    1.265722
+Urban min..  |   .9975199   .0760707    -0.03   0.974     .8590314    1.158335
+Urban cit..  |   1.088648   .0708108     1.31   0.192     .9583439     1.23667
+Rural tow..  |   1.022679   .0671488     0.34   0.733     .8991864    1.163132
+Rural vil..  |    1.02423   .0614064     0.40   0.690     .9106776    1.151941
+             |
+  comorb_cat |   .9720478   .0270843    -1.02   0.309     .9203871    1.026608
              |
   start_week |
-23Nov-29Nov  |    .995882   .1274056    -0.03   0.974     .7750177    1.279688
-30Nov-06Dec  |   1.163876   .1527289     1.16   0.247     .8999295    1.505238
-07Dec-13Dec  |   .9229104   .1367717    -0.54   0.588     .6902633    1.233969
-14Dec-20Dec  |   1.063877   .1597263     0.41   0.680     .7926749    1.427866
-21Dec-27Dec  |   1.153882   .1886237     0.88   0.381     .8375612    1.589668
-28Dec-04Jan  |   1.035502   .1847861     0.20   0.845     .7298832     1.46909
+23Nov-29Nov  |   1.116363   .0604484     2.03   0.042     1.003956    1.241355
+30Nov-06Dec  |    1.05295    .060835     0.89   0.372     .9402187    1.179198
+07Dec-13Dec  |   .9993441    .061682    -0.01   0.992     .8854761    1.127855
+14Dec-20Dec  |   1.077689   .0693575     1.16   0.245     .9499753    1.222573
+21Dec-27Dec  |   1.121499   .0772547     1.66   0.096     .9798592    1.283613
+28Dec-04Jan  |   1.054191     .07856     0.71   0.479     .9109331    1.219979
              |
-        age1 |    .991323   .0081316    -1.06   0.288     .9755128    1.007389
-        age2 |   1.038152    .027806     1.40   0.162     .9850587    1.094106
-        age3 |   .8937658   .0679127    -1.48   0.139     .7700968    1.037295
+        age1 |   .9967869   .0034419    -0.93   0.351     .9900637    1.003556
+        age2 |   1.010182   .0114284     0.90   0.371     .9880293    1.032832
+        age3 |   .9711566   .0311501    -0.91   0.362     .9119829     1.03417
+             |
+    home_bin |
+  Care home  |   1.029739   .0476712     0.63   0.527     .9404186    1.127543
+------------------------------------------------------------------------------
+                                                      Stratified by utla_group
+
+. 
+. est store e_linco
+
+. 
+. stcox i.sgtf##c.comorb_cat i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obes
+> e4cat ib1.hh_total_cat ///
+>                          ib1.rural_urban5 ib1.start_week age1 age2 age3 i.hom
+> e_bin ///
+>                          if eth2 != 6 ///
+>                          , strata(utla_group)
+
+         failure _d:  cox_death
+   analysis time _t:  (stime_death-origin)
+             origin:  time study_start
+                 id:  patient_id
+
+Iteration 0:   log likelihood = -24236.374
+Iteration 1:   log likelihood = -24225.503
+Iteration 2:   log likelihood = -24225.415
+Iteration 3:   log likelihood = -24225.414
+Iteration 4:   log likelihood = -24225.414
+Refining estimates:
+Iteration 0:   log likelihood = -24225.414
+
+Stratified Cox regr. -- Breslow method for ties
+
+No. of subjects =      143,150                  Number of obs    =     143,122
+No. of failures =        3,551
+Time at risk    =      6498741
+                                                LR chi2(30)      =       21.92
+Log likelihood  =   -24225.414                  Prob > chi2      =      0.8569
+
+------------------------------------------------------------------------------
+          _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   .9836369   .0961838    -0.17   0.866     .8120842     1.19143
+  comorb_cat |    .963627   .0380913    -0.94   0.349     .8917883    1.041253
+             |
+        sgtf#|
+c.comorb_cat |
+        VOC  |   1.017377   .0567007     0.31   0.757     .9121001    1.134805
+             |
+        male |
+          M  |   .9858401   .0331314    -0.42   0.671     .9229963    1.052963
+             |
+         imd |
+          2  |   1.025393    .049247     0.52   0.602     .9332741    1.126604
+          3  |   .9179103   .0454124    -1.73   0.083     .8330829    1.011375
+          4  |   1.015946   .0487947     0.33   0.742     .9246737    1.116228
+5 most de..  |   .9915872   .0606473    -0.14   0.890      .879569    1.117872
+             |
+        eth2 |
+      Other  |   .9802387   .0440615    -0.44   0.657     .8975745    1.070516
+    Missing  |   .9892936   .0398918    -0.27   0.790      .914117    1.070653
+             |
+smoke_nomi~2 |
+     Former  |   1.011215   .0488333     0.23   0.817      .919893    1.111602
+             |
+   obese4cat |
+Obese I ..)  |   .9927222   .0470992    -0.15   0.878     .9045715    1.089463
+Obese II..)  |   .9862441   .0468699    -0.29   0.771     .8985293    1.082522
+Obese II..)  |   1.000606   .0437827     0.01   0.989     .9183703    1.090206
+             |
+hh_total_cat |
+        3-5  |   .9662858   .0324672    -1.02   0.307     .9047013    1.032062
+       6-10  |    .412409   .2919125    -1.25   0.211     .1029979    1.651308
+             |
+rural_urban5 |
+Urban min..  |    .997428   .0760644    -0.03   0.973     .8589512    1.158229
+Urban cit..  |   1.088565   .0708061     1.30   0.192     .9582698    1.236577
+Rural tow..  |   1.022631   .0671459     0.34   0.733     .8991438    1.163078
+Rural vil..  |   1.024221    .061406     0.40   0.690     .9106693    1.151931
+             |
+  start_week |
+23Nov-29Nov  |   1.116354    .060448     2.03   0.042     1.003948    1.241345
+30Nov-06Dec  |   1.053019   .0608395     0.89   0.371     .9402793    1.179276
+07Dec-13Dec  |   .9993434    .061682    -0.01   0.992     .8854752    1.127854
+14Dec-20Dec  |   1.077647   .0693549     1.16   0.245      .949938    1.222526
+21Dec-27Dec  |   1.121463   .0772524     1.66   0.096     .9798277    1.283572
+28Dec-04Jan  |   1.054241   .0785638     0.71   0.478     .9109758    1.220036
+             |
+        age1 |   .9967766    .003442    -0.93   0.350     .9900532    1.003546
+        age2 |   1.010215   .0114293     0.90   0.369     .9880604    1.032866
+        age3 |   .9710729   .0311486    -0.92   0.360     .9119022    1.034083
+             |
+    home_bin |
+  Care home  |   1.029685    .047669     0.63   0.527     .9403692    1.127485
+------------------------------------------------------------------------------
+                                                      Stratified by utla_group
+
+. 
+. est store e_lincoX
+
+. 
+. lrtest e_linco e_lincoX
+
+Likelihood-ratio test                                 LR chi2(1)  =      0.10
+(Assumption: e_linco nested in e_lincoX)              Prob > chi2 =    0.7572
+
+. local lin_lr_p = r(p)
+
+. 
+. lincom 1.sgtf#c.comorb_cat, eform
+
+ ( 1)  1.sgtf#c.comorb_cat = 0
+
+------------------------------------------------------------------------------
+          _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   1.017377   .0567007     0.31   0.757     .9121001    1.134805
+------------------------------------------------------------------------------
+
+. file write tablecontent ("Per unit increase") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (`lin_lr_p') _n
+
+. 
+. 
+. 
+. * Ethnicity
+. stcox i.sgtf##ib1.eth2 i.male ib1.imd ib0.comorb_cat ib1.smoke_nomiss2 ib1.ob
+> ese4cat ib1.hh_total_cat ///
+>                          ib1.rural_urban5 ib1.start_week age1 age2 age3 i.hom
+> e_bin ///
+>                          if eth2 != 6 ///
+>                          , strata(utla_group)
+
+         failure _d:  cox_death
+   analysis time _t:  (stime_death-origin)
+             origin:  time study_start
+                 id:  patient_id
+
+Iteration 0:   log likelihood = -24236.374
+Iteration 1:   log likelihood = -24224.758
+Iteration 2:   log likelihood = -24224.668
+Iteration 3:   log likelihood = -24224.667
+Iteration 4:   log likelihood = -24224.667
+Refining estimates:
+Iteration 0:   log likelihood = -24224.667
+
+Stratified Cox regr. -- Breslow method for ties
+
+No. of subjects =      143,150                  Number of obs    =     143,122
+No. of failures =        3,551
+Time at risk    =      6498741
+                                                LR chi2(32)      =       23.41
+Log likelihood  =   -24224.667                  Prob > chi2      =      0.8648
+
+------------------------------------------------------------------------------
+          _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   .9999143   .0447339    -0.00   0.998     .9159715     1.09155
+             |
+        eth2 |
+      Other  |   .9603363   .0617654    -0.63   0.529     .8465976    1.089355
+    Missing  |   .9806872   .0561066    -0.34   0.733     .8766616    1.097057
+             |
+   sgtf#eth2 |
+  VOC#Other  |   1.041184   .0936232     0.45   0.654     .8729464    1.241845
+VOC#Missing  |   1.017311    .082047     0.21   0.831      .868568    1.191527
+             |
+        male |
+          M  |   .9856554   .0331258    -0.43   0.667     .9228221    1.052767
+             |
+         imd |
+          2  |   1.025437   .0492485     0.52   0.601     .9333152    1.126651
+          3  |   .9179066   .0454123    -1.73   0.083     .8330793    1.011371
+          4  |   1.015924   .0487942     0.33   0.742     .9246522    1.116205
+5 most de..  |   .9916289   .0606501    -0.14   0.891     .8796054    1.117919
+             |
+  comorb_cat |
+1 comorbi..  |   .8973761   .0654365    -1.48   0.138     .7778665    1.035247
+2+ comorb..  |   .9044134   .0597805    -1.52   0.129      .794518    1.029509
+             |
+smoke_nomi~2 |
+     Former  |   1.011363    .048841     0.23   0.815      .920027    1.111766
+             |
+   obese4cat |
+Obese I ..)  |   .9925212   .0470895    -0.16   0.874     .9043888    1.089242
+Obese II..)  |   .9861473   .0468649    -0.29   0.769     .8984417    1.082415
+Obese II..)  |   1.000753   .0437892     0.02   0.986      .918505    1.090366
+             |
+hh_total_cat |
+        3-5  |   .9662469   .0324659    -1.02   0.307     .9046649    1.032021
+       6-10  |   .4131755   .2924551    -1.25   0.212     .1031893    1.654377
+             |
+rural_urban5 |
+Urban min..  |   .9972564   .0760511    -0.04   0.971     .8588037     1.15803
+Urban cit..  |    1.08854   .0708052     1.30   0.192      .958246     1.23655
+Rural tow..  |   1.022582   .0671433     0.34   0.734     .8990996    1.163024
+Rural vil..  |   1.024175   .0614057     0.40   0.690     .9106246    1.151885
+             |
+  start_week |
+23Nov-29Nov  |   1.116032   .0604314     2.03   0.043     1.003657    1.240989
+30Nov-06Dec  |   1.052921   .0608335     0.89   0.372     .9401921    1.179165
+07Dec-13Dec  |   .9989756   .0616601    -0.02   0.987     .8851479    1.127441
+14Dec-20Dec  |   1.077345   .0693358     1.16   0.247     .9496705    1.222183
+21Dec-27Dec  |   1.121485   .0772539     1.66   0.096     .9798467    1.283597
+28Dec-04Jan  |   1.053673   .0785225     0.70   0.483     .9104832    1.219381
+             |
+        age1 |   .9967875   .0034418    -0.93   0.351     .9900645    1.003556
+        age2 |   1.010185   .0114284     0.90   0.370     .9880327    1.032835
+        age3 |   .9711395   .0311494    -0.91   0.361     .9119673    1.034151
+             |
+    home_bin |
+  Care home  |    1.02962   .0476659     0.63   0.528       .94031    1.127414
 ------------------------------------------------------------------------------
                                                       Stratified by utla_group
 
@@ -982,8 +1451,11 @@ Rural vil..  |   .9620776   .1346459    -0.28   0.782     .7312766    1.265722
 . * Test for interaction
 . lrtest e_no_int e_eth2X
 
-Likelihood-ratio test                                 LR chi2(2)  =      0.94
-(Assumption: e_no_int nested in e_eth2X)              Prob > chi2 =    0.6263
+Likelihood-ratio test                                 LR chi2(2)  =      0.21
+(Assumption: e_no_int nested in e_eth2X)              Prob > chi2 =    0.9003
+
+. 
+. file write tablecontent _n ("Ethnicity") _tab _tab %6.4f (r(p)) _n
 
 . 
 . * Ethnicity VOC vs. non-VOC HR
@@ -994,9 +1466,15 @@ Likelihood-ratio test                                 LR chi2(2)  =      0.94
 ------------------------------------------------------------------------------
           _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-         (1) |   .9527956    .101139    -0.46   0.649     .7738289    1.173153
+         (1) |   .9999143   .0447339    -0.00   0.998     .9159715     1.09155
 ------------------------------------------------------------------------------
 
+. file write tablecontent ("White") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+. 
 . *lincom 1.sgtf + 1.sgtf#2.eth5, eform   // S Asian
 . *lincom 1.sgtf + 1.sgtf#3.eth5, eform   // Black
 . *lincom 1.sgtf + 1.sgtf#4.eth5, eform   // Mixed
@@ -1007,99 +1485,295 @@ Likelihood-ratio test                                 LR chi2(2)  =      0.94
 ------------------------------------------------------------------------------
           _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-         (1) |   .9447313   .1707006    -0.31   0.753     .6629905    1.346199
+         (1) |   1.041095   .0812084     0.52   0.606     .8934992    1.213072
 ------------------------------------------------------------------------------
 
-. lincom 1.sgtf + 1.sgtf#9.eth2, eform    // Missing
+. file write tablecontent ("Not white") _tab 
 
- ( 1)  1.sgtf + 1.sgtf#9.eth2 = 0
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
 
-------------------------------------------------------------------------------
-          _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
--------------+----------------------------------------------------------------
-         (1) |   1.132472   .1769158     0.80   0.426     .8337807    1.538165
-------------------------------------------------------------------------------
-
+. 
+. *lincom 1.sgtf + 1.sgtf#6.eth2, eform   // Missing
 . 
 . 
 . 
-. * Age group
-. stcox i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obes
-> e4cat household_size ///
->                          ib1.rural_urban5 ib0.comorb_cat ib1.start_week, stra
-> ta(utla_group)
+. * IMD
+. stcox i.sgtf##ib1.imd i.male ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_
+> total_cat ///
+>                          ib1.rural_urban5 ib1.start_week ib0.comorb_cat age1 
+> age2 age3 i.home_bin ///
+>                          if eth2 != 6 ///
+>                          , strata(utla_group)
 
          failure _d:  cox_death
    analysis time _t:  (stime_death-origin)
              origin:  time study_start
                  id:  patient_id
 
-Iteration 0:   log likelihood = -3278.2477
-Iteration 1:   log likelihood = -3267.6754
-Iteration 2:   log likelihood = -3267.6335
-Iteration 3:   log likelihood = -3267.6335
+Iteration 0:   log likelihood = -24236.374
+Iteration 1:   log likelihood = -24219.907
+Iteration 2:   log likelihood = -24219.813
+Iteration 3:   log likelihood = -24219.811
+Iteration 4:   log likelihood = -24219.811
 Refining estimates:
-Iteration 0:   log likelihood = -3267.6335
+Iteration 0:   log likelihood = -24219.811
 
 Stratified Cox regr. -- Breslow method for ties
 
-No. of subjects =       26,323                  Number of obs    =      26,317
-No. of failures =          649
-Time at risk    =      1196769
-                                                LR chi2(28)      =       21.23
-Log likelihood  =   -3267.6335                  Prob > chi2      =      0.8157
+No. of subjects =      143,150                  Number of obs    =     143,122
+No. of failures =        3,551
+Time at risk    =      6498741
+                                                LR chi2(34)      =       33.13
+Log likelihood  =   -24219.811                  Prob > chi2      =      0.5103
 
 ------------------------------------------------------------------------------
           _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
         sgtf |
-        VOC  |   .9957844   .0786084    -0.05   0.957      .853042    1.162412
-             |
-   agegroupA |
-      0-<65  |   1.125499   .1551084     0.86   0.391     .8590895    1.474524
-     75-<85  |   .8983253   .2023392    -0.48   0.634     .5777083    1.396879
-        85+  |   1.538204   .4004607     1.65   0.098     .9234418    2.562231
-             |
-        male |
-          M  |   .9779281   .0771467    -0.28   0.777     .8378329    1.141449
+        VOC  |    1.14336   .0701142     2.18   0.029     1.013876    1.289381
              |
          imd |
-          2  |   1.063635   .1229181     0.53   0.593     .8480549    1.334016
-          3  |   .9678508   .1142629    -0.28   0.782     .7679217    1.219832
-          4  |   1.191231   .1331372     1.57   0.117     .9568902    1.482962
-5 most de..  |   1.142892   .1599629     0.95   0.340     .8686969    1.503634
+          2  |   1.055392   .0736458     0.77   0.440     .9204841    1.210071
+          3  |   1.030383   .0723923     0.43   0.670     .8978321    1.182502
+          4  |   1.125028   .0771425     1.72   0.086     .9835516    1.286856
+5 most de..  |   1.140077   .0970267     1.54   0.123     .9649227    1.347026
+             |
+    sgtf#imd |
+      VOC#2  |   .9481676   .0912288    -0.55   0.580     .7852103    1.144944
+      VOC#3  |   .7968952   .0789817    -2.29   0.022     .6562012    .9677548
+      VOC#4  |   .8197095   .0788521    -2.07   0.039     .6788573    .9897863
+        VOC #|
+5 most de..  |   .7563456   .0927815    -2.28   0.023     .5947065    .9619176
+             |
+        male |
+          M  |   .9857445   .0331287    -0.43   0.669     .9229057    1.052862
              |
         eth2 |
-      Other  |   1.058652   .1109784     0.54   0.587     .8620285    1.300123
-    Missing  |   1.044906   .0986918     0.47   0.642     .8683218      1.2574
+      Other  |   .9799884   .0440509    -0.45   0.653     .8973442    1.070244
+    Missing  |   .9889398   .0398779    -0.28   0.783     .9137893    1.070271
              |
 smoke_nomi~2 |
-     Former  |   1.075761   .1043537     0.75   0.452     .8894992    1.301027
+     Former  |   1.012117   .0488778     0.25   0.803      .920712    1.112596
              |
    obese4cat |
-Obese I ..)  |   1.052401   .1124663     0.48   0.633     .8535254    1.297616
-Obese II..)  |   .8728792   .0996747    -1.19   0.234     .6978383    1.091826
-Obese II..)  |   .8361517   .0893223    -1.68   0.094     .6781958    1.030896
+Obese I ..)  |   .9921201   .0470708    -0.17   0.868     .9040225    1.088803
+Obese II..)  |    .986309   .0468733    -0.29   0.772     .8985878    1.082594
+Obese II..)  |   1.000866   .0437943     0.02   0.984     .9186083    1.090489
              |
-household_~e |   .9595367   .0363722    -1.09   0.276     .8908323     1.03354
+hh_total_cat |
+        3-5  |   .9661182   .0324629    -1.03   0.305      .904542    1.031886
+       6-10  |   .4105697   .2906152    -1.26   0.209     .1025362    1.643979
              |
 rural_urban5 |
-Urban min..  |   1.102206   .1890433     0.57   0.570     .7875354    1.542607
-Urban cit..  |   1.074427   .1625462     0.47   0.635     .7987335    1.445281
-Rural tow..  |   .9225271   .1428267    -0.52   0.602     .6810753    1.249577
-Rural vil..  |   .9632893   .1347882    -0.27   0.789     .7322382    1.267247
-             |
-  comorb_cat |
-1 comorbi..  |   1.039803   .1853198     0.22   0.827     .7332376    1.474542
-2+ comorb..  |   1.012726   .1657877     0.08   0.938     .7347616    1.395845
+Urban min..  |   .9968061   .0760175    -0.04   0.967     .8584146    1.157509
+Urban cit..  |   1.088402   .0707961     1.30   0.193      .958125    1.236393
+Rural tow..  |   1.022344   .0671283     0.34   0.736     .8988894    1.162754
+Rural vil..  |   1.024449   .0614205     0.40   0.687     .9108709    1.152189
              |
   start_week |
-23Nov-29Nov  |   .9978459   .1276898    -0.02   0.987     .7764958    1.282295
-30Nov-06Dec  |   1.163182   .1526663     1.15   0.249     .8993492    1.504412
-07Dec-13Dec  |   .9239066   .1369299    -0.53   0.593     .6909929    1.235329
-14Dec-20Dec  |   1.067698   .1602842     0.44   0.663     .7955454    1.432953
-21Dec-27Dec  |   1.156696    .189066     0.89   0.373      .839629    1.593497
-28Dec-04Jan  |   1.040306   .1856661     0.22   0.825     .7332377    1.475969
+23Nov-29Nov  |    1.11691   .0604818     2.04   0.041     1.004442    1.241971
+30Nov-06Dec  |   1.052953   .0608366     0.89   0.372     .9402189    1.179204
+07Dec-13Dec  |   .9995317   .0616961    -0.01   0.994     .8856378    1.128073
+14Dec-20Dec  |   1.077818   .0693675     1.16   0.244      .950086    1.222723
+21Dec-27Dec  |    1.12185   .0772795     1.67   0.095     .9801645    1.284016
+28Dec-04Jan  |   1.054646   .0785951     0.71   0.475      .911324    1.220508
+             |
+  comorb_cat |
+1 comorbi..  |   .8977555   .0654659    -1.48   0.139     .7781923    1.035689
+2+ comorb..  |   .9042116    .059769    -1.52   0.128     .7943375    1.029284
+             |
+        age1 |   .9967824   .0034418    -0.93   0.351     .9900594    1.003551
+        age2 |   1.010228   .0114285     0.90   0.368     .9880749    1.032878
+        age3 |   .9709633   .0311421    -0.92   0.358     .9118048     1.03396
+             |
+    home_bin |
+  Care home  |   1.029145   .0476454     0.62   0.535     .9398733    1.126896
+------------------------------------------------------------------------------
+                                                      Stratified by utla_group
+
+. 
+. est store e_imdX
+
+. 
+. * Test for interaction
+. lrtest e_no_int e_imdX
+
+Likelihood-ratio test                                 LR chi2(4)  =      9.92
+(Assumption: e_no_int nested in e_imdX)               Prob > chi2 =    0.0418
+
+. 
+. file write tablecontent _n ("IMD") _tab _tab %6.4f (r(p)) _n
+
+. 
+. * IMD VOC vs. non-VOC HR
+. lincom 1.sgtf, eform                                            // 1
+
+ ( 1)  1.sgtf = 0
+
+------------------------------------------------------------------------------
+          _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |    1.14336   .0701142     2.18   0.029     1.013876    1.289381
+------------------------------------------------------------------------------
+
+. file write tablecontent ("1 Least deprived") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+. 
+. lincom 1.sgtf + 1.sgtf#2.imd, eform     // 2
+
+ ( 1)  1.sgtf + 1.sgtf#2.imd = 0
+
+------------------------------------------------------------------------------
+          _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   1.084097    .080373     1.09   0.276     .9374791    1.253645
+------------------------------------------------------------------------------
+
+. file write tablecontent ("2") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+. 
+. lincom 1.sgtf + 1.sgtf#3.imd, eform     // 3
+
+ ( 1)  1.sgtf + 1.sgtf#3.imd = 0
+
+------------------------------------------------------------------------------
+          _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .9111382   .0709398    -1.20   0.232     .7821877    1.061347
+------------------------------------------------------------------------------
+
+. file write tablecontent ("3") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+. 
+. lincom 1.sgtf + 1.sgtf#4.imd, eform     // 4
+
+ ( 1)  1.sgtf + 1.sgtf#4.imd = 0
+
+------------------------------------------------------------------------------
+          _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .9372232   .0694638    -0.87   0.382     .8105034    1.083755
+------------------------------------------------------------------------------
+
+. file write tablecontent ("4") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+. 
+. lincom 1.sgtf + 1.sgtf#5.imd, eform     // 5
+
+ ( 1)  1.sgtf + 1.sgtf#5.imd = 0
+
+------------------------------------------------------------------------------
+          _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .8647754   .0918774    -1.37   0.171     .7022117    1.064973
+------------------------------------------------------------------------------
+
+. file write tablecontent ("5 Most deprived") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+. 
+. 
+. 
+. * Age group
+. stcox i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obes
+> e4cat ib1.hh_total_cat ///
+>                          ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.hom
+> e_bin ///
+>                          if eth2 != 6 ///
+>                          , strata(utla_group)
+
+         failure _d:  cox_death
+   analysis time _t:  (stime_death-origin)
+             origin:  time study_start
+                 id:  patient_id
+
+Iteration 0:   log likelihood = -24236.374
+Iteration 1:   log likelihood = -24225.357
+Iteration 2:   log likelihood = -24225.267
+Iteration 3:   log likelihood = -24225.266
+Iteration 4:   log likelihood = -24225.266
+Refining estimates:
+Iteration 0:   log likelihood = -24225.266
+
+Stratified Cox regr. -- Breslow method for ties
+
+No. of subjects =      143,150                  Number of obs    =     143,122
+No. of failures =        3,551
+Time at risk    =      6498741
+                                                LR chi2(30)      =       22.22
+Log likelihood  =   -24225.266                  Prob > chi2      =      0.8461
+
+------------------------------------------------------------------------------
+          _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   1.011802   .0339916     0.35   0.727     .9473256    1.080666
+             |
+   agegroupA |
+      0-<65  |   1.010745   .0570849     0.19   0.850      .904831    1.129057
+     75-<85  |   .9659874   .0858866    -0.39   0.697     .8115039     1.14988
+        85+  |   1.007434     .12072     0.06   0.951     .7965582    1.274134
+             |
+        male |
+          M  |   .9858508   .0331314    -0.42   0.672     .9230069    1.052974
+             |
+         imd |
+          2  |   1.025359    .049245     0.52   0.602     .9332438    1.126566
+          3  |    .917853   .0454097    -1.73   0.083     .8330305    1.011312
+          4  |   1.015879   .0487918     0.33   0.743     .9246116    1.116155
+5 most de..  |   .9915144   .0606435    -0.14   0.889     .8795032    1.117791
+             |
+        eth2 |
+      Other  |   .9802364   .0440617    -0.44   0.657     .8975718    1.070514
+    Missing  |   .9892782   .0398906    -0.27   0.789     .9141037    1.070635
+             |
+smoke_nomi~2 |
+     Former  |   1.011409   .0488416     0.23   0.814     .9200714    1.111813
+             |
+   obese4cat |
+Obese I ..)  |    .992428   .0470858    -0.16   0.873     .9043023    1.089142
+Obese II..)  |   .9859731   .0468566    -0.30   0.766     .8982831    1.082223
+Obese II..)  |   1.000741   .0437886     0.02   0.986     .9184944    1.090353
+             |
+hh_total_cat |
+        3-5  |   .9663948   .0324701    -1.02   0.309     .9048047    1.032177
+       6-10  |   .4125813   .2920349    -1.25   0.211     .1030407    1.652001
+             |
+rural_urban5 |
+Urban min..  |   .9974481   .0760655    -0.03   0.973     .8589691    1.158252
+Urban cit..  |   1.088844    .070824     1.31   0.191     .9585159    1.236893
+Rural tow..  |   1.022507   .0671372     0.34   0.735     .8990355    1.162935
+Rural vil..  |   1.024664   .0614329     0.41   0.684     .9110629     1.15243
+             |
+  comorb_cat |
+1 comorbi..  |   .8973195   .0654327    -1.49   0.137     .7778168    1.035182
+2+ comorb..  |   .9041314   .0597617    -1.52   0.127     .7942704    1.029188
+             |
+  start_week |
+23Nov-29Nov  |    1.11614   .0604375     2.03   0.042     1.003754    1.241109
+30Nov-06Dec  |    1.05307   .0608403     0.90   0.371     .9403289    1.179328
+07Dec-13Dec  |   .9990616   .0616647    -0.02   0.988     .8852254    1.127537
+14Dec-20Dec  |   1.077526   .0693471     1.16   0.246     .9498311    1.222388
+21Dec-27Dec  |   1.121275   .0772376     1.66   0.097     .9796663    1.283353
+28Dec-04Jan  |   1.053727   .0785264     0.70   0.483     .9105302    1.219444
+             |
+    home_bin |
+  Care home  |   1.029573   .0476638     0.63   0.529     .9402663    1.127361
 ------------------------------------------------------------------------------
                                                       Stratified by utla_group
 
@@ -1108,87 +1782,95 @@ Rural vil..  |   .9632893   .1347882    -0.27   0.789     .7322382    1.267247
 
 . 
 . stcox i.sgtf##ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obe
-> se4cat household_size ///
->                          ib1.rural_urban5 ib0.comorb_cat ib1.start_week, stra
-> ta(utla_group)
+> se4cat ib1.hh_total_cat ///
+>                          ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.hom
+> e_bin ///
+>                          if eth2 != 6 ///
+>                          , strata(utla_group)
 
          failure _d:  cox_death
    analysis time _t:  (stime_death-origin)
              origin:  time study_start
                  id:  patient_id
 
-Iteration 0:   log likelihood = -3278.2477
-Iteration 1:   log likelihood = -3267.4669
-Iteration 2:   log likelihood = -3267.3907
-Iteration 3:   log likelihood = -3267.3906
+Iteration 0:   log likelihood = -24236.374
+Iteration 1:   log likelihood = -24225.165
+Iteration 2:   log likelihood = -24225.075
+Iteration 3:   log likelihood = -24225.074
+Iteration 4:   log likelihood = -24225.074
 Refining estimates:
-Iteration 0:   log likelihood = -3267.3906
+Iteration 0:   log likelihood = -24225.074
 
 Stratified Cox regr. -- Breslow method for ties
 
-No. of subjects =       26,323                  Number of obs    =      26,317
-No. of failures =          649
-Time at risk    =      1196769
-                                                LR chi2(31)      =       21.71
-Log likelihood  =   -3267.3906                  Prob > chi2      =      0.8918
+No. of subjects =      143,150                  Number of obs    =     143,122
+No. of failures =        3,551
+Time at risk    =      6498741
+                                                LR chi2(33)      =       22.60
+Log likelihood  =   -24225.074                  Prob > chi2      =      0.9134
 
 ------------------------------------------------------------------------------
           _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
         sgtf |
-        VOC  |   1.111087   .2917579     0.40   0.688     .6640988     1.85893
+        VOC  |   1.008561   .1076117     0.08   0.936     .8182392    1.243151
              |
    agegroupA |
-      0-<65  |   1.203843    .244061     0.92   0.360     .8090987    1.791175
-     75-<85  |   .9672939   .3129856    -0.10   0.918     .5130227    1.823813
-        85+  |   1.445977   .5604288     0.95   0.341     .6764791    3.090782
+      0-<65  |   1.006319   .0808343     0.08   0.937     .8597286    1.177904
+     75-<85  |   1.006042    .125953     0.05   0.962      .787134     1.28583
+        85+  |   .9947789   .1695756    -0.03   0.976     .7122394      1.3894
              |
         sgtf#|
    agegroupA |
-  VOC#0-<65  |   .8796614    .243237    -0.46   0.643     .5116206    1.512457
- VOC#75-<85  |   .8683239   .3917674    -0.31   0.754     .3586242    2.102442
-    VOC#85+  |   1.127033   .5906598     0.23   0.820     .4034927    3.148021
+  VOC#0-<65  |   1.008711   .1139427     0.08   0.939     .8083813    1.258686
+ VOC#75-<85  |    .921983   .1639897    -0.46   0.648     .6506131    1.306541
+    VOC#85+  |   1.025432   .2457817     0.10   0.917     .6410409    1.640318
              |
         male |
-          M  |   .9778289    .077151    -0.28   0.776     .8377275    1.141361
+          M  |    .985767   .0331289    -0.43   0.670     .9229278    1.052885
              |
          imd |
-          2  |   1.063209    .122873     0.53   0.596     .8477091    1.333492
-          3  |   .9679777   .1142853    -0.28   0.783     .7680108     1.22001
-          4  |   1.189748   .1329909     1.55   0.120     .9556681    1.481164
-5 most de..  |   1.142906   .1599925     0.95   0.340     .8686667    1.503724
+          2  |   1.025263   .0492413     0.52   0.603     .9331548    1.126462
+          3  |    .917796   .0454073    -1.73   0.083     .8329781    1.011251
+          4  |   1.015831   .0487899     0.33   0.744     .9245672    1.116103
+5 most de..  |   .9913521   .0606347    -0.14   0.887     .8793573    1.117611
              |
         eth2 |
-      Other  |   1.057955   .1109162     0.54   0.591     .8614441    1.299294
-    Missing  |   1.045849   .0987906     0.47   0.635     .8690903    1.258558
+      Other  |   .9801043   .0440564    -0.45   0.655     .8974498    1.070371
+    Missing  |   .9892875   .0398913    -0.27   0.789     .9141117    1.070646
              |
 smoke_nomi~2 |
-     Former  |   1.075512     .10433     0.75   0.453     .8892926    1.300727
+     Former  |    1.01135   .0488389     0.23   0.815      .920018    1.111749
              |
    obese4cat |
-Obese I ..)  |   1.051745    .112403     0.47   0.637     .8529828    1.296824
-Obese II..)  |   .8729368   .0996884    -1.19   0.234     .6978733    1.091916
-Obese II..)  |   .8357843   .0892836    -1.68   0.093     .6778969    1.030445
+Obese I ..)  |   .9924381   .0470864    -0.16   0.873     .9043114    1.089153
+Obese II..)  |   .9859736   .0468574    -0.30   0.766     .8982822    1.082226
+Obese II..)  |   1.000796   .0437921     0.02   0.985     .9185427    1.090415
              |
-household_~e |   .9595504   .0363804    -1.09   0.276      .890831    1.033571
+hh_total_cat |
+        3-5  |   .9662754    .032467    -1.02   0.307     .9046913    1.032052
+       6-10  |    .412559   .2920201    -1.25   0.211     .1030346    1.651919
              |
 rural_urban5 |
-Urban min..  |   1.101932   .1889992     0.57   0.571     .7873357    1.542232
-Urban cit..  |   1.074189   .1625199     0.47   0.636     .7985417    1.444986
-Rural tow..  |   .9221018   .1427758    -0.52   0.600     .6807397    1.249041
-Rural vil..  |   .9635052   .1348333    -0.27   0.790     .7323802    1.267569
+Urban min..  |   .9975162   .0760717    -0.03   0.974     .8590262    1.158333
+Urban cit..  |   1.089009   .0708353     1.31   0.190     .9586595    1.237081
+Rural tow..  |   1.022553   .0671406     0.34   0.734     .8990754    1.162989
+Rural vil..  |   1.024756   .0614387     0.41   0.683     .9111437    1.152534
              |
   comorb_cat |
-1 comorbi..  |   1.039008   .1851961     0.21   0.830     .7326526    1.473465
-2+ comorb..  |   1.010933   .1655231     0.07   0.947     .7334201    1.393453
+1 comorbi..  |   .8972992   .0654316    -1.49   0.137     .7777987     1.03516
+2+ comorb..  |   .9040926   .0597597    -1.53   0.127     .7942355    1.029145
              |
   start_week |
-23Nov-29Nov  |   .9970852    .127627    -0.02   0.982     .7758512    1.281404
-30Nov-06Dec  |   1.162202   .1525686     1.15   0.252      .898545    1.503223
-07Dec-13Dec  |    .922235   .1367382    -0.55   0.585     .6896606     1.23324
-14Dec-20Dec  |   1.066486   .1601085     0.43   0.668     .7946329    1.431342
-21Dec-27Dec  |   1.156184   .1890184     0.89   0.375     .8392054    1.592888
-28Dec-04Jan  |    1.03851   .1853548     0.21   0.832     .7319589    1.473446
+23Nov-29Nov  |   1.115939   .0604282     2.03   0.043      1.00357    1.240889
+30Nov-06Dec  |   1.052932   .0608336     0.89   0.372     .9402029    1.179176
+07Dec-13Dec  |   .9988089    .061652    -0.02   0.985     .8849964    1.127258
+14Dec-20Dec  |   1.077426   .0693414     1.16   0.247     .9497413    1.222276
+21Dec-27Dec  |   1.121228    .077235     1.66   0.097     .9796239      1.2833
+28Dec-04Jan  |   1.053604    .078519     0.70   0.484     .9104213    1.219306
+             |
+    home_bin |
+  Care home  |   1.029515   .0476617     0.63   0.530      .940212    1.127299
 ------------------------------------------------------------------------------
                                                       Stratified by utla_group
 
@@ -1199,8 +1881,11 @@ Rural vil..  |   .9635052   .1348333    -0.27   0.790     .7323802    1.267569
 . * Test for interaction
 . lrtest e_age e_ageX
 
-Likelihood-ratio test                                 LR chi2(3)  =      0.49
-(Assumption: e_age nested in e_ageX)                  Prob > chi2 =    0.9220
+Likelihood-ratio test                                 LR chi2(3)  =      0.39
+(Assumption: e_age nested in e_ageX)                  Prob > chi2 =    0.9433
+
+. 
+. file write tablecontent _n ("Age group") _tab _tab %6.4f (r(p)) _n
 
 . 
 . * Age group VOC vs. non-VOC HR
@@ -1211,9 +1896,15 @@ Likelihood-ratio test                                 LR chi2(3)  =      0.49
 ------------------------------------------------------------------------------
           _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-         (1) |   1.111087   .2917579     0.40   0.688     .6640988     1.85893
+         (1) |   1.008561   .1076117     0.08   0.936     .8182392    1.243151
 ------------------------------------------------------------------------------
 
+. file write tablecontent ("0-<65") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+. 
 . lincom 1.sgtf + 1.sgtf#2.agegroupA, eform       // 65-<75
 
  ( 1)  1.sgtf + 1o.sgtf#2b.agegroupA = 0
@@ -1221,9 +1912,15 @@ Likelihood-ratio test                                 LR chi2(3)  =      0.49
 ------------------------------------------------------------------------------
           _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-         (1) |   1.111087   .2917579     0.40   0.688     .6640988     1.85893
+         (1) |   1.008561   .1076117     0.08   0.936     .8182392    1.243151
 ------------------------------------------------------------------------------
 
+. file write tablecontent ("65-<75") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+. 
 . lincom 1.sgtf + 1.sgtf#3.agegroupA, eform       // 75-<85
 
  ( 1)  1.sgtf + 1.sgtf#3.agegroupA = 0
@@ -1231,9 +1928,15 @@ Likelihood-ratio test                                 LR chi2(3)  =      0.49
 ------------------------------------------------------------------------------
           _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-         (1) |   .9647831   .3538486    -0.10   0.922     .4701526    1.979796
+         (1) |   .9298757   .1323321    -0.51   0.609     .7035404    1.229025
 ------------------------------------------------------------------------------
 
+. file write tablecontent ("75-<85") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+. 
 . lincom 1.sgtf + 1.sgtf#4.agegroupA, eform       // 85+
 
  ( 1)  1.sgtf + 1.sgtf#4.agegroupA = 0
@@ -1241,19 +1944,24 @@ Likelihood-ratio test                                 LR chi2(3)  =      0.49
 ------------------------------------------------------------------------------
           _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-         (1) |   1.252231    .567566     0.50   0.620     .5150896    3.044292
+         (1) |    1.03421   .2219732     0.16   0.875     .6790705    1.575081
 ------------------------------------------------------------------------------
+
+. file write tablecontent ("85+") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
 
 . 
 . 
 . 
 . * Include with 28-days follow-up
 . * Stratified by region
-. stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat househol
-> d_size ///
+. stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_t
+> otal_cat ///
 >                          ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 
-> age2 age3 ///
->                          if risk_pop==1 ///
+> age2 age3 i.home_bin ///
+>                          if eth2 != 6 & risk_pop==1 ///
 >                          , strata(utla_group)
 
          failure _d:  cox_death
@@ -1261,73 +1969,306 @@ Likelihood-ratio test                                 LR chi2(3)  =      0.49
              origin:  time study_start
                  id:  patient_id
 
-Iteration 0:   log likelihood = -3214.2056
-Iteration 1:   log likelihood = -3204.1055
-Iteration 2:   log likelihood = -3204.0978
-Iteration 3:   log likelihood = -3204.0978
+Iteration 0:   log likelihood = -23556.742
+Iteration 1:   log likelihood = -23544.083
+Iteration 2:   log likelihood =     -23544
+Iteration 3:   log likelihood = -23543.999
+Iteration 4:   log likelihood = -23543.999
 Refining estimates:
-Iteration 0:   log likelihood = -3204.0978
+Iteration 0:   log likelihood = -23543.999
 
 Stratified Cox regr. -- Breslow method for ties
 
-No. of subjects =       25,030                  Number of obs    =      25,024
-No. of failures =          640
-Time at risk    =      1165105
-                                                LR chi2(28)      =       20.22
-Log likelihood  =   -3204.0978                  Prob > chi2      =      0.8565
+No. of subjects =      136,021                  Number of obs    =     135,995
+No. of failures =        3,467
+Time at risk    =      6324201
+                                                LR chi2(30)      =       25.49
+Log likelihood  =   -23543.999                  Prob > chi2      =      0.7011
 
 ------------------------------------------------------------------------------
           _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
         sgtf |
-        VOC  |   1.004601   .0798645     0.06   0.954     .8596548    1.173986
+        VOC  |   1.015439   .0345264     0.45   0.652     .9499738    1.085415
              |
         male |
-          M  |   .9770559   .0776307    -0.29   0.770      .836158    1.141696
+          M  |   .9853973   .0335168    -0.43   0.665     .9218474    1.053328
              |
          imd |
-          2  |   1.088787   .1264082     0.73   0.464     .8671981    1.366996
-          3  |    .978644   .1163473    -0.18   0.856     .7752265    1.235438
-          4  |    1.18855   .1342346     1.53   0.126      .952539    1.483037
-5 most de..  |   1.152059   .1625919     1.00   0.316     .8736616    1.519169
+          2  |   1.022697   .0495818     0.46   0.643     .9299931    1.124643
+          3  |   .9039022   .0453017    -2.02   0.044     .8193341     .997199
+          4  |   1.007177   .0489325     0.15   0.883     .9156958    1.107798
+5 most de..  |    .975379   .0605644    -0.40   0.688     .8636138    1.101608
              |
         eth2 |
-      Other  |   1.059821   .1120324     0.55   0.583     .8614955    1.303803
-    Missing  |   1.057921   .1004035     0.59   0.553     .8783521      1.2742
+      Other  |   .9790658   .0445492    -0.46   0.642     .8955312    1.070392
+    Missing  |   .9892134   .0403676    -0.27   0.790     .9131756    1.071583
              |
 smoke_nomi~2 |
-     Former  |   1.061962   .1032294     0.62   0.536     .8777417    1.284846
+     Former  |    1.01867   .0496672     0.38   0.704     .9258308    1.120819
              |
    obese4cat |
-Obese I ..)  |   1.049267   .1133673     0.45   0.656     .8490213    1.296742
-Obese II..)  |    .882518   .1013797    -1.09   0.277     .7045979    1.105365
-Obese II..)  |   .8525802   .0913362    -1.49   0.137     .6911093    1.051777
+Obese I ..)  |   1.005102     .04826     0.11   0.916     .9148284    1.104283
+Obese II..)  |   .9989654   .0480192    -0.02   0.983      .909147    1.097657
+Obese II..)  |   1.015989    .044959     0.36   0.720      .931584    1.108041
              |
-household_~e |   .9565737   .0364589    -1.16   0.244     .8877194    1.030769
+hh_total_cat |
+        3-5  |   .9763214   .0332012    -0.70   0.481     .9133695    1.043612
+       6-10  |   .4268126   .3021177    -1.20   0.229     .1065903    1.709059
              |
 rural_urban5 |
-Urban min..  |   1.114138   .1918988     0.63   0.530     .7949291    1.561528
-Urban cit..  |   1.069393   .1630676     0.44   0.660     .7931234    1.441895
-Rural tow..  |   .9172446   .1431839    -0.55   0.580     .6754772    1.245546
-Rural vil..  |   .9647667   .1360853    -0.25   0.799     .7317387    1.272005
+Urban min..  |   .9818457   .0758249    -0.24   0.812     .8439323    1.142297
+Urban cit..  |   1.081085   .0709856     1.19   0.235     .9505359    1.229563
+Rural tow..  |   1.016895   .0674012     0.25   0.800     .8930121    1.157964
+Rural vil..  |   1.012695      .0613     0.21   0.835     .8994029    1.140259
              |
   comorb_cat |
-1 comorbi..  |   1.042365   .1878652     0.23   0.818     .7321635    1.483992
-2+ comorb..  |   1.017003   .1684777     0.10   0.919     .7350405    1.407126
+1 comorbi..  |   .8857979   .0652034    -1.65   0.099     .7667926    1.023273
+2+ comorb..  |   .8963858   .0597468    -1.64   0.101     .7866107    1.021481
              |
   start_week |
-23Nov-29Nov  |    .996192   .1274583    -0.03   0.976     .7752392    1.280119
-30Nov-06Dec  |   1.165641   .1529554     1.17   0.243      .901302    1.507508
-07Dec-13Dec  |   .9216882   .1365954    -0.55   0.582     .6893421    1.232348
-14Dec-20Dec  |   1.066079   .1600653     0.43   0.670     .7943038    1.430844
-21Dec-27Dec  |    1.15552   .1888908     0.88   0.377     .8387511    1.591922
-28Dec-04Jan  |   1.235865   .2364539     1.11   0.268     .8494028    1.798161
+23Nov-29Nov  |   1.115841   .0604218     2.02   0.043     1.003484    1.240778
+30Nov-06Dec  |   1.052977   .0608375     0.89   0.372     .9402412     1.17923
+07Dec-13Dec  |   .9988221   .0616515    -0.02   0.985     .8850105     1.12727
+14Dec-20Dec  |   1.077227   .0693287     1.16   0.248     .9495665    1.222051
+21Dec-27Dec  |   1.121701   .0772702     1.67   0.095     .9800326    1.283847
+28Dec-04Jan  |   1.101842   .0925653     1.15   0.248     .9345663    1.299058
              |
-        age1 |   .9902868   .0081765    -1.18   0.237     .9743902    1.006443
-        age2 |   1.042772    .028152     1.55   0.121     .9890289    1.099434
-        age3 |   .8812078   .0675446    -1.65   0.099     .7582872    1.024054
+        age1 |   .9954867   .0034757    -1.30   0.195     .9886977    1.002322
+        age2 |   1.014827   .0116234     1.29   0.199     .9922993    1.037866
+        age3 |   .9588324    .031143    -1.29   0.196     .8996956    1.021856
+             |
+    home_bin |
+  Care home  |   1.029096   .0482137     0.61   0.540     .9388077    1.128068
 ------------------------------------------------------------------------------
                                                       Stratified by utla_group
+
+. 
+. file write tablecontent _n ("Sensitivity analyses") _n
+
+. 
+. lincom 1.sgtf, eform
+
+ ( 1)  1.sgtf = 0
+
+------------------------------------------------------------------------------
+          _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   1.015439   .0345264     0.45   0.652     .9499738    1.085415
+------------------------------------------------------------------------------
+
+. file write tablecontent ("Min. 28-days follow-up") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+. 
+. 
+. * Excluding week 1
+. * Stratified by region
+. stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_t
+> otal_cat ///
+>                          ib1.rural_urban5 ib0.comorb_cat ib2.start_week age1 
+> age2 age3 i.home_bin ///
+>                          if eth2 != 6 & start_week!=1 ///
+>                          , strata(utla_group)
+
+         failure _d:  cox_death
+   analysis time _t:  (stime_death-origin)
+             origin:  time study_start
+                 id:  patient_id
+
+Iteration 0:   log likelihood =  -19271.18
+Iteration 1:   log likelihood = -19260.651
+Iteration 2:   log likelihood = -19260.611
+Iteration 3:   log likelihood =  -19260.61
+Iteration 4:   log likelihood =  -19260.61
+Refining estimates:
+Iteration 0:   log likelihood =  -19260.61
+
+Stratified Cox regr. -- Breslow method for ties
+
+No. of subjects =      122,614                  Number of obs    =     122,591
+No. of failures =        2,888
+Time at risk    =      5203818
+                                                LR chi2(29)      =       21.14
+Log likelihood  =    -19260.61                  Prob > chi2      =      0.8540
+
+------------------------------------------------------------------------------
+          _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   1.008978   .0375945     0.24   0.810       .93792    1.085419
+             |
+        male |
+          M  |   .9920738   .0369744    -0.21   0.831     .9221887    1.067255
+             |
+         imd |
+          2  |   1.072657   .0566568     1.33   0.184     .9671662    1.189654
+          3  |   .9260334   .0509152    -1.40   0.162     .8314303    1.031401
+          4  |   .9963596   .0536298    -0.07   0.946     .8966017    1.107217
+5 most de..  |   1.017311   .0686454     0.25   0.799      .891286    1.161156
+             |
+        eth2 |
+      Other  |   .9514098   .0476868    -0.99   0.320     .8623895    1.049619
+    Missing  |   .9565751   .0429492    -0.99   0.323     .8759938    1.044569
+             |
+smoke_nomi~2 |
+     Former  |   .9822256   .0531931    -0.33   0.741     .8833114    1.092216
+             |
+   obese4cat |
+Obese I ..)  |   1.009283   .0534131     0.17   0.861     .9098412    1.119592
+Obese II..)  |    .986299    .052445    -0.26   0.795     .8886837    1.094637
+Obese II..)  |   1.064938   .0510125     1.31   0.189     .9695056    1.169765
+             |
+hh_total_cat |
+        3-5  |   .9757945   .0363642    -0.66   0.511     .9070626    1.049735
+       6-10  |   .4965353   .3515602    -0.99   0.323     .1239587    1.988948
+             |
+rural_urban5 |
+Urban min..  |   .9619817   .0804128    -0.46   0.643      .816609    1.133234
+Urban cit..  |   1.056821   .0751179     0.78   0.437     .9193879    1.214798
+Rural tow..  |   .9744153   .0701563    -0.36   0.719     .8461727    1.122094
+Rural vil..  |    .978828   .0640738    -0.33   0.744     .8609679    1.112822
+             |
+  comorb_cat |
+1 comorbi..  |   .9526895   .0780886    -0.59   0.554     .8112999     1.11872
+2+ comorb..  |   .9448757   .0705285    -0.76   0.447     .8162784    1.093732
+             |
+  start_week |
+30Nov-06Dec  |   .9410087   .0525052    -1.09   0.276     .8435279    1.049755
+07Dec-13Dec  |   .8862122   .0532403    -2.01   0.044     .7877723    .9969531
+14Dec-20Dec  |   .9544051   .0600666    -0.74   0.458     .8436481    1.079703
+21Dec-27Dec  |   .9956236   .0674167    -0.06   0.948      .871882    1.136927
+28Dec-04Jan  |   .9396607    .069151    -0.85   0.398     .8134482    1.085456
+             |
+        age1 |   .9981305   .0038396    -0.49   0.627     .9906334    1.005684
+        age2 |   1.006729   .0126477     0.53   0.593     .9822424    1.031826
+        age3 |   .9802165   .0348718    -0.56   0.574     .9141975    1.051003
+             |
+    home_bin |
+  Care home  |    1.02718   .0528178     0.52   0.602     .9287049    1.136097
+------------------------------------------------------------------------------
+                                                      Stratified by utla_group
+
+. 
+. lincom 1.sgtf, eform
+
+ ( 1)  1.sgtf = 0
+
+------------------------------------------------------------------------------
+          _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   1.008978   .0375945     0.24   0.810       .93792    1.085419
+------------------------------------------------------------------------------
+
+. file write tablecontent ("Excluding week 1") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+. 
+. 
+. * No adjustment for care home
+. * Stratified by region
+. stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_t
+> otal_cat ///
+>                          ib1.rural_urban5 ib0.comorb_cat ib2.start_week age1 
+> age2 age3 ///
+>                          if eth2 != 6 ///
+>                          , strata(utla_group)
+
+         failure _d:  cox_death
+   analysis time _t:  (stime_death-origin)
+             origin:  time study_start
+                 id:  patient_id
+
+Iteration 0:   log likelihood = -24236.374
+Iteration 1:   log likelihood =  -24225.06
+Iteration 2:   log likelihood =  -24224.97
+Iteration 3:   log likelihood = -24224.969
+Iteration 4:   log likelihood = -24224.969
+Refining estimates:
+Iteration 0:   log likelihood = -24224.969
+
+Stratified Cox regr. -- Breslow method for ties
+
+No. of subjects =      143,150                  Number of obs    =     143,122
+No. of failures =        3,551
+Time at risk    =      6498741
+                                                LR chi2(29)      =       22.81
+Log likelihood  =   -24224.969                  Prob > chi2      =      0.7852
+
+------------------------------------------------------------------------------
+          _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |    1.01181   .0339917     0.35   0.727     .9473339    1.080675
+             |
+        male |
+          M  |   .9855843   .0331226    -0.43   0.666     .9227571    1.052689
+             |
+         imd |
+          2  |   1.025302   .0492416     0.52   0.603     .9331929    1.126502
+          3  |   .9177133   .0454018    -1.74   0.083     .8329055    1.011156
+          4  |   1.015776   .0487857     0.33   0.744     .9245206     1.11604
+5 most de..  |   .9916469   .0606505    -0.14   0.891     .8796226    1.117938
+             |
+        eth2 |
+      Other  |    .980263   .0440626    -0.44   0.657     .8975968    1.070543
+    Missing  |   .9891971   .0398875    -0.27   0.788     .9140285    1.070547
+             |
+smoke_nomi~2 |
+     Former  |   1.011251   .0488346     0.23   0.817      .919927    1.111641
+             |
+   obese4cat |
+Obese I ..)  |   .9924161   .0470843    -0.16   0.873     .9042932    1.089126
+Obese II..)  |   .9861198   .0468637    -0.29   0.769     .8984166    1.082385
+Obese II..)  |     1.0007   .0437866     0.02   0.987      .918457    1.090308
+             |
+hh_total_cat |
+        3-5  |    .966255   .0324661    -1.02   0.307     .9046727    1.032029
+       6-10  |   .4136354   .2927792    -1.25   0.212     .1033048    1.656208
+             |
+rural_urban5 |
+Urban min..  |   .9974189   .0760633    -0.03   0.973     .8589439    1.158218
+Urban cit..  |   1.088708   .0708145     1.31   0.191     .9583965    1.236737
+Rural tow..  |   1.022671   .0671482     0.34   0.733     .8991794    1.163123
+Rural vil..  |   1.024395   .0614166     0.40   0.688     .9108241    1.152127
+             |
+  comorb_cat |
+1 comorbi..  |   .8973177   .0654317    -1.49   0.137     .7778166    1.035178
+2+ comorb..  |   .9043006   .0597726    -1.52   0.128     .7944197     1.02938
+             |
+  start_week |
+16Nov-22Nov  |   .8960461   .0485192    -2.03   0.043     .8058225    .9963716
+30Nov-06Dec  |   .9434282    .052214    -1.05   0.293     .8464458    1.051523
+07Dec-13Dec  |   .8951283   .0532082    -1.86   0.062     .7966878    1.005732
+14Dec-20Dec  |   .9653816   .0600286    -0.57   0.571     .8546146    1.090505
+21Dec-27Dec  |   1.004995   .0671801     0.07   0.941     .8815854    1.145681
+28Dec-04Jan  |    .944152     .06858    -0.79   0.429     .8188672    1.088605
+             |
+        age1 |   .9967863   .0034418    -0.93   0.351     .9900633    1.003555
+        age2 |   1.010189   .0114283     0.90   0.370     .9880361    1.032838
+        age3 |   .9711309   .0311488    -0.91   0.361     .9119597    1.034141
+------------------------------------------------------------------------------
+                                                      Stratified by utla_group
+
+. 
+. lincom 1.sgtf, eform
+
+ ( 1)  1.sgtf = 0
+
+------------------------------------------------------------------------------
+          _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |    1.01181   .0339917     0.35   0.727     .9473339    1.080675
+------------------------------------------------------------------------------
+
+. file write tablecontent ("No care home adj.") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
 
 . 
 . 
@@ -1340,117 +2281,87 @@ Rural vil..  |   .9647667   .1360853    -0.25   0.799     .7317387    1.272005
 . stcox i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obes
 > e4cat ///
 >                          ib1.hh_total_cat ib1.rural_urban5 ib0.comorb_cat ib1
-> .start_week, strata(utla_group)
+> .start_week i.home_bin ///
+>                          if eth2 != 6 ///
+>                          , strata(utla_group)
 
          failure _d:  cox_death
    analysis time _t:  (stime_death-origin)
              origin:  time study_start
                  id:  patient_id
 
-Iteration 0:   log likelihood =  -3178.222
-Iteration 1:   log likelihood = -3166.2912
-Iteration 2:   log likelihood =   -3166.03
-Iteration 3:   log likelihood = -3165.9476
-Iteration 4:   log likelihood = -3165.9173
-Iteration 5:   log likelihood = -3165.9062
-Iteration 6:   log likelihood = -3165.9021
-Iteration 7:   log likelihood = -3165.9006
-Iteration 8:   log likelihood =    -3165.9
-Iteration 9:   log likelihood = -3165.8998
-Iteration 10:  log likelihood = -3165.8998
-Iteration 11:  log likelihood = -3165.8997
-Iteration 12:  log likelihood = -3165.8997
-Iteration 13:  log likelihood = -3165.8997
-Iteration 14:  log likelihood = -3165.8997
-Iteration 15:  log likelihood = -3165.8997
-Iteration 16:  log likelihood = -3165.8997
-Iteration 17:  log likelihood = -3165.8997
-Iteration 18:  log likelihood = -3165.8997
-Iteration 19:  log likelihood = -3165.8997
-Iteration 20:  log likelihood = -3165.8997
-Iteration 21:  log likelihood = -3165.8997
-Iteration 22:  log likelihood = -3165.8997
-Iteration 23:  log likelihood = -3165.8997
-Iteration 24:  log likelihood = -3165.8997
-Iteration 25:  log likelihood = -3165.8997
-Iteration 26:  log likelihood = -3165.8997
-Iteration 27:  log likelihood = -3165.8997
-Iteration 28:  log likelihood = -3165.8997
-Iteration 29:  log likelihood = -3165.8997
-Iteration 30:  log likelihood = -3165.8997
-Iteration 31:  log likelihood = -3165.8997
-Iteration 32:  log likelihood = -3165.8997
-Iteration 33:  log likelihood = -3165.8997
-Iteration 34:  log likelihood = -3165.8997
-Iteration 35:  log likelihood = -3165.8997
-Iteration 36:  log likelihood = -3165.8997
-Iteration 37:  log likelihood = -3165.8997
-Iteration 38:  log likelihood = -3165.8997
+Iteration 0:   log likelihood = -24236.374
+Iteration 1:   log likelihood = -24225.357
+Iteration 2:   log likelihood = -24225.267
+Iteration 3:   log likelihood = -24225.266
+Iteration 4:   log likelihood = -24225.266
 Refining estimates:
-Iteration 0:   log likelihood = -3165.8997
-Iteration 1:   log likelihood = -3165.8997
+Iteration 0:   log likelihood = -24225.266
 
 Stratified Cox regr. -- Breslow method for ties
 
-No. of subjects =       25,689                  Number of obs    =      25,683
-No. of failures =          632
-Time at risk    =      1167532
-                                                LR chi2(29)      =       24.64
-Log likelihood  =   -3165.8997                  Prob > chi2      =      0.6965
+No. of subjects =      143,150                  Number of obs    =     143,122
+No. of failures =        3,551
+Time at risk    =      6498741
+                                                LR chi2(30)      =       22.22
+Log likelihood  =   -24225.266                  Prob > chi2      =      0.8461
 
 ------------------------------------------------------------------------------
           _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
         sgtf |
-        VOC  |   .9797321    .078389    -0.26   0.798     .8375335    1.146074
+        VOC  |   1.011802   .0339916     0.35   0.727     .9473256    1.080666
              |
    agegroupA |
-      0-<65  |    1.17662   .1661964     1.15   0.250     .8920822    1.551914
-     75-<85  |   .8880865   .2064842    -0.51   0.610       .56305     1.40076
-        85+  |   1.529726   .4086548     1.59   0.112     .9061949    2.582295
+      0-<65  |   1.010745   .0570849     0.19   0.850      .904831    1.129057
+     75-<85  |   .9659874   .0858866    -0.39   0.697     .8115039     1.14988
+        85+  |   1.007434     .12072     0.06   0.951     .7965582    1.274134
              |
         male |
-          M  |   .9839226   .0786841    -0.20   0.839      .841183    1.150883
+          M  |   .9858508   .0331314    -0.42   0.672     .9230069    1.052974
              |
          imd |
-          2  |   1.099393   .1283884     0.81   0.417     .8744779    1.382157
-          3  |   .9934836   .1188276    -0.05   0.956     .7858706    1.255944
-          4  |   1.184734    .135134     1.49   0.137     .9473941    1.481533
-5 most de..  |   1.177742    .166699     1.16   0.248     .8924215    1.554283
+          2  |   1.025359    .049245     0.52   0.602     .9332438    1.126566
+          3  |    .917853   .0454097    -1.73   0.083     .8330305    1.011312
+          4  |   1.015879   .0487918     0.33   0.743     .9246116    1.116155
+5 most de..  |   .9915144   .0606435    -0.14   0.889     .8795032    1.117791
              |
         eth2 |
-      Other  |    1.08327   .1148107     0.75   0.450     .8800794    1.333373
-    Missing  |   1.059557   .1012472     0.61   0.545     .8785908    1.277797
+      Other  |   .9802364   .0440617    -0.44   0.657     .8975718    1.070514
+    Missing  |   .9892782   .0398906    -0.27   0.789     .9141037    1.070635
              |
 smoke_nomi~2 |
-     Former  |   1.084333     .10673     0.82   0.411     .8940865     1.31506
+     Former  |   1.011409   .0488416     0.23   0.814     .9200714    1.111813
              |
    obese4cat |
-Obese I ..)  |    1.05739   .1139007     0.52   0.604     .8561397    1.305947
-Obese II..)  |    .852497   .0989449    -1.37   0.169     .6790445    1.070255
-Obese II..)  |    .803624   .0877394    -2.00   0.045     .6488123    .9953751
+Obese I ..)  |    .992428   .0470858    -0.16   0.873     .9043023    1.089142
+Obese II..)  |   .9859731   .0468566    -0.30   0.766     .8982831    1.082223
+Obese II..)  |   1.000741   .0437886     0.02   0.986     .9184944    1.090353
              |
 hh_total_cat |
-        3-5  |    1.03951   .0833105     0.48   0.629     .8884028    1.216319
-       6-10  |   1.19e-17   3.56e-09    -0.00   1.000            0           .
+        3-5  |   .9663948   .0324701    -1.02   0.309     .9048047    1.032177
+       6-10  |   .4125813   .2920349    -1.25   0.211     .1030407    1.652001
              |
 rural_urban5 |
-Urban min..  |    1.06421   .1871281     0.35   0.723     .7539701    1.502106
-Urban cit..  |   1.090284    .167285     0.56   0.573     .8071187    1.472792
-Rural tow..  |   .9350046   .1468791    -0.43   0.669     .6872254    1.272121
-Rural vil..  |   .9871719    .140072    -0.09   0.927     .7475048    1.303682
+Urban min..  |   .9974481   .0760655    -0.03   0.973     .8589691    1.158252
+Urban cit..  |   1.088844    .070824     1.31   0.191     .9585159    1.236893
+Rural tow..  |   1.022507   .0671372     0.34   0.735     .8990355    1.162935
+Rural vil..  |   1.024664   .0614329     0.41   0.684     .9110629     1.15243
              |
   comorb_cat |
-1 comorbi..  |   1.005482   .1798329     0.03   0.976     .7081658    1.427624
-2+ comorb..  |   .9763162   .1600188    -0.15   0.884      .708073    1.346179
+1 comorbi..  |   .8973195   .0654327    -1.49   0.137     .7778168    1.035182
+2+ comorb..  |   .9041314   .0597617    -1.52   0.127     .7942704    1.029188
              |
   start_week |
-23Nov-29Nov  |   1.020097   .1330042     0.15   0.879     .7900573    1.317117
-30Nov-06Dec  |   1.201732   .1604724     1.38   0.169     .9250023    1.561249
-07Dec-13Dec  |   .9497779   .1433131    -0.34   0.733     .7066156    1.276618
-14Dec-20Dec  |   1.090842   .1666834     0.57   0.569     .8085298    1.471728
-21Dec-27Dec  |   1.195841   .1982287     1.08   0.281     .8641201    1.654905
-28Dec-04Jan  |   1.066707   .1931899     0.36   0.721     .7479721    1.521266
+23Nov-29Nov  |    1.11614   .0604375     2.03   0.042     1.003754    1.241109
+30Nov-06Dec  |    1.05307   .0608403     0.90   0.371     .9403289    1.179328
+07Dec-13Dec  |   .9990616   .0616647    -0.02   0.988     .8852254    1.127537
+14Dec-20Dec  |   1.077526   .0693471     1.16   0.246     .9498311    1.222388
+21Dec-27Dec  |   1.121275   .0772376     1.66   0.097     .9796663    1.283353
+28Dec-04Jan  |   1.053727   .0785264     0.70   0.483     .9105302    1.219444
+             |
+    home_bin |
+  Care home  |   1.029573   .0476638     0.63   0.529     .9402663    1.127361
 ------------------------------------------------------------------------------
                                                       Stratified by utla_group
 
@@ -1463,186 +2374,177 @@ Rural vil..  |   .9871719    .140072    -0.09   0.927     .7475048    1.303682
 >               */
 . *********************************************************************
 . 
-. stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3
+. stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3 i.home_bin
 
          failure _d:  cox_death
    analysis time _t:  (stime_death-origin)
              origin:  time study_start
                  id:  patient_id
 
-Iteration 0:   log likelihood = -6366.0917
-Iteration 1:   log likelihood = -6362.5744
-Iteration 2:   log likelihood = -6362.5723
+Iteration 0:   log likelihood = -42083.903
+Iteration 1:   log likelihood = -42078.337
+Iteration 2:   log likelihood = -42078.332
 Refining estimates:
-Iteration 0:   log likelihood = -6362.5723
+Iteration 0:   log likelihood = -42078.332
 
 Cox regression -- Breslow method for ties
 
-No. of subjects =       26,323                  Number of obs    =      26,323
-No. of failures =          649
-Time at risk    =      1196769
-                                                LR chi2(11)      =        7.04
-Log likelihood  =   -6362.5723                  Prob > chi2      =      0.7959
+No. of subjects =      146,510                  Number of obs    =     146,510
+No. of failures =        3,633
+Time at risk    =      6651843
+                                                LR chi2(12)      =       11.14
+Log likelihood  =   -42078.332                  Prob > chi2      =      0.5168
 
 ------------------------------------------------------------------------------
           _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
         sgtf |
-        VOC  |   1.008109   .0791597     0.10   0.918     .8643079    1.175834
+        VOC  |   1.015891   .0337128     0.48   0.635      .951918    1.084163
              |
   comorb_cat |
-1 comorbi..  |   1.032533   .1830889     0.18   0.857     .7294049    1.461635
-2+ comorb..  |   1.003271   .1634508     0.02   0.984     .7290244    1.380684
+1 comorbi..  |    .896781   .0649118    -1.51   0.132     .7781687    1.033473
+2+ comorb..  |   .9119683   .0598278    -1.40   0.160     .8019335    1.037101
              |
          imd |
-          2  |   1.061369   .1221647     0.52   0.605     .8470173    1.329966
-          3  |   .9738542   .1145362    -0.23   0.822     .7733624    1.226323
-          4  |   1.181833    .131328     1.50   0.133     .9505358    1.469412
-5 most de..  |   1.156335    .161019     1.04   0.297     .8801456    1.519194
+          2  |   1.020408   .0483429     0.43   0.670     .9299236    1.119697
+          3  |   .9080334   .0444025    -1.97   0.049     .8250463    .9993677
+          4  |   1.011527   .0479611     0.24   0.809     .9217605    1.110035
+5 most de..  |   .9822565   .0594454    -0.30   0.767     .8723903    1.105959
              |
 smoke_nomi~2 |
-     Former  |   1.076726   .1038785     0.77   0.444     .8912188    1.300846
-        age1 |   .9916341   .0080805    -1.03   0.303     .9759223    1.007599
-        age2 |   1.038121   .0276474     1.40   0.160     .9853226    1.093748
-        age3 |   .8914536   .0673652    -1.52   0.128     .7687325    1.033766
+     Former  |   1.010201   .0481304     0.21   0.831     .9201376     1.10908
+        age1 |   .9964175   .0034028    -1.05   0.293     .9897705    1.003109
+        age2 |   1.011757   .0113177     1.04   0.296      .989816    1.034184
+        age3 |    .966534   .0306551    -1.07   0.283     .9082804    1.028524
+             |
+    home_bin |
+  Care home  |    1.03505   .0472846     0.75   0.451     .9464014    1.132002
 ------------------------------------------------------------------------------
 
 . 
 . * Stratified by STP
-. stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3, strata(stp)
+. stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3 i.home_bin, 
+> strata(stp)
 
          failure _d:  cox_death
    analysis time _t:  (stime_death-origin)
              origin:  time study_start
                  id:  patient_id
 
-Iteration 0:   log likelihood = -4872.2391
-Iteration 1:   log likelihood = -4868.7087
-Iteration 2:   log likelihood = -4868.7064
+Iteration 0:   log likelihood = -33718.576
+Iteration 1:   log likelihood = -33713.012
+Iteration 2:   log likelihood = -33713.007
 Refining estimates:
-Iteration 0:   log likelihood = -4868.7064
+Iteration 0:   log likelihood = -33713.007
 
 Stratified Cox regr. -- Breslow method for ties
 
-No. of subjects =       26,323                  Number of obs    =      26,323
-No. of failures =          649
-Time at risk    =      1196769
-                                                LR chi2(11)      =        7.07
-Log likelihood  =   -4868.7064                  Prob > chi2      =      0.7938
+No. of subjects =      146,510                  Number of obs    =     146,510
+No. of failures =        3,633
+Time at risk    =      6651843
+                                                LR chi2(12)      =       11.14
+Log likelihood  =   -33713.007                  Prob > chi2      =      0.5172
 
 ------------------------------------------------------------------------------
           _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
         sgtf |
-        VOC  |   1.007022   .0790925     0.09   0.929     .8633459    1.174609
+        VOC  |   1.017129   .0337578     0.51   0.609     .9530713    1.085493
              |
   comorb_cat |
-1 comorbi..  |   1.034849   .1835308     0.19   0.847     .7309977    1.465001
-2+ comorb..  |   1.003644   .1635418     0.02   0.982     .7292525    1.381279
+1 comorbi..  |   .8967025   .0649093    -1.51   0.132     .7780953    1.033389
+2+ comorb..  |   .9118808    .059825    -1.41   0.160     .8018515    1.037008
              |
          imd |
-          2  |   1.060848   .1221647     0.51   0.608     .8465074     1.32946
-          3  |   .9768544   .1149467    -0.20   0.842     .7756551    1.230243
-          4  |   1.183326    .131543     1.51   0.130     .9516594    1.471388
-5 most de..  |   1.157862   .1613058     1.05   0.293     .8811969     1.52139
+          2  |   1.019468   .0483006     0.41   0.684     .9290634    1.118671
+          3  |   .9078121   .0443942    -1.98   0.048     .8248408    .9991295
+          4  |   1.011187    .047947     0.23   0.814     .9214475    1.109667
+5 most de..  |   .9821543   .0594408    -0.30   0.766     .8722968    1.105847
              |
 smoke_nomi~2 |
-     Former  |   1.074659   .1037056     0.75   0.456     .8894655    1.298412
-        age1 |   .9917087   .0080862    -1.02   0.307     .9759859    1.007685
-        age2 |   1.038163   .0276611     1.41   0.160     .9853398    1.093819
-        age3 |   .8909379   .0673543    -1.53   0.127     .7682405    1.033232
+     Former  |   1.009932   .0481202     0.21   0.836     .9198877     1.10879
+        age1 |   .9964445    .003403    -1.04   0.297     .9897971    1.003137
+        age2 |     1.0116   .0113168     1.03   0.303      .989661    1.034025
+        age3 |    .966988   .0306731    -1.06   0.290     .9087005    1.029014
+             |
+    home_bin |
+  Care home  |   1.035049   .0472884     0.75   0.451     .9463938    1.132009
 ------------------------------------------------------------------------------
                                                              Stratified by stp
 
 .                          
 . * Stratified by region
-. stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3, strata(utla
-> _group)
+. stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3 i.home_bin, 
+> strata(utla_group)
 
          failure _d:  cox_death
    analysis time _t:  (stime_death-origin)
              origin:  time study_start
                  id:  patient_id
 
-Iteration 0:   log likelihood = -3278.2477
-Iteration 1:   log likelihood = -3274.9672
-Iteration 2:   log likelihood = -3274.9653
+Iteration 0:   log likelihood = -24889.349
+Iteration 1:   log likelihood =  -24884.04
+Iteration 2:   log likelihood = -24884.036
 Refining estimates:
-Iteration 0:   log likelihood = -3274.9653
+Iteration 0:   log likelihood = -24884.036
 
 Stratified Cox regr. -- Breslow method for ties
 
-No. of subjects =       26,323                  Number of obs    =      26,317
-No. of failures =          649
-Time at risk    =      1196769
-                                                LR chi2(11)      =        6.56
-Log likelihood  =   -3274.9653                  Prob > chi2      =      0.8332
+No. of subjects =      146,510                  Number of obs    =     146,482
+No. of failures =        3,633
+Time at risk    =      6651843
+                                                LR chi2(12)      =       10.63
+Log likelihood  =   -24884.036                  Prob > chi2      =      0.5612
 
 ------------------------------------------------------------------------------
           _t | Haz. Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
         sgtf |
-        VOC  |   .9963235   .0786111    -0.05   0.963     .8535708     1.16295
+        VOC  |   1.016859   .0337703     0.50   0.615     .9527784    1.085249
              |
   comorb_cat |
-1 comorbi..  |   1.035168   .1843394     0.19   0.846     .7301824     1.46754
-2+ comorb..  |   1.009943   .1652056     0.06   0.952     .7329223    1.391668
+1 comorbi..  |   .9020744   .0653473    -1.42   0.155      .782673    1.039691
+2+ comorb..  |   .9177194    .060257    -1.31   0.191     .8069013    1.043757
              |
          imd |
-          2  |   1.059612   .1223739     0.50   0.616     .8449716    1.328775
-          3  |   .9702878   .1145342    -0.26   0.798     .7698807    1.222863
-          4  |   1.181883   .1319479     1.50   0.134     .9496089    1.470972
-5 most de..  |   1.138485   .1593307     0.93   0.354       .86537    1.497796
+          2  |   1.021723   .0484387     0.45   0.650     .9310622    1.121212
+          3  |   .9085006   .0444586    -1.96   0.050     .8254117    .9999536
+          4  |   1.010682   .0479551     0.22   0.823     .9209294    1.109181
+5 most de..  |   .9813347   .0594367    -0.31   0.756     .8714898    1.105025
              |
 smoke_nomi~2 |
-     Former  |   1.074255   .1041479     0.74   0.460     .8883506    1.299064
-        age1 |   .9912825   .0081225    -1.07   0.285     .9754899    1.007331
-        age2 |   1.037857   .0277732     1.39   0.165     .9848252    1.093744
-        age3 |   .8945365   .0679234    -1.47   0.142     .7708416     1.03808
+     Former  |    1.01212   .0482579     0.25   0.801      .921821    1.111264
+        age1 |   .9967033   .0034043    -0.97   0.334     .9900533    1.003398
+        age2 |    1.01095    .011311     0.97   0.330     .9890221    1.033364
+        age3 |   .9685388   .0307248    -1.01   0.314     .9101531     1.03067
+             |
+    home_bin |
+  Care home  |    1.03184   .0471843     0.69   0.493     .9433833     1.12859
 ------------------------------------------------------------------------------
                                                       Stratified by utla_group
 
 . 
-. * Plot scaled schoenfeld residuals
-. estat phtest, plot(1.sgtf)
+. lincom 1.sgtf, eform
 
-. graph export ./output/minadj_cox_shoen.svg, as(svg) replace
-(note: file ./output/minadj_cox_shoen.svg not found)
-(file ./output/minadj_cox_shoen.svg written in SVG format)
+ ( 1)  1.sgtf = 0
+
+------------------------------------------------------------------------------
+          _t |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   1.016859   .0337703     0.50   0.615     .9527784    1.085249
+------------------------------------------------------------------------------
+
+. file write tablecontent ("Causal min. adjustment") _tab 
+
+. file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f 
+> (r(ub)) (")") _tab %6.4f (r(p)) _n
 
 . 
-. * KM plot
-. sts graph,      surv by(sgtf) ///
->                         ylabel(0.8(0.05)1) ///
->                         legend(label(1 "non-VOC") label(2 "VOC"))
-
-         failure _d:  cox_death
-   analysis time _t:  (stime_death-origin)
-             origin:  time study_start
-                 id:  patient_id
-
-. graph export ./output/minadj_cox_km.svg, as(svg) replace
-(note: file ./output/minadj_cox_km.svg not found)
-(file ./output/minadj_cox_km.svg written in SVG format)
-
-.                 
-. * Smoothed hazard plot
-. sts graph,      haz by(sgtf) ///
->                         legend(label(1 "non-VOC") label(2 "VOC"))
-
-         failure _d:  cox_death
-   analysis time _t:  (stime_death-origin)
-             origin:  time study_start
-                 id:  patient_id
-
-. graph export ./output/minadj_cox_haz.svg, as(svg) replace
-(note: file ./output/minadj_cox_haz.svg not found)
-(file ./output/minadj_cox_haz.svg written in SVG format)
-
 . 
 . * Interaction with time
-. stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss age1 age2 age3, strata(utla_
-> group) tvc(i.sgtf)
+. stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss age1 age2 age3 ///
+>                          if eth2 != 6 ///
+>                          , strata(utla_group) tvc(i.sgtf)
 
          failure _d:  cox_death
    analysis time _t:  (stime_death-origin)
@@ -1698,10 +2600,17 @@ Note: Variables in tvc equation interacted with _t.
 
 . 
 . 
+. * Close output table
+. file write tablecontent _n _n
+
+. file close tablecontent
+
+.                          
+. 
 .                          
 . log close
       name:  <unnamed>
        log:  /workspace/logs/an_cox_models.log
   log type:  text
- closed on:  14 Feb 2021, 17:27:01
+ closed on:  18 Feb 2021, 21:41:48
 -------------------------------------------------------------------------------

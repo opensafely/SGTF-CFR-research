@@ -248,6 +248,11 @@ stcox i.sgtf##c.comorb_cat i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4c
 est store e_lincoX
 
 lrtest e_linco e_lincoX
+local lin_lr_p = r(p)
+
+lincom 1.sgtf#c.comorb_cat, eform
+file write tablecontent ("Per unit increase") _tab 
+file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (`lin_lr_p') _n
 
 
 
