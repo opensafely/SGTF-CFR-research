@@ -103,7 +103,7 @@ glm risk_28 i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.o
 est store fully
 
 * Adjusted absolute risks
-margins sgtf comorb_cat#male#agegroupA if sgtf==0, post asobserved
+margins comorb_cat#male#agegroupA if sgtf==0, post asobserved
 
 * Save risk estimates
 matrix est = e(b)
@@ -118,7 +118,7 @@ svmat inv_var
 gen sq_var = sqrt(inv_var1)
 
 noi disp "CHECK MARGINS ARE CORRECTLY CALCULATED TO MATCH ABOVE"
-list inv_est1 sq_var in 1/25
+list inv_est1 sq_var in 1/24
 
 * Re-Calculate CI
 gen risk0 = inv_est1*100
@@ -131,7 +131,7 @@ order lb ub, after(risk0)
 est restore fully
 
 * Adjusted absolute odds
-margins sgtf comorb_cat#male#agegroupA if sgtf==1, post asobserved
+margins comorb_cat#male#agegroupA if sgtf==1, post asobserved
 
 * Save odds estimates
 matrix est1 = e(b)
@@ -146,7 +146,7 @@ svmat inv_varx
 gen sq_varx = sqrt(inv_varx1)
 
 noi disp "CHECK MARGINS ARE CORRECTLY CALCULATED TO MATCH ABOVE"
-list inv_estx1 sq_varx in 1/25
+list inv_estx1 sq_varx in 1/24
 
 * Re-Calculate CI
 gen risk1 = inv_estx1*100
@@ -156,37 +156,35 @@ gen ub1 = (inv_estx1 + invnormal(0.975)*sq_varx)*100
 order lb1 ub1, after(risk1)
 
 
-gen risk_labels = "Overall" in 1
+gen risk_labels = "Female: 0-<65" in 1
+replace risk_labels = "65-<75" in 2
+replace risk_labels = "75-<85" in 3
+replace risk_labels = "85+" in 4
 
-replace risk_labels = "Female: 0-<65" in 2
-replace risk_labels = "65-<75" in 3
-replace risk_labels = "75-<85" in 4
-replace risk_labels = "85+" in 5
+replace risk_labels = "Male: 0-<65" in 5
+replace risk_labels = "65-<75" in 6
+replace risk_labels = "75-<85" in 7
+replace risk_labels = "85+" in 8
 
-replace risk_labels = "Male: 0-<65" in 6
-replace risk_labels = "65-<75" in 7
-replace risk_labels = "75-<85" in 8
-replace risk_labels = "85+" in 9
+replace risk_labels = "Female: 0-<65" in 9
+replace risk_labels = "65-<75" in 10
+replace risk_labels = "75-<85" in 11
+replace risk_labels = "85+" in 12
 
-replace risk_labels = "Female: 0-<65" in 10
-replace risk_labels = "65-<75" in 11
-replace risk_labels = "75-<85" in 12
-replace risk_labels = "85+" in 13
+replace risk_labels = "Male: 0-<65" in 13
+replace risk_labels = "65-<75" in 14
+replace risk_labels = "75-<85" in 15
+replace risk_labels = "85+" in 16
 
-replace risk_labels = "Male: 0-<65" in 14
-replace risk_labels = "65-<75" in 15
-replace risk_labels = "75-<85" in 16
-replace risk_labels = "85+" in 17
+replace risk_labels = "Female: 0-<65" in 17
+replace risk_labels = "65-<75" in 18
+replace risk_labels = "75-<85" in 19
+replace risk_labels = "85+" in 20
 
-replace risk_labels = "Female: 0-<65" in 18
-replace risk_labels = "65-<75" in 19
-replace risk_labels = "75-<85" in 20
-replace risk_labels = "85+" in 21
-
-replace risk_labels = "Male: 0-<65" in 22
-replace risk_labels = "65-<75" in 23
-replace risk_labels = "75-<85" in 24
-replace risk_labels = "85+" in 25
+replace risk_labels = "Male: 0-<65" in 21
+replace risk_labels = "65-<75" in 22
+replace risk_labels = "75-<85" in 23
+replace risk_labels = "85+" in 24
 
 
 ***********************************
@@ -203,20 +201,20 @@ file write tablecontent ("Comorbidities/Sex/Age group")		_tab ///
 						("non-VOC (95% CI)")				_tab ///
 						("VOC (95% CI)")					_n
 
-forvalues i=1/25 {
+forvalues i=1/24 {
 	
 	preserve
 		keep if _n == `i'
-		if inlist(`i',1,6,14,22) {
+		if inlist(`i',5,13,21) {
 			file write tablecontent _n
 		}
-		if `i'==2 {
+		if `i'==1 {
 			file write tablecontent _n ("No Comorbidities") _n
 		}
-		if `i'==10 {
+		if `i'==9 {
 			file write tablecontent _n ("1 Comorbidity") _n
 		}
-		if `i'==18 {
+		if `i'==17 {
 			file write tablecontent _n ("2+ Comorbidities") _n
 		}
 		file write tablecontent %9s (risk_labels) _tab %4.2f (risk0) (" (") %4.2f (lb0) ("-") %4.2f (ub0) (")") _tab %4.2f (risk1) (" (") %4.2f (lb1) ("-") %4.2f (ub1) (")") _n

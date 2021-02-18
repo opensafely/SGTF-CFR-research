@@ -1,0 +1,1111 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /workspace/logs/an_logit_models_40.log
+  log type:  text
+ opened on:  18 Feb 2021, 16:33:57
+
+. 
+. clear
+
+. 
+. /*
+> use "C:\Users\EIDEDGRI\Documents\GitHub\SGTF-CFR-research\output\cr_analysis_
+> dataset.dta"
+> */
+. 
+. use ./output/cr_analysis_dataset.dta
+(SGTF CFR ANALYSIS DATASET: 14 Feb 2021)
+
+. 
+. * DROP IF NO DATA ON SGTF
+. noi di "DROPPING NO SGTF DATA" 
+DROPPING NO SGTF DATA
+
+. drop if has_sgtf==0
+(37,035 observations deleted)
+
+. 
+. noi di "SUBSETTING ON 40-DAY RISK POPULATION"
+SUBSETTING ON 40-DAY RISK POPULATION
+
+. keep if risk_pop_40==1
+(39,933 observations deleted)
+
+. 
+. tab sgtf risk_40, row
+
++----------------+
+| Key            |
+|----------------|
+|   frequency    |
+| row percentage |
++----------------+
+
+        SGTF |    40-day outcome
+  (exposure) |         0          1 |     Total
+-------------+----------------------+----------
+     non-VOC |    53,047      1,191 |    54,238 
+             |     97.80       2.20 |    100.00 
+-------------+----------------------+----------
+         VOC |    53,451      1,187 |    54,638 
+             |     97.83       2.17 |    100.00 
+-------------+----------------------+----------
+       Total |   106,498      2,378 |   108,876 
+             |     97.82       2.18 |    100.00 
+
+. 
+. 
+. 
+. *******************
+. /* Unadjusted OR */
+. *******************
+. 
+. glm risk_40 i.sgtf, family(bin) link(logit) eform
+
+Iteration 0:   log likelihood = -15681.017  
+Iteration 1:   log likelihood = -11451.901  
+Iteration 2:   log likelihood = -11445.167  
+Iteration 3:   log likelihood = -11445.157  
+Iteration 4:   log likelihood = -11445.157  
+
+Generalized linear models                         Number of obs   =    108,876
+Optimization     : ML                             Residual df     =    108,874
+                                                  Scale parameter =          1
+Deviance         =  22890.31453                   (1/df) Deviance =   .2102459
+Pearson          =       108876                   (1/df) Pearson  =   1.000018
+
+Variance function: V(u) = u*(1-u)                 [Bernoulli]
+Link function    : g(u) = ln(u/(1-u))             [Logit]
+
+                                                  AIC             =   .2102788
+Log likelihood   = -11445.15727                   BIC             =   -1239827
+
+------------------------------------------------------------------------------
+             |                 OIM
+     risk_40 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   .9891085    .041017    -0.26   0.792     .9118969    1.072858
+       _cons |   .0224518   .0006578  -129.57   0.000     .0211988    .0237789
+------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+. 
+. * Absolute odds
+. margins sgtf
+
+Adjusted predictions                            Number of obs     =    108,876
+Model VCE    : OIM
+
+Expression   : Predicted mean risk_40, predict()
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |     Margin   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+    non-VOC  |   .0219588   .0006293    34.90   0.000     .0207254    .0231921
+        VOC  |   .0217248   .0006237    34.83   0.000     .0205024    .0229472
+------------------------------------------------------------------------------
+
+. 
+. 
+. 
+. **************************************************
+. /* Fully adjusted OR - age grouped, cat hh size */
+. **************************************************
+. 
+. glm risk_40 i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib
+> 1.obese4cat ///
+>                         ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb
+> _cat ib1.start_week i.home_bin ///
+>                         if eth2 != 6 ///
+>                         , family(bin) link(logit) eform
+
+Iteration 0:   log likelihood = -13804.296  
+Iteration 1:   log likelihood = -10105.428  
+Iteration 2:   log likelihood = -10095.432  
+Iteration 3:   log likelihood = -10095.377  
+Iteration 4:   log likelihood = -10095.377  
+
+Generalized linear models                         Number of obs   =     95,521
+Optimization     : ML                             Residual df     =     95,485
+                                                  Scale parameter =          1
+Deviance         =  20190.75492                   (1/df) Deviance =   .2114547
+Pearson          =  95548.18241                   (1/df) Pearson  =   1.000662
+
+Variance function: V(u) = u*(1-u)                 [Bernoulli]
+Link function    : g(u) = ln(u/(1-u))             [Logit]
+
+                                                  AIC             =   .2121288
+Log likelihood   = -10095.37746                   BIC             =   -1074745
+
+------------------------------------------------------------------------------
+             |                 OIM
+     risk_40 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   .9743036   .0429671    -0.59   0.555     .8936265    1.062264
+             |
+   agegroupA |
+      0-<65  |   1.047303   .0788999     0.61   0.540     .9035369    1.213944
+     75-<85  |   .9497246   .1131923    -0.43   0.665     .7518787    1.199631
+        85+  |   1.131138   .1742262     0.80   0.424     .8363873    1.529762
+             |
+        male |
+          M  |   .9620514   .0424504    -0.88   0.381     .8823463    1.048956
+             |
+         imd |
+          2  |   1.019541   .0643309     0.31   0.759     .9009395    1.153755
+          3  |   .9096619   .0592581    -1.45   0.146     .8006269    1.033546
+          4  |   1.046644   .0655669     0.73   0.467     .9257118    1.183375
+5 most de..  |    .982099   .0795047    -0.22   0.823     .8380061    1.150968
+             |
+        eth2 |
+      Other  |     .98483   .0581281    -0.26   0.796      .877244    1.105611
+    Missing  |   .9914223   .0525168    -0.16   0.871     .8936543    1.099886
+             |
+smoke_nomi~2 |
+     Former  |   1.020719   .0642991     0.33   0.745     .9021644    1.154853
+             |
+   obese4cat |
+Obese I ..)  |   1.108332   .0682389     1.67   0.095      .982341    1.250482
+Obese II..)  |   1.013699   .0639729     0.22   0.829     .8957583    1.147168
+Obese II..)  |   1.099852   .0628245     1.67   0.096     .9833611    1.230144
+             |
+hh_total_cat |
+        3-5  |   1.020116   .0450111     0.45   0.652     .9356033    1.112263
+       6-10  |   .3746897   .3765047    -0.98   0.329     .0522814    2.685323
+             |
+      region |
+     London  |   1.051647   .0878912     0.60   0.547     .8927518    1.238822
+ North East  |   1.147064   .1081677     1.45   0.146     .9534981    1.379926
+ North West  |   1.020267   .0988784     0.21   0.836     .8437622    1.233693
+ South East  |   1.139123   .1072105     1.38   0.166     .9472363    1.369881
+ South West  |   1.126796   .1064474     1.26   0.206     .9363388    1.355993
+West Midl..  |    1.07159   .1027495     0.72   0.471     .8879964    1.293142
+Yorkshire..  |   1.163037   .1092692     1.61   0.108      .967435    1.398187
+             |
+rural_urban5 |
+Urban min..  |   .9680552   .0964799    -0.33   0.745      .796281    1.176885
+Urban cit..  |   1.069442   .0906479     0.79   0.428     .9057486    1.262719
+Rural tow..  |   .9876708   .0846962    -0.14   0.885     .8348697    1.168438
+Rural vil..  |   .9978369   .0778815    -0.03   0.978     .8562943    1.162776
+             |
+  comorb_cat |
+1 comorbi..  |   .8568671   .0811995    -1.63   0.103     .7116244    1.031754
+2+ comorb..  |   .8663823   .0742468    -1.67   0.094     .7324259    1.024839
+             |
+  start_week |
+23Nov-29Nov  |   1.166957   .0820456     2.20   0.028     1.016739     1.33937
+30Nov-06Dec  |   1.149292   .0817676     1.96   0.050     .9997028    1.321266
+07Dec-13Dec  |   1.032097   .0757183     0.43   0.667     .8938678    1.191702
+14Dec-20Dec  |   1.188005   .0857506     2.39   0.017     1.031284    1.368542
+             |
+    home_bin |
+  Care home  |   .9935517   .0611625    -0.11   0.916     .8806249     1.12096
+       _cons |   .0202685   .0032884   -24.03   0.000     .0147475    .0278563
+------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+. 
+. est store fully
+
+. 
+. * Adjusted absolute risks
+. margins comorb_cat#male#agegroupA if sgtf==0, post asobserved
+
+Predictive margins                              Number of obs     =     47,616
+Model VCE    : OIM
+
+Expression   : Predicted mean risk_40, predict()
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |     Margin   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  comorb_cat#|
+        male#|
+   agegroupA |
+No comorb.. #|
+          F #|
+      0-<65  |   .0261678   .0022369    11.70   0.000     .0217834    .0305521
+No comorb.. #|
+          F #|
+     65-<75  |   .0250158   .0027064     9.24   0.000     .0197114    .0303202
+No comorb.. #|
+          F #|
+     75-<85  |   .0237884     .00296     8.04   0.000     .0179869      .02959
+No comorb.. #|
+          F #|
+        85+  |   .0282026    .004402     6.41   0.000     .0195749    .0368303
+No comorb.. #|
+          M #|
+      0-<65  |   .0252001   .0021606    11.66   0.000     .0209655    .0294347
+No comorb.. #|
+          M #|
+     65-<75  |   .0240897    .002611     9.23   0.000     .0189722    .0292071
+No comorb.. #|
+          M #|
+     75-<85  |   .0229066   .0028557     8.02   0.000     .0173096    .0285037
+No comorb.. #|
+          M #|
+        85+  |   .0271618   .0042451     6.40   0.000     .0188417     .035482
+1 comorbi.. #|
+          F #|
+      0-<65  |   .0225077    .001271    17.71   0.000     .0200167    .0249987
+1 comorbi.. #|
+          F #|
+     65-<75  |   .0215133   .0018636    11.54   0.000     .0178607    .0251658
+1 comorbi.. #|
+          F #|
+     75-<85  |   .0204541   .0021846     9.36   0.000     .0161724    .0247358
+1 comorbi.. #|
+          F #|
+        85+  |   .0242651   .0034691     6.99   0.000     .0174658    .0310644
+1 comorbi.. #|
+          M #|
+      0-<65  |   .0216723   .0012376    17.51   0.000     .0192467    .0240979
+1 comorbi.. #|
+          M #|
+     65-<75  |    .020714   .0018028    11.49   0.000     .0171805    .0242475
+1 comorbi.. #|
+          M #|
+     75-<85  |   .0196934   .0021113     9.33   0.000     .0155552    .0238315
+1 comorbi.. #|
+          M #|
+        85+  |   .0233661   .0033477     6.98   0.000     .0168048    .0299274
+2+ comorb.. #|
+          F #|
+      0-<65  |   .0227519   .0009188    24.76   0.000      .020951    .0245528
+2+ comorb.. #|
+          F #|
+     65-<75  |   .0217469   .0016742    12.99   0.000     .0184655    .0250283
+2+ comorb.. #|
+          F #|
+     75-<85  |   .0206765   .0020485    10.09   0.000     .0166616    .0246914
+2+ comorb.. #|
+          F #|
+        85+  |   .0245279   .0033611     7.30   0.000     .0179402    .0311155
+2+ comorb.. #|
+          M #|
+      0-<65  |   .0219076    .000905    24.21   0.000     .0201338    .0236814
+2+ comorb.. #|
+          M #|
+     65-<75  |   .0209391   .0016222    12.91   0.000     .0177597    .0241186
+2+ comorb.. #|
+          M #|
+     75-<85  |   .0199076   .0019814    10.05   0.000     .0160243     .023791
+2+ comorb.. #|
+          M #|
+        85+  |   .0236194   .0032444     7.28   0.000     .0172605    .0299782
+------------------------------------------------------------------------------
+
+. 
+. * Save risk estimates
+. matrix est = e(b)
+
+. matrix inv_est = est'
+
+. svmat inv_est
+
+. 
+. * Save SE estimates
+. matrix var = e(V)
+
+. matrix diag_var = vecdiag(var)
+
+. matrix inv_var = diag_var'
+
+. svmat inv_var
+
+. gen sq_var = sqrt(inv_var1)
+(108,852 missing values generated)
+
+. 
+. noi disp "CHECK MARGINS ARE CORRECTLY CALCULATED TO MATCH ABOVE"
+CHECK MARGINS ARE CORRECTLY CALCULATED TO MATCH ABOVE
+
+. list inv_est1 sq_var in 1/24
+
+     +---------------------+
+     | inv_est1     sq_var |
+     |---------------------|
+  1. | .0261678   .0022369 |
+  2. | .0250158   .0027064 |
+  3. | .0237884     .00296 |
+  4. | .0282026    .004402 |
+  5. | .0252001   .0021606 |
+     |---------------------|
+  6. | .0240897    .002611 |
+  7. | .0229066   .0028557 |
+  8. | .0271618   .0042451 |
+  9. | .0225077    .001271 |
+ 10. | .0215133   .0018636 |
+     |---------------------|
+ 11. | .0204541   .0021846 |
+ 12. | .0242651   .0034691 |
+ 13. | .0216723   .0012376 |
+ 14. |  .020714   .0018028 |
+ 15. | .0196934   .0021113 |
+     |---------------------|
+ 16. | .0233661   .0033477 |
+ 17. | .0227519   .0009188 |
+ 18. | .0217469   .0016742 |
+ 19. | .0206765   .0020485 |
+ 20. | .0245279   .0033611 |
+     |---------------------|
+ 21. | .0219076    .000905 |
+ 22. | .0209391   .0016222 |
+ 23. | .0199076   .0019814 |
+ 24. | .0236194   .0032444 |
+     +---------------------+
+
+. 
+. * Re-Calculate CI
+. gen risk0 = inv_est1*100
+(108,852 missing values generated)
+
+. gen lb0 = (inv_est1 - invnormal(0.975)*sq_var)*100
+(108,852 missing values generated)
+
+. gen ub0 = (inv_est1 + invnormal(0.975)*sq_var)*100
+(108,852 missing values generated)
+
+. 
+. order lb ub, after(risk0)
+
+. 
+. 
+. est restore fully
+(results fully are active now)
+
+. 
+. * Adjusted absolute odds
+. margins comorb_cat#male#agegroupA if sgtf==1, post asobserved
+
+Predictive margins                              Number of obs     =     47,905
+Model VCE    : OIM
+
+Expression   : Predicted mean risk_40, predict()
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |     Margin   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  comorb_cat#|
+        male#|
+   agegroupA |
+No comorb.. #|
+          F #|
+      0-<65  |   .0254956   .0021818    11.69   0.000     .0212194    .0297719
+No comorb.. #|
+          F #|
+     65-<75  |   .0243725   .0026394     9.23   0.000     .0191994    .0295455
+No comorb.. #|
+          F #|
+     75-<85  |   .0231759   .0028846     8.03   0.000     .0175221    .0288297
+No comorb.. #|
+          F #|
+        85+  |   .0274797   .0042918     6.40   0.000     .0190679    .0358915
+No comorb.. #|
+          M #|
+      0-<65  |   .0245521   .0021078    11.65   0.000      .020421    .0286833
+No comorb.. #|
+          M #|
+     65-<75  |   .0234696   .0025466     9.22   0.000     .0184783    .0284609
+No comorb.. #|
+          M #|
+     75-<85  |   .0223163   .0027832     8.02   0.000     .0168613    .0277713
+No comorb.. #|
+          M #|
+        85+  |   .0264648   .0041389     6.39   0.000     .0183527     .034577
+1 comorbi.. #|
+          F #|
+      0-<65  |   .0219274   .0012433    17.64   0.000     .0194905    .0243642
+1 comorbi.. #|
+          F #|
+     65-<75  |    .020958   .0018195    11.52   0.000     .0173919    .0245241
+1 comorbi.. #|
+          F #|
+     75-<85  |   .0199256   .0021299     9.36   0.000     .0157511    .0241002
+1 comorbi.. #|
+          F #|
+        85+  |   .0236406   .0033829     6.99   0.000     .0170102     .030271
+1 comorbi.. #|
+          M #|
+      0-<65  |   .0211131   .0012112    17.43   0.000     .0187391     .023487
+1 comorbi.. #|
+          M #|
+     65-<75  |    .020179   .0017606    11.46   0.000     .0167283    .0236296
+1 comorbi.. #|
+          M #|
+     75-<85  |   .0191842   .0020587     9.32   0.000     .0151491    .0232192
+1 comorbi.. #|
+          M #|
+        85+  |   .0227642   .0032647     6.97   0.000     .0163656    .0291628
+2+ comorb.. #|
+          F #|
+      0-<65  |   .0221654   .0009003    24.62   0.000     .0204009    .0239299
+2+ comorb.. #|
+          F #|
+     65-<75  |   .0211858   .0016345    12.96   0.000     .0179822    .0243894
+2+ comorb.. #|
+          F #|
+     75-<85  |   .0201424   .0019967    10.09   0.000     .0162289    .0240558
+2+ comorb.. #|
+          F #|
+        85+  |   .0238968   .0032772     7.29   0.000     .0174736      .03032
+2+ comorb.. #|
+          M #|
+      0-<65  |   .0213424   .0008875    24.05   0.000      .019603    .0230819
+2+ comorb.. #|
+          M #|
+     65-<75  |   .0203984   .0015842    12.88   0.000     .0172935    .0235033
+2+ comorb.. #|
+          M #|
+     75-<85  |    .019393   .0019316    10.04   0.000     .0156072    .0231789
+2+ comorb.. #|
+          M #|
+        85+  |   .0230111   .0031636     7.27   0.000     .0168106    .0292116
+------------------------------------------------------------------------------
+
+. 
+. * Save odds estimates
+. matrix est1 = e(b)
+
+. matrix inv_estx = est1'
+
+. svmat inv_estx
+
+. 
+. * Save SE estimates
+. matrix var1 = e(V)
+
+. matrix diag_var1 = vecdiag(var1)
+
+. matrix inv_varx = diag_var1'
+
+. svmat inv_varx
+
+. gen sq_varx = sqrt(inv_varx1)
+(108,852 missing values generated)
+
+. 
+. noi disp "CHECK MARGINS ARE CORRECTLY CALCULATED TO MATCH ABOVE"
+CHECK MARGINS ARE CORRECTLY CALCULATED TO MATCH ABOVE
+
+. list inv_estx1 sq_varx in 1/24
+
+     +---------------------+
+     | inv_e~x1    sq_varx |
+     |---------------------|
+  1. | .0254956   .0021818 |
+  2. | .0243725   .0026394 |
+  3. | .0231759   .0028846 |
+  4. | .0274797   .0042918 |
+  5. | .0245521   .0021078 |
+     |---------------------|
+  6. | .0234696   .0025466 |
+  7. | .0223163   .0027832 |
+  8. | .0264648   .0041389 |
+  9. | .0219274   .0012433 |
+ 10. |  .020958   .0018195 |
+     |---------------------|
+ 11. | .0199256   .0021299 |
+ 12. | .0236406   .0033829 |
+ 13. | .0211131   .0012112 |
+ 14. |  .020179   .0017606 |
+ 15. | .0191842   .0020587 |
+     |---------------------|
+ 16. | .0227642   .0032647 |
+ 17. | .0221654   .0009003 |
+ 18. | .0211858   .0016345 |
+ 19. | .0201424   .0019967 |
+ 20. | .0238968   .0032772 |
+     |---------------------|
+ 21. | .0213424   .0008875 |
+ 22. | .0203984   .0015842 |
+ 23. |  .019393   .0019316 |
+ 24. | .0230111   .0031636 |
+     +---------------------+
+
+. 
+. * Re-Calculate CI
+. gen risk1 = inv_estx1*100
+(108,852 missing values generated)
+
+. gen lb1 = (inv_estx1 - invnormal(0.975)*sq_varx)*100
+(108,852 missing values generated)
+
+. gen ub1 = (inv_estx1 + invnormal(0.975)*sq_varx)*100
+(108,852 missing values generated)
+
+. 
+. order lb1 ub1, after(risk1)
+
+. 
+. 
+. gen risk_labels = "Female: 0-<65" in 1
+(108,875 missing values generated)
+
+. replace risk_labels = "65-<75" in 2
+(1 real change made)
+
+. replace risk_labels = "75-<85" in 3
+(1 real change made)
+
+. replace risk_labels = "85+" in 4
+(1 real change made)
+
+. 
+. replace risk_labels = "Male: 0-<65" in 5
+(1 real change made)
+
+. replace risk_labels = "65-<75" in 6
+(1 real change made)
+
+. replace risk_labels = "75-<85" in 7
+(1 real change made)
+
+. replace risk_labels = "85+" in 8
+(1 real change made)
+
+. 
+. replace risk_labels = "Female: 0-<65" in 9
+(1 real change made)
+
+. replace risk_labels = "65-<75" in 10
+(1 real change made)
+
+. replace risk_labels = "75-<85" in 11
+(1 real change made)
+
+. replace risk_labels = "85+" in 12
+(1 real change made)
+
+. 
+. replace risk_labels = "Male: 0-<65" in 13
+(1 real change made)
+
+. replace risk_labels = "65-<75" in 14
+(1 real change made)
+
+. replace risk_labels = "75-<85" in 15
+(1 real change made)
+
+. replace risk_labels = "85+" in 16
+(1 real change made)
+
+. 
+. replace risk_labels = "Female: 0-<65" in 17
+(1 real change made)
+
+. replace risk_labels = "65-<75" in 18
+(1 real change made)
+
+. replace risk_labels = "75-<85" in 19
+(1 real change made)
+
+. replace risk_labels = "85+" in 20
+(1 real change made)
+
+. 
+. replace risk_labels = "Male: 0-<65" in 21
+(1 real change made)
+
+. replace risk_labels = "65-<75" in 22
+(1 real change made)
+
+. replace risk_labels = "75-<85" in 23
+(1 real change made)
+
+. replace risk_labels = "85+" in 24
+(1 real change made)
+
+. 
+. 
+. ***********************************
+. /* Output table of absolute risk */
+. ***********************************
+. 
+. cap file close tablecontent
+
+. 
+. file open tablecontent using ./output/table3_abs_risk40.txt, write text repla
+> ce
+(note: file ./output/table3_abs_risk40.txt not found)
+
+. 
+. file write tablecontent ("Table S3: Absolute risk of death by 40-days") _n _n
+
+. 
+. file write tablecontent ("Comorbidities/Sex/Age group")         _tab ///
+>                                                 ("non-VOC (95% CI)")         
+>                    _tab ///
+>                                                 ("VOC (95% CI)")             
+>                            _n
+
+. 
+. forvalues i=1/24 {
+  2.         
+.         preserve
+  3.                 keep if _n == `i'
+  4.                 if inlist(`i',5,13,21) {
+  5.                         file write tablecontent _n
+  6.                 }
+  7.                 if `i'==1 {
+  8.                         file write tablecontent _n ("No Comorbidities") _n
+  9.                 }
+ 10.                 if `i'==9 {
+ 11.                         file write tablecontent _n ("1 Comorbidity") _n
+ 12.                 }
+ 13.                 if `i'==17 {
+ 14.                         file write tablecontent _n ("2+ Comorbidities") _n
+ 15.                 }
+ 16.                 file write tablecontent %9s (risk_labels) _tab %4.2f (risk
+> 0) (" (") %4.2f (lb0) ("-") %4.2f (ub0) (")") _tab %4.2f (risk1) (" (") %4.2f
+>  (lb1) ("-") %4.2f (ub1) (")") _n
+ 17.         restore
+ 18. 
+. }
+(108,875 observations deleted)
+(108,875 observations deleted)
+(108,875 observations deleted)
+(108,875 observations deleted)
+(108,875 observations deleted)
+(108,875 observations deleted)
+(108,875 observations deleted)
+(108,875 observations deleted)
+(108,875 observations deleted)
+(108,875 observations deleted)
+(108,875 observations deleted)
+(108,875 observations deleted)
+(108,875 observations deleted)
+(108,875 observations deleted)
+(108,875 observations deleted)
+(108,875 observations deleted)
+(108,875 observations deleted)
+(108,875 observations deleted)
+(108,875 observations deleted)
+(108,875 observations deleted)
+(108,875 observations deleted)
+(108,875 observations deleted)
+(108,875 observations deleted)
+(108,875 observations deleted)
+
+. 
+. file close tablecontent
+
+. 
+. 
+. * Risks as balanced
+. est restore fully
+(results fully are active now)
+
+. margins sgtf comorb_cat#male#agegroupA if sgtf==0, post asbalanced
+
+Adjusted predictions                            Number of obs     =     47,616
+Model VCE    : OIM
+
+Expression   : Predicted mean risk_40, predict()
+at           : sgtf             (asbalanced)
+               agegroupA        (asbalanced)
+               male             (asbalanced)
+               imd              (asbalanced)
+               eth2             (asbalanced)
+               smoke_nomiss2    (asbalanced)
+               obese4cat        (asbalanced)
+               hh_total_cat     (asbalanced)
+               region           (asbalanced)
+               rural_urban5     (asbalanced)
+               comorb_cat       (asbalanced)
+               start_week       (asbalanced)
+               home_bin         (asbalanced)
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |     Margin   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+    non-VOC  |   .0166613   .0055883     2.98   0.003     .0057084    .0276143
+             |
+  comorb_cat#|
+        male#|
+   agegroupA |
+No comorb.. #|
+          F #|
+      0-<65  |   .0187896   .0063976     2.94   0.003     .0062505    .0313287
+No comorb.. #|
+          F #|
+     65-<75  |   .0179562   .0062291     2.88   0.004     .0057474     .030165
+No comorb.. #|
+          F #|
+     75-<85  |   .0170688   .0060285     2.83   0.005     .0052533    .0288844
+No comorb.. #|
+          F #|
+        85+  |   .0202632   .0073938     2.74   0.006     .0057717    .0347548
+No comorb.. #|
+          M #|
+      0-<65  |   .0180895   .0061643     2.93   0.003     .0060077    .0301712
+No comorb.. #|
+          M #|
+     65-<75  |   .0172866   .0060013     2.88   0.004     .0055243    .0290488
+No comorb.. #|
+          M #|
+     75-<85  |   .0164318   .0058078     2.83   0.005     .0050486    .0278149
+No comorb.. #|
+          M #|
+        85+  |   .0195093   .0071243     2.74   0.006     .0055459    .0334727
+1 comorbi.. #|
+          F #|
+      0-<65  |   .0161436   .0054094     2.98   0.003     .0055415    .0267458
+1 comorbi.. #|
+          F #|
+     65-<75  |   .0154257   .0052667     2.93   0.003     .0051031    .0257483
+1 comorbi.. #|
+          F #|
+     75-<85  |   .0146616   .0051014     2.87   0.004     .0046629    .0246602
+1 comorbi.. #|
+          F #|
+        85+  |   .0174134   .0062709     2.78   0.005     .0051227    .0297041
+1 comorbi.. #|
+          M #|
+      0-<65  |   .0155405   .0052119     2.98   0.003     .0053254    .0257557
+1 comorbi.. #|
+          M #|
+     65-<75  |    .014849    .005074     2.93   0.003     .0049042    .0247939
+1 comorbi.. #|
+          M #|
+     75-<85  |    .014113   .0049146     2.87   0.004     .0044806    .0237455
+1 comorbi.. #|
+          M #|
+        85+  |   .0167637   .0060419     2.77   0.006     .0049217    .0286056
+2+ comorb.. #|
+          F #|
+      0-<65  |     .01632   .0054313     3.00   0.003     .0056749    .0269651
+2+ comorb.. #|
+          F #|
+     65-<75  |   .0155943   .0052891     2.95   0.003     .0052279    .0259608
+2+ comorb.. #|
+          F #|
+     75-<85  |    .014822   .0051241     2.89   0.004     .0047788    .0248651
+2+ comorb.. #|
+          F #|
+        85+  |   .0176034   .0062994     2.79   0.005     .0052569    .0299499
+2+ comorb.. #|
+          M #|
+      0-<65  |   .0157104   .0052333     3.00   0.003     .0054534    .0259674
+2+ comorb.. #|
+          M #|
+     65-<75  |   .0150114   .0050958     2.95   0.003      .005024    .0249989
+2+ comorb.. #|
+          M #|
+     75-<85  |   .0142675   .0049367     2.89   0.004     .0045918    .0239433
+2+ comorb.. #|
+          M #|
+        85+  |   .0169467   .0060696     2.79   0.005     .0050505    .0288429
+------------------------------------------------------------------------------
+
+. 
+. est restore fully
+(results fully are active now)
+
+. margins sgtf comorb_cat#male#agegroupA if sgtf==1, post asbalanced
+
+Adjusted predictions                            Number of obs     =     47,905
+Model VCE    : OIM
+
+Expression   : Predicted mean risk_40, predict()
+at           : sgtf             (asbalanced)
+               agegroupA        (asbalanced)
+               male             (asbalanced)
+               imd              (asbalanced)
+               eth2             (asbalanced)
+               smoke_nomiss2    (asbalanced)
+               obese4cat        (asbalanced)
+               hh_total_cat     (asbalanced)
+               region           (asbalanced)
+               rural_urban5     (asbalanced)
+               comorb_cat       (asbalanced)
+               start_week       (asbalanced)
+               home_bin         (asbalanced)
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |     Margin   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   .0162401   .0054512     2.98   0.003      .005556    .0269243
+             |
+  comorb_cat#|
+        male#|
+   agegroupA |
+No comorb.. #|
+          F #|
+      0-<65  |   .0187896   .0063976     2.94   0.003     .0062505    .0313287
+No comorb.. #|
+          F #|
+     65-<75  |   .0179562   .0062291     2.88   0.004     .0057474     .030165
+No comorb.. #|
+          F #|
+     75-<85  |   .0170688   .0060285     2.83   0.005     .0052533    .0288844
+No comorb.. #|
+          F #|
+        85+  |   .0202632   .0073938     2.74   0.006     .0057717    .0347548
+No comorb.. #|
+          M #|
+      0-<65  |   .0180895   .0061643     2.93   0.003     .0060077    .0301712
+No comorb.. #|
+          M #|
+     65-<75  |   .0172866   .0060013     2.88   0.004     .0055243    .0290488
+No comorb.. #|
+          M #|
+     75-<85  |   .0164318   .0058078     2.83   0.005     .0050486    .0278149
+No comorb.. #|
+          M #|
+        85+  |   .0195093   .0071243     2.74   0.006     .0055459    .0334727
+1 comorbi.. #|
+          F #|
+      0-<65  |   .0161436   .0054094     2.98   0.003     .0055415    .0267458
+1 comorbi.. #|
+          F #|
+     65-<75  |   .0154257   .0052667     2.93   0.003     .0051031    .0257483
+1 comorbi.. #|
+          F #|
+     75-<85  |   .0146616   .0051014     2.87   0.004     .0046629    .0246602
+1 comorbi.. #|
+          F #|
+        85+  |   .0174134   .0062709     2.78   0.005     .0051227    .0297041
+1 comorbi.. #|
+          M #|
+      0-<65  |   .0155405   .0052119     2.98   0.003     .0053254    .0257557
+1 comorbi.. #|
+          M #|
+     65-<75  |    .014849    .005074     2.93   0.003     .0049042    .0247939
+1 comorbi.. #|
+          M #|
+     75-<85  |    .014113   .0049146     2.87   0.004     .0044806    .0237455
+1 comorbi.. #|
+          M #|
+        85+  |   .0167637   .0060419     2.77   0.006     .0049217    .0286056
+2+ comorb.. #|
+          F #|
+      0-<65  |     .01632   .0054313     3.00   0.003     .0056749    .0269651
+2+ comorb.. #|
+          F #|
+     65-<75  |   .0155943   .0052891     2.95   0.003     .0052279    .0259608
+2+ comorb.. #|
+          F #|
+     75-<85  |    .014822   .0051241     2.89   0.004     .0047788    .0248651
+2+ comorb.. #|
+          F #|
+        85+  |   .0176034   .0062994     2.79   0.005     .0052569    .0299499
+2+ comorb.. #|
+          M #|
+      0-<65  |   .0157104   .0052333     3.00   0.003     .0054534    .0259674
+2+ comorb.. #|
+          M #|
+     65-<75  |   .0150114   .0050958     2.95   0.003      .005024    .0249989
+2+ comorb.. #|
+          M #|
+     75-<85  |   .0142675   .0049367     2.89   0.004     .0045918    .0239433
+2+ comorb.. #|
+          M #|
+        85+  |   .0169467   .0060696     2.79   0.005     .0050505    .0288429
+------------------------------------------------------------------------------
+
+. 
+. 
+. 
+. *********************************************************************
+. /* Causal min adjustment set - age as spline, comorbidities,       */
+. /* deprivation index, and smoking status                                     
+>               */
+. *********************************************************************
+. 
+. glm risk_40 i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3 i.home
+> _bin, ///
+>                         family(bin) link(logit) eform
+
+Iteration 0:   log likelihood = -15680.171  
+Iteration 1:   log likelihood = -11447.845  
+Iteration 2:   log likelihood = -11440.066  
+Iteration 3:   log likelihood = -11440.047  
+Iteration 4:   log likelihood = -11440.047  
+
+Generalized linear models                         Number of obs   =    108,876
+Optimization     : ML                             Residual df     =    108,863
+                                                  Scale parameter =          1
+Deviance         =  22880.09388                   (1/df) Deviance =   .2101733
+Pearson          =  108875.4019                   (1/df) Pearson  =   1.000114
+
+Variance function: V(u) = u*(1-u)                 [Bernoulli]
+Link function    : g(u) = ln(u/(1-u))             [Logit]
+
+                                                  AIC             =    .210387
+Log likelihood   = -11440.04694                   BIC             =   -1239709
+
+------------------------------------------------------------------------------
+             |                 OIM
+     risk_40 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   .9889434   .0410138    -0.27   0.789     .9117381    1.072686
+             |
+  comorb_cat |
+1 comorbi..  |   .8894525    .080092    -1.30   0.193     .7455471    1.061134
+2+ comorb..  |   .8995525   .0734264    -1.30   0.195     .7665612    1.055617
+             |
+         imd |
+          2  |   1.015641   .0601813     0.26   0.793     .9042794    1.140716
+          3  |   .8828628   .0544076    -2.02   0.043     .7824143    .9962071
+          4  |   1.050605   .0616754     0.84   0.400     .9364184    1.178716
+5 most de..  |   .9757545    .074084    -0.32   0.746     .8408397    1.132317
+             |
+smoke_nomi~2 |
+     Former  |   .9924699   .0593761    -0.13   0.899     .8826588    1.115942
+        age1 |   .9970958   .0042622    -0.68   0.496     .9887769    1.005485
+        age2 |   1.009249   .0141155     0.66   0.510     .9819588    1.037297
+        age3 |   .9743927   .0386095    -0.65   0.513     .9015834    1.053082
+             |
+    home_bin |
+  Care home  |   1.007208   .0580763     0.12   0.901     .8995769    1.127717
+       _cons |    .021741   .0051646   -16.12   0.000     .0136481    .0346325
+------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+. 
+. 
+. 
+. * Age grouped
+. glm risk_40 i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 ib2.agegroupA i.home_
+> bin, ///
+>                         family(bin) link(logit) eform
+
+Iteration 0:   log likelihood = -15680.107  
+Iteration 1:   log likelihood = -11447.532  
+Iteration 2:   log likelihood = -11439.667  
+Iteration 3:   log likelihood = -11439.647  
+Iteration 4:   log likelihood = -11439.647  
+
+Generalized linear models                         Number of obs   =    108,876
+Optimization     : ML                             Residual df     =    108,863
+                                                  Scale parameter =          1
+Deviance         =  22879.29401                   (1/df) Deviance =   .2101659
+Pearson          =  108877.3752                   (1/df) Pearson  =   1.000132
+
+Variance function: V(u) = u*(1-u)                 [Bernoulli]
+Link function    : g(u) = ln(u/(1-u))             [Logit]
+
+                                                  AIC             =   .2103796
+Log likelihood   = -11439.64701                   BIC             =   -1239710
+
+------------------------------------------------------------------------------
+             |                 OIM
+     risk_40 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   .9890338   .0410176    -0.27   0.790     .9118213    1.072785
+             |
+  comorb_cat |
+1 comorbi..  |   .8891946   .0800703    -1.30   0.192     .7453285     1.06083
+2+ comorb..  |   .8991092   .0733906    -1.30   0.193     .7661827    1.055097
+             |
+         imd |
+          2  |   1.015874   .0601952     0.27   0.790     .9044867    1.140978
+          3  |   .8829496    .054413    -2.02   0.043     .7824912    .9963051
+          4  |   1.050753   .0616847     0.84   0.399     .9365497    1.178883
+5 most de..  |   .9760416   .0741068    -0.32   0.749     .8410855    1.132652
+             |
+smoke_nomi~2 |
+     Former  |   .9925863   .0593825    -0.12   0.901     .8827633    1.116072
+             |
+   agegroupA |
+      0-<65  |   .9856212   .0681886    -0.21   0.834     .8606391    1.128753
+     75-<85  |   .8981003   .0998525    -0.97   0.334     .7222485    1.116768
+        85+  |   1.050942   .1524733     0.34   0.732     .7908325    1.396604
+             |
+    home_bin |
+  Care home  |   1.007116   .0580713     0.12   0.902      .899494    1.127614
+       _cons |   .0255909   .0027515   -34.09   0.000     .0207284    .0315941
+------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+. 
+. 
+. 
+. * With region
+. glm risk_40 i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 ib2.agegroupA i.home_
+> bin i.region, ///
+>                         family(bin) link(logit) eform
+
+Iteration 0:   log likelihood = -14134.851  
+Iteration 1:   log likelihood = -10356.342  
+Iteration 2:   log likelihood = -10347.959  
+Iteration 3:   log likelihood = -10347.931  
+Iteration 4:   log likelihood = -10347.931  
+
+Generalized linear models                         Number of obs   =     97,772
+Optimization     : ML                             Residual df     =     97,752
+                                                  Scale parameter =          1
+Deviance         =  20695.86242                   (1/df) Deviance =    .211718
+Pearson          =  97774.06866                   (1/df) Pearson  =   1.000226
+
+Variance function: V(u) = u*(1-u)                 [Bernoulli]
+Link function    : g(u) = ln(u/(1-u))             [Logit]
+
+                                                  AIC             =   .2120839
+Log likelihood   = -10347.93121                   BIC             =   -1102513
+
+------------------------------------------------------------------------------
+             |                 OIM
+     risk_40 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   .9833579   .0428385    -0.39   0.700     .9028805    1.071009
+             |
+  comorb_cat |
+1 comorbi..  |    .869327   .0819408    -1.49   0.137     .7226881     1.04572
+2+ comorb..  |   .8846411   .0754665    -1.44   0.151     .7484336    1.045637
+             |
+         imd |
+          2  |   1.008361   .0627523     0.13   0.894     .8925733    1.139168
+          3  |   .8856776   .0571763    -1.88   0.060     .7804139    1.005139
+          4  |   1.038036   .0641009     0.60   0.545     .9197061    1.171591
+5 most de..  |   .9712368   .0775838    -0.37   0.715     .8304815    1.135848
+             |
+smoke_nomi~2 |
+     Former  |   1.025641   .0636835     0.41   0.683       .90812    1.158371
+             |
+   agegroupA |
+      0-<65  |   1.035289   .0767086     0.47   0.640     .8953498      1.1971
+     75-<85  |   .9285202   .1096521    -0.63   0.530      .736665    1.170342
+        85+  |   1.139026   .1723693     0.86   0.390     .8466832    1.532309
+             |
+    home_bin |
+  Care home  |    1.00359   .0608674     0.06   0.953     .8911104    1.130268
+             |
+      region |
+     London  |     1.0482   .0864506     0.57   0.568     .8917458    1.232104
+ North East  |   1.137528   .1059755     1.38   0.167     .9476796    1.365408
+ North West  |   1.022033   .0977035     0.23   0.820     .8474077    1.232643
+ South East  |    1.14842    .106404     1.49   0.135     .9577113    1.377104
+ South West  |   1.119116   .1044441     1.21   0.228     .9320407    1.343741
+West Midl..  |   1.070412   .1012688     0.72   0.472     .8892446     1.28849
+Yorkshire..  |   1.148322   .1067842     1.49   0.137     .9569942    1.377902
+             |
+       _cons |   .0232808   .0030387   -28.81   0.000     .0180259    .0300676
+------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+. 
+. 
+. 
+. 
+. log close
+      name:  <unnamed>
+       log:  /workspace/logs/an_logit_models_40.log
+  log type:  text
+ closed on:  18 Feb 2021, 16:39:46
+-------------------------------------------------------------------------------

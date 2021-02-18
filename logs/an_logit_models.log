@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /workspace/logs/an_logit_models.log
   log type:  text
- opened on:  17 Feb 2021, 23:06:38
+ opened on:  18 Feb 2021, 16:33:22
 
 . 
 . clear
@@ -492,7 +492,7 @@ Note: _cons estimates baseline odds.
 
 . 
 . * Adjusted absolute risks
-. margins sgtf comorb_cat#male#agegroupA if sgtf==0, post asobserved
+. margins comorb_cat#male#agegroupA if sgtf==0, post asobserved
 
 Predictive margins                              Number of obs     =     61,874
 Model VCE    : OIM
@@ -503,9 +503,6 @@ Expression   : Predicted mean risk_28, predict()
              |            Delta-method
              |     Margin   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-        sgtf |
-    non-VOC  |   .0154992   .0004965    31.22   0.000     .0145261    .0164724
-             |
   comorb_cat#|
         male#|
    agegroupA |
@@ -602,58 +599,57 @@ No comorb.. #|
 . svmat inv_var
 
 . gen sq_var = sqrt(inv_var1)
-(141,286 missing values generated)
+(141,287 missing values generated)
 
 . 
 . noi disp "CHECK MARGINS ARE CORRECTLY CALCULATED TO MATCH ABOVE"
 CHECK MARGINS ARE CORRECTLY CALCULATED TO MATCH ABOVE
 
-. list inv_est1 sq_var in 1/25
+. list inv_est1 sq_var in 1/24
 
      +---------------------+
      | inv_est1     sq_var |
      |---------------------|
-  1. | .0154992   .0004965 |
-  2. | .0177871   .0016105 |
-  3. | .0156519    .001825 |
-  4. | .0171659   .0022104 |
-  5. | .0210921   .0033551 |
+  1. | .0177871   .0016105 |
+  2. | .0156519    .001825 |
+  3. | .0171659   .0022104 |
+  4. | .0210921   .0033551 |
+  5. | .0180078   .0016294 |
      |---------------------|
-  6. | .0180078   .0016294 |
-  7. | .0158465   .0018465 |
-  8. |  .017379   .0022367 |
-  9. | .0213528   .0033937 |
- 10. | .0159668   .0009418 |
+  6. | .0158465   .0018465 |
+  7. |  .017379   .0022367 |
+  8. | .0213528   .0033937 |
+  9. | .0159668   .0009418 |
+ 10. | .0140469   .0013168 |
      |---------------------|
- 11. | .0140469   .0013168 |
- 12. | .0154082   .0016827 |
- 13. | .0189402   .0027289 |
- 14. | .0161653   .0009561 |
- 15. | .0142219   .0013342 |
+ 11. | .0154082   .0016827 |
+ 12. | .0189402   .0027289 |
+ 13. | .0161653   .0009561 |
+ 14. | .0142219   .0013342 |
+ 15. | .0155998   .0017046 |
      |---------------------|
- 16. | .0155998   .0017046 |
- 17. | .0191749    .002762 |
- 18. | .0152327   .0006554 |
- 19. | .0133998   .0011314 |
- 20. | .0146993     .00149 |
+ 16. | .0191749    .002762 |
+ 17. | .0152327   .0006554 |
+ 18. | .0133998   .0011314 |
+ 19. | .0146993     .00149 |
+ 20. | .0180719    .002495 |
      |---------------------|
- 21. | .0180719    .002495 |
- 22. | .0154221     .00067 |
- 23. | .0135668    .001148 |
- 24. | .0148823   .0015108 |
- 25. |  .018296   .0025264 |
+ 21. | .0154221     .00067 |
+ 22. | .0135668    .001148 |
+ 23. | .0148823   .0015108 |
+ 24. |  .018296   .0025264 |
      +---------------------+
 
 . 
 . * Re-Calculate CI
 . gen risk0 = inv_est1*100
-(141,286 missing values generated)
+(141,287 missing values generated)
 
 . gen lb0 = (inv_est1 - invnormal(0.975)*sq_var)*100
-(141,286 missing values generated)
+(141,287 missing values generated)
 
 . gen ub0 = (inv_est1 + invnormal(0.975)*sq_var)*100
-(141,286 missing values generated)
+(141,287 missing values generated)
 
 . 
 . order lb ub, after(risk0)
@@ -665,7 +661,7 @@ CHECK MARGINS ARE CORRECTLY CALCULATED TO MATCH ABOVE
 
 . 
 . * Adjusted absolute odds
-. margins sgtf comorb_cat#male#agegroupA if sgtf==1, post asobserved
+. margins comorb_cat#male#agegroupA if sgtf==1, post asobserved
 
 Predictive margins                              Number of obs     =     62,148
 Model VCE    : OIM
@@ -676,9 +672,6 @@ Expression   : Predicted mean risk_28, predict()
              |            Delta-method
              |     Margin   Std. Err.      z    P>|z|     [95% Conf. Interval]
 -------------+----------------------------------------------------------------
-        sgtf |
-        VOC  |   .0151574     .00049    30.93   0.000     .0141969    .0161178
-             |
   comorb_cat#|
         male#|
    agegroupA |
@@ -775,144 +768,138 @@ No comorb.. #|
 . svmat inv_varx
 
 . gen sq_varx = sqrt(inv_varx1)
-(141,286 missing values generated)
+(141,287 missing values generated)
 
 . 
 . noi disp "CHECK MARGINS ARE CORRECTLY CALCULATED TO MATCH ABOVE"
 CHECK MARGINS ARE CORRECTLY CALCULATED TO MATCH ABOVE
 
-. list inv_estx1 sq_varx in 1/25
+. list inv_estx1 sq_varx in 1/24
 
      +---------------------+
      | inv_e~x1    sq_varx |
      |---------------------|
-  1. | .0151574     .00049 |
-  2. | .0173961    .001576 |
-  3. | .0153071   .0017849 |
-  4. | .0167883   .0021611 |
-  5. | .0206299   .0032828 |
+  1. | .0173961    .001576 |
+  2. | .0153071   .0017849 |
+  3. | .0167883   .0021611 |
+  4. | .0206299   .0032828 |
+  5. |  .017612   .0015947 |
      |---------------------|
-  6. |  .017612   .0015947 |
-  7. | .0154974   .0018062 |
-  8. | .0169968    .002187 |
-  9. | .0208851   .0033208 |
- 10. | .0156152    .000925 |
+  6. | .0154974   .0018062 |
+  7. | .0169968    .002187 |
+  8. | .0208851   .0033208 |
+  9. | .0156152    .000925 |
+ 10. |  .013737   .0012894 |
      |---------------------|
- 11. |  .013737   .0012894 |
- 12. | .0150686   .0016463 |
- 13. | .0185243   .0026714 |
- 14. | .0158093   .0009392 |
- 15. | .0139081   .0013066 |
+ 11. | .0150686   .0016463 |
+ 12. | .0185243   .0026714 |
+ 13. | .0158093   .0009392 |
+ 14. | .0139081   .0013066 |
+ 15. | .0152561   .0016679 |
      |---------------------|
- 16. | .0152561   .0016679 |
- 17. | .0187539   .0027039 |
- 18. | .0148969   .0006445 |
- 19. | .0131039   .0011075 |
- 20. | .0143752   .0014572 |
+ 16. | .0187539   .0027039 |
+ 17. | .0148969   .0006445 |
+ 18. | .0131039   .0011075 |
+ 19. | .0143752   .0014572 |
+ 20. | .0176747   .0024419 |
      |---------------------|
- 21. | .0176747   .0024419 |
- 22. | .0150823   .0006591 |
- 23. | .0132673   .0011238 |
- 24. | .0145542   .0014777 |
- 25. |  .017894   .0024728 |
+ 21. | .0150823   .0006591 |
+ 22. | .0132673   .0011238 |
+ 23. | .0145542   .0014777 |
+ 24. |  .017894   .0024728 |
      +---------------------+
 
 . 
 . * Re-Calculate CI
 . gen risk1 = inv_estx1*100
-(141,286 missing values generated)
+(141,287 missing values generated)
 
 . gen lb1 = (inv_estx1 - invnormal(0.975)*sq_varx)*100
-(141,286 missing values generated)
+(141,287 missing values generated)
 
 . gen ub1 = (inv_estx1 + invnormal(0.975)*sq_varx)*100
-(141,286 missing values generated)
+(141,287 missing values generated)
 
 . 
 . order lb1 ub1, after(risk1)
 
 . 
 . 
-. gen risk_labels = "Overall" in 1
+. gen risk_labels = "Female: 0-<65" in 1
 (141,310 missing values generated)
 
-. 
-. replace risk_labels = "Female: 0-<65" in 2
-variable risk_labels was str7 now str13
+. replace risk_labels = "65-<75" in 2
 (1 real change made)
 
-. replace risk_labels = "65-<75" in 3
+. replace risk_labels = "75-<85" in 3
 (1 real change made)
 
-. replace risk_labels = "75-<85" in 4
-(1 real change made)
-
-. replace risk_labels = "85+" in 5
+. replace risk_labels = "85+" in 4
 (1 real change made)
 
 . 
-. replace risk_labels = "Male: 0-<65" in 6
+. replace risk_labels = "Male: 0-<65" in 5
 (1 real change made)
 
-. replace risk_labels = "65-<75" in 7
+. replace risk_labels = "65-<75" in 6
 (1 real change made)
 
-. replace risk_labels = "75-<85" in 8
+. replace risk_labels = "75-<85" in 7
 (1 real change made)
 
-. replace risk_labels = "85+" in 9
-(1 real change made)
-
-. 
-. replace risk_labels = "Female: 0-<65" in 10
-(1 real change made)
-
-. replace risk_labels = "65-<75" in 11
-(1 real change made)
-
-. replace risk_labels = "75-<85" in 12
-(1 real change made)
-
-. replace risk_labels = "85+" in 13
+. replace risk_labels = "85+" in 8
 (1 real change made)
 
 . 
-. replace risk_labels = "Male: 0-<65" in 14
+. replace risk_labels = "Female: 0-<65" in 9
 (1 real change made)
 
-. replace risk_labels = "65-<75" in 15
+. replace risk_labels = "65-<75" in 10
 (1 real change made)
 
-. replace risk_labels = "75-<85" in 16
+. replace risk_labels = "75-<85" in 11
 (1 real change made)
 
-. replace risk_labels = "85+" in 17
-(1 real change made)
-
-. 
-. replace risk_labels = "Female: 0-<65" in 18
-(1 real change made)
-
-. replace risk_labels = "65-<75" in 19
-(1 real change made)
-
-. replace risk_labels = "75-<85" in 20
-(1 real change made)
-
-. replace risk_labels = "85+" in 21
+. replace risk_labels = "85+" in 12
 (1 real change made)
 
 . 
-. replace risk_labels = "Male: 0-<65" in 22
+. replace risk_labels = "Male: 0-<65" in 13
 (1 real change made)
 
-. replace risk_labels = "65-<75" in 23
+. replace risk_labels = "65-<75" in 14
 (1 real change made)
 
-. replace risk_labels = "75-<85" in 24
+. replace risk_labels = "75-<85" in 15
 (1 real change made)
 
-. replace risk_labels = "85+" in 25
+. replace risk_labels = "85+" in 16
+(1 real change made)
+
+. 
+. replace risk_labels = "Female: 0-<65" in 17
+(1 real change made)
+
+. replace risk_labels = "65-<75" in 18
+(1 real change made)
+
+. replace risk_labels = "75-<85" in 19
+(1 real change made)
+
+. replace risk_labels = "85+" in 20
+(1 real change made)
+
+. 
+. replace risk_labels = "Male: 0-<65" in 21
+(1 real change made)
+
+. replace risk_labels = "65-<75" in 22
+(1 real change made)
+
+. replace risk_labels = "75-<85" in 23
+(1 real change made)
+
+. replace risk_labels = "85+" in 24
 (1 real change made)
 
 . 
@@ -938,29 +925,28 @@ variable risk_labels was str7 now str13
 >                            _n
 
 . 
-. forvalues i=1/25 {
+. forvalues i=1/24 {
   2.         
 .         preserve
   3.                 keep if _n == `i'
-  4.                 if inlist(`i',1,6,14,22) {
+  4.                 if inlist(`i',5,13,21) {
   5.                         file write tablecontent _n
   6.                 }
-  7.                 if `i'==2 {
-  8.                         file write tablecontent _n ("No comorbidities") _n
+  7.                 if `i'==1 {
+  8.                         file write tablecontent _n ("No Comorbidities") _n
   9.                 }
- 10.                 if `i'==10 {
- 11.                         file write tablecontent _n ("1 comorbidity") _n
+ 10.                 if `i'==9 {
+ 11.                         file write tablecontent _n ("1 Comorbidity") _n
  12.                 }
- 13.                 if `i'==18 {
- 14.                         file write tablecontent _n ("2+ comorbidities") _n
+ 13.                 if `i'==17 {
+ 14.                         file write tablecontent _n ("2+ Comorbidities") _n
  15.                 }
- 16.                 file write tablecontent %9s (risk_labels) _tab %3.1f (risk
-> 0) (" (") %3.1f (lb0) ("-") %3.1f (ub0) (")") _tab %3.1f (risk1) (" (") %3.1f
->  (lb1) ("-") %3.1f (ub1) (")") _n
+ 16.                 file write tablecontent %9s (risk_labels) _tab %4.2f (risk
+> 0) (" (") %4.2f (lb0) ("-") %4.2f (ub0) (")") _tab %4.2f (risk1) (" (") %4.2f
+>  (lb1) ("-") %4.2f (ub1) (")") _n
  17.         restore
  18. 
 . }
-(141,310 observations deleted)
 (141,310 observations deleted)
 (141,310 observations deleted)
 (141,310 observations deleted)
@@ -2552,5 +2538,5 @@ Note: _cons estimates baseline odds.
       name:  <unnamed>
        log:  /workspace/logs/an_logit_models.log
   log type:  text
- closed on:  17 Feb 2021, 23:11:28
+ closed on:  18 Feb 2021, 16:41:39
 -------------------------------------------------------------------------------
