@@ -65,7 +65,7 @@ stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_tota
 * Stratified by region
 stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
 			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 age2 age3 i.home_bin ///
-			 if eth2 != 6 & has_sgtf==1///
+			 if eth2 != 6 & has_sgtf==1 ///
 			 , strata(utla_group)	 
 			 
 *********************************************************************
