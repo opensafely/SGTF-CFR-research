@@ -187,6 +187,10 @@ end
 *
 ********************************************************************************
 
+* DROP MISSING UTLA
+noi di "DROPPING MISSING UTLA DATA"
+drop if utla_group==""
+
 * DROP IF NO DATA ON SGTF
 noi di "DROPPING NO SGTF DATA" 
 drop if has_sgtf==0

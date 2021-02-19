@@ -33,6 +33,10 @@ use "C:\Users\EIDEDGRI\Documents\GitHub\SGTF-CFR-research\output\cr_analysis_dat
 
 use ./output/cr_analysis_dataset.dta
 
+* DROP MISSING UTLA
+noi di "DROPPING MISSING UTLA DATA"
+drop if utla_group==""
+
 * DROP IF NO DATA ON SGTF
 noi di "DROPPING NO SGTF DATA" 
 drop if has_sgtf==0
@@ -72,6 +76,9 @@ stcox i.sgtf, strata(region)
 * Stratified by UTLA
 stcox i.sgtf, strata(utla_group)
 
+* N (events)
+tab sgtf cox_death
+
 * Output unadjusted
 lincom 1.sgtf, eform
 file write tablecontent _n ("Unadjusted") _tab 
@@ -97,6 +104,9 @@ stcox i.sgtf if study_start >= date("01dec2020", "DMY"), tvc(i.sgtf) strata(utla
 stcox i.sgtf age1 age2 age3 ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
+			 
+* N (events)
+tab sgtf cox_death
 
 lincom 1.sgtf, eform
 file write tablecontent ("Age adj.") _tab 
@@ -117,6 +127,9 @@ stcox i.sgtf ib2.agegroupA ///
 stcox i.sgtf age1 age2 age3 ib0.comorb_cat ib1.smoke_nomiss2 ib1.obese4cat ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
+		 
+* N (events)
+tab sgtf cox_death if e(sample)
 
 lincom 1.sgtf, eform
 file write tablecontent ("Age + comorb adj.") _tab 
@@ -134,6 +147,9 @@ stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat i.home_bin ///
 			 ib1.rural_urban5 ib1.start_week age1 age2 age3 ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
+			 
+* N (events)
+tab sgtf cox_death if e(sample)
 
 lincom 1.sgtf, eform
 file write tablecontent ("Demographically adj.") _tab 
@@ -166,7 +182,15 @@ stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_tota
 			 
 est store e_no_int
 
+* N (events)
+bysort start_week: tab sgtf cox_death if e(sample)
+bysort comorb_cat: tab sgtf cox_death if e(sample)
+bysort eth2: tab sgtf cox_death if e(sample)
+bysort imd: tab sgtf cox_death if e(sample)
+bysort agegroupA: tab sgtf cox_death if e(sample)
+
 estat phtest, d
+
 
 lincom 1.sgtf, eform
 file write tablecontent ("Fully adj.") _tab 
@@ -428,6 +452,9 @@ stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_tota
 			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 age2 age3 i.home_bin ///
 			 if eth2 != 6 & risk_pop==1 ///
 			 , strata(utla_group)
+			 
+* N (events)
+tab sgtf cox_death if e(sample)
 
 file write tablecontent _n ("Sensitivity analyses") _n
 
@@ -442,6 +469,9 @@ stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_tota
 			 ib1.rural_urban5 ib0.comorb_cat ib2.start_week age1 age2 age3 i.home_bin ///
 			 if eth2 != 6 & start_week!=1 ///
 			 , strata(utla_group)
+			 
+* N (events)
+tab sgtf cox_death if e(sample)
 
 lincom 1.sgtf, eform
 file write tablecontent ("Excluding week 1") _tab 
@@ -454,6 +484,9 @@ stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_tota
 			 ib1.rural_urban5 ib0.comorb_cat ib2.start_week age1 age2 age3 ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
+			 
+* N (events)
+tab sgtf cox_death if e(sample)
 
 lincom 1.sgtf, eform
 file write tablecontent ("No care home adj.") _tab 
@@ -485,6 +518,9 @@ stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3 i.home_bin, str
 			 
 * Stratified by region
 stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3 i.home_bin, strata(utla_group)
+
+* N (events)
+tab sgtf cox_death if e(sample)
 
 lincom 1.sgtf, eform
 file write tablecontent ("Causal min. adjustment") _tab 

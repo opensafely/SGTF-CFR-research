@@ -356,7 +356,10 @@ label values region regionLab
 *  Categorise variables  *
 **************************
 
-/*  Age variables  */ 
+/*  Age variables  */
+
+noi di "DROPPING IF NO AGE" 
+drop if age>=.
 
 * Create categorised age
 recode age 	0/17.9999=0 ///
