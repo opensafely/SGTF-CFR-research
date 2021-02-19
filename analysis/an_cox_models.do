@@ -88,6 +88,42 @@ estat phtest, d
 stcox i.sgtf if study_start >= date("01dec2020", "DMY"), tvc(i.sgtf) strata(utla_group)
 
 
+
+************************
+/* Age as spline only */
+************************
+
+* Stratified by region
+stcox i.sgtf age1 age2 age3 ///
+			 if eth2 != 6 ///
+			 , strata(utla_group)
+
+lincom 1.sgtf, eform
+file write tablecontent ("Age adj.") _tab 
+file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+* Age grouped only
+stcox i.sgtf ib2.agegroupA ///
+			 if eth2 != 6 ///
+			 , strata(utla_group)
+
+
+
+************************
+/* Comorbidities only */
+************************
+
+* Stratified by region
+stcox i.sgtf ib0.comorb_cat ///
+			 if eth2 != 6 ///
+			 , strata(utla_group)
+
+lincom 1.sgtf, eform
+file write tablecontent ("Comorbidity adj.") _tab 
+file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+
+
 *********************************************************************
 /* Demographically adjusted HR - age as spline, cat hh size 	   */
 /* Not adjusting for comorbidities, obesity, or smoking	status	   */
@@ -342,7 +378,7 @@ lrtest e_age e_ageX
 file write tablecontent _n ("Age group") _tab _tab %6.4f (r(p)) _n
 
 * Age group VOC vs. non-VOC HR
-lincom 1.sgtf, eform						// 0-<65
+lincom 1.sgtf + 1.sgtf#1.agegroupA, eform	// 0-<65
 file write tablecontent ("0-<65") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
