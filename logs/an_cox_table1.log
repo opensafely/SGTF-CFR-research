@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /workspace/logs/an_cox_table1.log
   log type:  text
- opened on:  13 Feb 2021, 17:30:41
+ opened on:  19 Feb 2021, 14:33:14
 
 . 
 . clear
@@ -10,7 +10,7 @@
 . 
 . 
 . use ./output/cr_analysis_dataset.dta
-(SGTF CFR ANALYSIS DATASET: 13 Feb 2021)
+(SGTF CFR ANALYSIS DATASET: 19 Feb 2021)
 
 . 
 . 
@@ -273,10 +273,92 @@ SUBSETTING ON COX POPULATION
 . file write tablecontent _n
 
 . 
-. *SURVIVAL TIME
+. *TIME TO DEATH
+. summarizevariable, variable(cox_time_d) 
+
+. file write tablecontent _n
+
+. 
+. *FOLLOW-UP TIME
 . summarizevariable, variable(cox_time) 
 
 . file write tablecontent _n
+
+. 
+. *EPI WEEK
+. tabulatevariable, variable(start_week) min(1) max(7) 
+  146,510
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+  start_week |     20,988           1           0          1          1
+  20,988
+  73,088
+  10,339
+  73,422
+  10,649
+  146,510
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+  start_week |     23,278           2           0          2          2
+  23,278
+  73,088
+  11,602
+  73,422
+  11,676
+  146,510
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+  start_week |     22,316           3           0          3          3
+  22,316
+  73,088
+  11,006
+  73,422
+  11,310
+  146,510
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+  start_week |     21,122           4           0          4          4
+  21,122
+  73,088
+  10,654
+  73,422
+  10,468
+  146,510
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+  start_week |     19,909           5           0          5          5
+  19,909
+  73,088
+  9,981
+  73,422
+  9,928
+  146,510
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+  start_week |     18,702           6           0          6          6
+  18,702
+  73,088
+  9,296
+  73,422
+  9,406
+  146,510
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+  start_week |     20,195           7           0          7          7
+  20,195
+  73,088
+  10,210
+  73,422
+  9,985
+
+. file write tablecontent _n 
 
 . 
 . *SEX
@@ -387,7 +469,7 @@ SUBSETTING ON COX POPULATION
 
 . 
 . *ETHNICITY
-. tabulatevariable, variable(eth5) min(1) max(5) 
+. tabulatevariable, variable(eth5) min(1) max(6) 
   146,510
 
     Variable |        Obs        Mean    Std. Dev.       Min        Max
@@ -438,6 +520,16 @@ SUBSETTING ON COX POPULATION
   5,437
   73,422
   5,495
+  146,510
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+        eth5 |     36,797           6           0          6          6
+  36,797
+  73,088
+  18,486
+  73,422
+  18,311
 
 . file write tablecontent _n 
 
@@ -662,6 +754,32 @@ hh_total_cat |          0
 . file write tablecontent _n 
 
 . 
+. *CARE HOME
+. tabulatevariable, variable(home_bin) min(0) max(1) 
+  146,510
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+    home_bin |    124,284           0           0          0          0
+  124,284
+  73,088
+  62,019
+  73,422
+  62,265
+  146,510
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+    home_bin |     22,226           1           0          1          1
+  22,226
+  73,088
+  11,069
+  73,422
+  11,157
+
+. file write tablecontent _n 
+
+. 
 . *REGION
 . tabulatevariable, variable(region) min(0) max(8) 
   146,510
@@ -816,10 +934,6 @@ rural_urban5 |     58,632           5           0          5          5
 . 
 . 
 . 
-. 
-. 
-. 
-. 
 . file write tablecontent _n _n
 
 . 
@@ -828,10 +942,25 @@ rural_urban5 |     58,632           5           0          5          5
 
 . 
 . 
+. 
+. /* Histogram of time to death */
+. 
+. twoway (histogram cox_time_d if sgtf==0, color(red%30)) ///        
+>        (histogram cox_time_d if sgtf==1, color(blue%30)), ///   
+>        legend(order(1 "non-VOC" 2 "VOC" ))
+
+. 
+. graph export ./output/time_death_hist.svg, as(svg) replace
+(note: file ./output/time_death_hist.svg not found)
+(file ./output/time_death_hist.svg written in SVG format)
+
+. 
+. 
+. 
 . * Close log file 
 . log close
       name:  <unnamed>
        log:  /workspace/logs/an_cox_table1.log
   log type:  text
- closed on:  13 Feb 2021, 17:30:46
+ closed on:  19 Feb 2021, 14:33:21
 -------------------------------------------------------------------------------

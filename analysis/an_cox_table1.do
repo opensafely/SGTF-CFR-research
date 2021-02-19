@@ -279,14 +279,21 @@ file write tablecontent _n
 
 
 
-
-
-
-
 file write tablecontent _n _n
 
 
 file close tablecontent
+
+
+
+/* Histogram of time to death */
+
+twoway (histogram cox_time_d if sgtf==0, color(red%30)) ///        
+       (histogram cox_time_d if sgtf==1, color(blue%30)), ///   
+       legend(order(1 "non-VOC" 2 "VOC" ))
+
+graph export ./output/time_death_hist.svg, as(svg) replace
+
 
 
 * Close log file 

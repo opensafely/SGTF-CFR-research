@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /workspace/logs/cr_analysis_dataset.log
   log type:  text
- opened on:  14 Feb 2021, 20:47:38
+ opened on:  19 Feb 2021, 14:32:12
 
 . 
 . clear
@@ -441,7 +441,7 @@ variable dialysis was str7 now str10
 . replace eth5=5 if ethnicity==5
 (13,835 real changes made)
 
-. replace eth5=9 if ethnicity==.
+. replace eth5=6 if ethnicity==.
 (46,613 real changes made)
 
 . 
@@ -454,7 +454,7 @@ variable dialysis was str7 now str10
 >                    ///
 >                                                 5 "Other"                    
 >                    ///
->                                                 9 "Missing"
+>                                                 6 "Missing"
 
 .  
 . label values eth5 eth5Lab
@@ -2518,6 +2518,9 @@ died_pre_c |        risk_40
 . 
 . gen cox_time = stime_death-study_start
 
+. gen cox_time_d = stime_death-study_start if cox_death==1
+(181,314 missing values generated)
+
 . 
 . * Format date variables
 . format ons_data_date ons_data_cens risk_28_days risk_40_days stime_death %td 
@@ -2743,8 +2746,10 @@ died_pre_c |        risk_40
 . label var cox_death                                             "Outcome for 
 > Cox"
 
-. label var cox_time                                              "Survival tim
-> e"
+. label var cox_time                                              "Follow-up ti
+> me"
+
+. label var cox_time_d                                    "Time to death"
 
 . label var sgtf                                                  "SGTF (exposu
 > re)"
@@ -2768,7 +2773,7 @@ household_~e  smoke         agegroup      hh_total_cat  cox_pop
 care_home_~e  smoke_nomiss  agegroupA     rural_urban5  stime_death
 bmi           smoke_nomi~2  age70         home_bin      cox_death
 ethnicity_16  eth5          age1          start_week    cox_time
-patient_id    eth2          age2          comorb_cat
+patient_id    eth2          age2          comorb_cat    cox_time_d
 
 . keep `r(varlist)'
 
@@ -2796,5 +2801,5 @@ file ./output/cr_analysis_dataset.dta saved
       name:  <unnamed>
        log:  /workspace/logs/cr_analysis_dataset.log
   log type:  text
- closed on:  14 Feb 2021, 20:48:18
+ closed on:  19 Feb 2021, 14:32:53
 -------------------------------------------------------------------------------
