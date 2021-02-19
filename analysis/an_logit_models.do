@@ -334,7 +334,14 @@ lincom 1.sgtf + 1.sgtf#5.imd, eform	// 5 most deprived
 
 
 /* Epi week */
-glm risk_28 i.sgtf##ib1.start_week ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
+glm risk_28 i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
+			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat ib2.start_weekA i.home_bin ///
+			if eth2 != 6 ///
+			, family(bin) link(logit) eform
+			
+est store e_week
+
+glm risk_28 i.sgtf##ib2.start_weekA ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
 			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat i.home_bin ///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
@@ -345,8 +352,7 @@ est store e_weekX
 lrtest e_no_int e_weekX
 
 * Epi week VOC vs. non-VOC OR
-lincom 1.sgtf, eform						// week 1
-lincom 1.sgtf + 1.sgtf#2.start_week, eform	// week 2
+lincom 1.sgtf + 1.sgtf#2.start_week, eform	// week 1/2
 lincom 1.sgtf + 1.sgtf#3.start_week, eform	// week 3
 lincom 1.sgtf + 1.sgtf#4.start_week, eform	// week 4
 lincom 1.sgtf + 1.sgtf#5.start_week, eform	// week 5

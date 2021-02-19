@@ -77,7 +77,7 @@ stcox i.sgtf, strata(region)
 stcox i.sgtf, strata(utla_group)
 
 * N (events)
-tab sgtf cox_death
+tab sgtf cox_death if e(sample)
 
 * Output unadjusted
 lincom 1.sgtf, eform
@@ -106,7 +106,7 @@ stcox i.sgtf age1 age2 age3 ///
 			 , strata(utla_group)
 			 
 * N (events)
-tab sgtf cox_death
+tab sgtf cox_death if e(sample)
 
 lincom 1.sgtf, eform
 file write tablecontent ("Age adj.") _tab 
@@ -183,7 +183,7 @@ stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_tota
 est store e_no_int
 
 * N (events)
-bysort start_week: tab sgtf cox_death if e(sample)
+bysort start_weekA: tab sgtf cox_death if e(sample)
 bysort comorb_cat: tab sgtf cox_death if e(sample)
 bysort eth2: tab sgtf cox_death if e(sample)
 bysort imd: tab sgtf cox_death if e(sample)
@@ -220,10 +220,16 @@ graph export ./output/cox_haz.svg, as(svg) replace
 
 /* Subgroup analyses */
 
-file write tablecontent _n ("Subgroup analyses") _n 
-
 * Epi week
-stcox i.sgtf##ib1.start_week i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
+stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
+			 ib1.rural_urban5 ib0.comorb_cat ib2.start_weekA age1 age2 age3 i.home_bin ///
+			 if eth2 != 6 ///
+			 , strata(utla_group)
+			 
+est store e_week
+
+
+stcox i.sgtf##ib2.start_weekA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
 			 ib1.rural_urban5 ib0.comorb_cat age1 age2 age3 i.home_bin ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
@@ -231,36 +237,34 @@ stcox i.sgtf##ib1.start_week i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese
 est store e_weekX
 
 * Test for interaction
-lrtest e_no_int e_weekX
+lrtest e_week e_weekX
+
+file write tablecontent _n ("Subgroup analyses") _n 
 
 file write tablecontent _n ("Epi. week") _tab _tab %6.4f (r(p)) _n
 
 * Epi week VOC vs. non-VOC HR
-lincom 1.sgtf, eform						// week 1
-file write tablecontent ("16Nov-22Nov") _tab 
+lincom 1.sgtf + 1.sgtf#2.start_weekA, eform	// week 1/2
+file write tablecontent ("16Nov-29Nov") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
-lincom 1.sgtf + 1.sgtf#2.start_week, eform	// week 2
-file write tablecontent ("23Nov-29Nov") _tab 
-file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
-
-lincom 1.sgtf + 1.sgtf#3.start_week, eform	// week 3
+lincom 1.sgtf + 1.sgtf#3.start_weekA, eform	// week 3
 file write tablecontent ("30Nov-06Dec") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
-lincom 1.sgtf + 1.sgtf#4.start_week, eform	// week 4
+lincom 1.sgtf + 1.sgtf#4.start_weekA, eform	// week 4
 file write tablecontent ("07Dec-13Dec") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
-lincom 1.sgtf + 1.sgtf#5.start_week, eform	// week 5
+lincom 1.sgtf + 1.sgtf#5.start_weekA, eform	// week 5
 file write tablecontent ("14Dec-20Dec") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
-lincom 1.sgtf + 1.sgtf#6.start_week, eform	// week 6
+lincom 1.sgtf + 1.sgtf#6.start_weekA, eform	// week 6
 file write tablecontent ("21Dec-27Dec") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
-lincom 1.sgtf + 1.sgtf#7.start_week, eform	// week 7
+lincom 1.sgtf + 1.sgtf#7.start_weekA, eform	// week 7
 file write tablecontent ("28Dec-04Jan") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 

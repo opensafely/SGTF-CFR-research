@@ -634,6 +634,20 @@ label values start_week start_weekLab
 
 tab start_week, m
 
+* Recode small epi weeks 1 and 2 for epi week interaction
+recode start_week 1=2, gen(start_weekA)
+label define start_weekLabA	2 "16Nov-29Nov"	///
+							3 "30Nov-06Dec" ///
+							4 "07Dec-13Dec" ///
+							5 "14Dec-20Dec" ///
+							6 "21Dec-27Dec" ///
+							7 "28Dec-04Jan" ///
+							
+label values start_weekA start_weekLabA
+
+tab start_week start_weekA
+
+
 
 ***************************
 *  Grouped comorbidities  *
@@ -911,7 +925,7 @@ tab comorb_cat, m
 
 /*  28-day risk censoring dates  */
 noi di "REMEMBER TO UPDATE DATE OF ONS DATA UPLOAD"
-gen ons_data_date = date("12feb2021", "DMY")
+gen ons_data_date = date("19feb2021", "DMY")
 gen ons_data_cens = ons_data_date-14			// Censor 14 days prior to ONS death data upload
 gen risk_28_days = study_start+28
 gen risk_40_days = study_start+40
@@ -971,6 +985,7 @@ foreach var of varlist _all {
 * Demographics
 label var patient_id					"Patient ID"
 label var start_week					"Epidemiological week of study"
+label var start_weekA					"Epidemiological week of study"
 label var age 							"Age (years)"
 label var agegroup						"Grouped age"
 label var agegroupA						"Age subgroups"
