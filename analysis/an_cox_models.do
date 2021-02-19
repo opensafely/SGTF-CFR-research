@@ -109,17 +109,17 @@ stcox i.sgtf ib2.agegroupA ///
 
 
 
-************************
-/* Comorbidities only */
-************************
+***************************
+/* Age and comorbidities */
+***************************
 
 * Stratified by region
-stcox i.sgtf ib0.comorb_cat ///
+stcox i.sgtf age1 age2 age3 ib0.comorb_cat ib1.smoke_nomiss2 ib1.obese4cat ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
 
 lincom 1.sgtf, eform
-file write tablecontent ("Comorbidity adj.") _tab 
+file write tablecontent ("Age + comorb adj.") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
 
@@ -395,6 +395,32 @@ file write tablecontent ("85+") _tab
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
 
+* Test for trend
+stcox i.sgtf c.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
+			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.home_bin ///
+			 if eth2 != 6 ///
+			 , strata(utla_group)
+			 
+est store e_cage
+
+stcox i.sgtf##c.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
+			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.home_bin ///
+			 if eth2 != 6 ///
+			 , strata(utla_group)
+			 
+est store e_cageX
+
+lrtest e_cage e_cageX
+local lin_age_p = r(p)
+
+lincom 1.sgtf#c.agegroupA, eform
+file write tablecontent ("Per group increase") _tab 
+file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (`lin_age_p') _n
+
+
+**************************
+/* Sensitivity analyses */
+**************************
 
 * Include with 28-days follow-up
 * Stratified by region
