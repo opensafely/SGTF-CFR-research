@@ -232,6 +232,11 @@ margins sgtf comorb_cat#male#agegroupA if sgtf==0, post asbalanced
 est restore fully
 margins sgtf comorb_cat#male#agegroupA if sgtf==1, post asbalanced
 
+est restore fully
+margins sgtf comorb_cat#male#agegroupA, post over(sgtf)
+
+est restore fully
+margins sgtf comorb_cat#male#agegroupA, post asbalanced over(sgtf)
 
 
 ***********************
