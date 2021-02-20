@@ -55,6 +55,9 @@ mi estimate, eform: stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.o
 estimates save ./output/an_imputed_eth2, replace
 
 
+* N (events)
+tab sgtf cox_death if e(sample)
+
 
 
 log close

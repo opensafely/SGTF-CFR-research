@@ -94,7 +94,7 @@ actions:
 
   anCOX_MOD:
     run: stata-mp:latest analysis/an_cox_models.do
-    needs: [crMAIN anCOX_IMP]
+    needs: [crMAIN]
     outputs:
       moderately_sensitive:
         log: logs/an_cox_models.log
