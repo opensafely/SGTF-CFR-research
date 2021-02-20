@@ -1104,7 +1104,7 @@ label var has_sgtf						"1=Has SGTF data"
 
 
 * Deaths before exclusions
-tab cox_death utla_group if cox_pop==1 & has_sgtf==1, m
+tab cox_death utla_group if cox_pop==1 & has_sgtf==1 & missing(utla_group), m
 tab cox_death eth2 if cox_pop==1 & has_sgtf==1, m
 tab cox_death hh_total_cat if cox_pop==1 & has_sgtf==1, m
 tab cox_death comorb_cat if cox_pop==1 & has_sgtf==1, m
