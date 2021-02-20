@@ -231,7 +231,7 @@ summarizevariable, variable(cox_time)
 file write tablecontent _n
 
 *EPI WEEK
-tabulatevariable, variable(start_week) min(1) max(7) 
+tabulatevariable, variable(start_week) min(1) max(8) 
 file write tablecontent _n 
 
 *SEX
