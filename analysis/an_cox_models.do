@@ -265,7 +265,11 @@ file write tablecontent ("21Dec-27Dec") _tab
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
 lincom 1.sgtf + 1.sgtf#7.start_weekA, eform	// week 7
-file write tablecontent ("28Dec-04Jan") _tab 
+file write tablecontent ("28Dec-03Jan") _tab 
+file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+lincom 1.sgtf + 1.sgtf#8.start_weekA, eform	// week 8
+file write tablecontent ("04Jan-11Jan") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
 

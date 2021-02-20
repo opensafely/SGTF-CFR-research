@@ -358,6 +358,7 @@ lincom 1.sgtf + 1.sgtf#4.start_week, eform	// week 4
 lincom 1.sgtf + 1.sgtf#5.start_week, eform	// week 5
 lincom 1.sgtf + 1.sgtf#6.start_week, eform	// week 6
 lincom 1.sgtf + 1.sgtf#7.start_week, eform	// week 7
+lincom 1.sgtf + 1.sgtf#8.start_week, eform	// week 8
 
 
 

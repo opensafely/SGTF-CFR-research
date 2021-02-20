@@ -119,4 +119,4 @@ actions:
       moderately_sensitive:
         log: logs/an_cox_imputed.log
       highly_sensitive:
-        data2: output/an_imputed_eth2.dta
+        data2: output/an_imputed_eth2.ster
