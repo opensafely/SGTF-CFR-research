@@ -1,0 +1,178 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /workspace/logs/an_cox_imputed.log
+  log type:  text
+ opened on:  19 Feb 2021, 23:11:00
+
+. 
+. clear
+
+. 
+. /*
+> use "C:\Users\EIDEDGRI\Documents\GitHub\SGTF-CFR-research\output\cr_analysis_
+> dataset.dta"
+> */
+. 
+. use ./output/cr_imputed_dataset.dta
+(SGTF CFR IMPUTED DATASET: 19 Feb 2021)
+
+. 
+. * DROP MISSING UTLA
+. noi di "DROPPING MISSING UTLA DATA"
+DROPPING MISSING UTLA DATA
+
+. drop if utla_group==""
+(32 observations deleted)
+
+. 
+. * DROP IF NO DATA ON SGTF
+. noi di "DROPPING NO SGTF DATA" 
+DROPPING NO SGTF DATA
+
+. drop if has_sgtf==0
+(32,539 observations deleted)
+
+. 
+. noi di "SUBSETTING ON COX CENSORED POPULATION"
+SUBSETTING ON COX CENSORED POPULATION
+
+. keep if cox_pop==1
+(2,041 observations deleted)
+
+. 
+. tab sgtf cox_death, row
+
++----------------+
+| Key            |
+|----------------|
+|   frequency    |
+| row percentage |
++----------------+
+
+        SGTF |    Outcome for Cox
+  (exposure) |         0          1 |     Total
+-------------+----------------------+----------
+     non-VOC |    62,516      1,598 |    64,114 
+             |     97.51       2.49 |    100.00 
+-------------+----------------------+----------
+         VOC |    62,820      1,618 |    64,438 
+             |     97.49       2.51 |    100.00 
+-------------+----------------------+----------
+       Total |   125,336      3,216 |   128,552 
+             |     97.50       2.50 |    100.00 
+
+. 
+. 
+. * Declare survival data
+. mi stset stime_death, origin(study_start) fail(cox_death) scale(1) id(patient
+> _id)
+
+                id:  patient_id
+     failure event:  cox_death != 0 & cox_death < .
+obs. time interval:  (stime_death[_n-1], stime_death]
+ exit on or before:  failure
+    t for analysis:  (time-origin)
+            origin:  time study_start
+
+------------------------------------------------------------------------------
+    128,552  total observations
+          0  exclusions
+------------------------------------------------------------------------------
+    128,552  observations remaining, representing
+    128,552  subjects
+      3,216  failures in single-failure-per-subject data
+  5,836,260  total analysis time at risk and under observation
+                                                at risk from t =         0
+                                     earliest observed entry t =         0
+                                          last observed exit t =        73
+
+. 
+. 
+. * Stratified by region
+. mi estimate, eform: stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib
+> 1.obese4cat ib1.hh_total_cat ///
+>                          ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 
+> age2 age3 i.home_bin ///
+>                          , strata(utla_group)
+
+Multiple-imputation estimates                   Imputations       =         10
+Stratified Cox regr.: Breslow method for ties   Number of obs     =    128,552
+                                                Average RVI       =     0.0202
+                                                Largest FMI       =     0.3873
+DF adjustment:   Large sample                   DF:     min       =      66.10
+                                                        avg       =   1.46e+13
+                                                        max       =   3.74e+14
+Model F test:       Equal FMI                   F(  29,647924.3)  =       0.97
+Within VCE type:          OIM                   Prob > F          =     0.5126
+
+------------------------------------------------------------------------------
+          _t |     exp(b)   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   1.002366   .0353867     0.07   0.947     .9353546    1.074179
+             |
+        male |
+          M  |    .974225   .0344149    -0.74   0.460      .909055    1.044067
+             |
+         imd |
+          2  |   1.027085   .0519051     0.53   0.597     .9302285    1.134026
+          3  |   .9286443   .0482103    -1.43   0.154     .8388021    1.028109
+          4  |   1.026749   .0517999     0.52   0.601     .9300815    1.133464
+5 most de..  |    .995541   .0641928    -0.07   0.945      .877351    1.129653
+             |
+        eth2 |
+          0  |   1.008266   .0515961     0.16   0.873     .9103414    1.116724
+             |
+smoke_nomi~2 |
+     Former  |    1.00023   .0509414     0.00   0.996      .905208    1.105226
+             |
+   obese4cat |
+Obese I ..)  |   1.034474   .0511892     0.68   0.493     .9388565    1.139829
+Obese II..)  |   .9750724   .0490905    -0.50   0.616     .8834515    1.076195
+Obese II..)  |   1.024388   .0470272     0.52   0.600     .9362409    1.120833
+             |
+hh_total_cat |
+        3-5  |   .9645414   .0340598    -1.02   0.307     .9000431    1.033662
+       6-10  |   .4453313    .315263    -1.14   0.253      .111197    1.783502
+             |
+rural_urban5 |
+Urban min..  |   .9910214   .0792384    -0.11   0.910     .8472745    1.159156
+Urban cit..  |   1.086301   .0740748     1.21   0.225     .9504009    1.241634
+Rural tow..  |   1.015063   .0698857     0.22   0.828     .8869293    1.161708
+Rural vil..  |   1.010678   .0635753     0.17   0.866     .8934474     1.14329
+             |
+  comorb_cat |
+1 comorbi..  |   .8712576   .0662856    -1.81   0.070     .7505626    1.011361
+2+ comorb..  |   .8819095    .060693    -1.83   0.068     .7706271    1.009262
+             |
+  start_week |
+23Nov-29Nov  |   1.169292    .066923     2.73   0.006     1.045215    1.308099
+30Nov-06Dec  |   1.098905   .0670461     1.55   0.122       .97505    1.238493
+07Dec-13Dec  |   1.020375   .0667451     0.31   0.758     .8975954    1.159949
+14Dec-20Dec  |   1.132606   .0766786     1.84   0.066     .9918632    1.293321
+21Dec-27Dec  |   1.167755   .0846013     2.14   0.032     1.013174    1.345921
+28Dec-04Jan  |   1.049088   .0830825     0.61   0.545     .8982582    1.225245
+             |
+        age1 |   .9978958   .0036229    -0.58   0.562     .9908202    1.005022
+        age2 |    1.00663   .0119709     0.56   0.578     .9834388    1.030368
+        age3 |   .9797362   .0330514    -0.61   0.544     .9170517    1.046705
+             |
+    home_bin |
+  Care home  |    1.03998   .0504209     0.81   0.419     .9457072    1.143651
+------------------------------------------------------------------------------
+
+.                          
+. estimates save ./output/an_imputed_eth2, replace
+(note: file ./output/an_imputed_eth2.ster not found)
+file ./output/an_imputed_eth2.ster saved
+
+. 
+. 
+. 
+. 
+. log close
+      name:  <unnamed>
+       log:  /workspace/logs/an_cox_imputed.log
+  log type:  text
+ closed on:  19 Feb 2021, 23:12:55
+-------------------------------------------------------------------------------

@@ -610,7 +610,8 @@ foreach var of varlist	chronic_respiratory_disease_date 	///
 *  Epidemiological week  *
 **************************
 
-gen start_week = 53 if study_start <= date("04jan2021", "DMY")
+gen start_week = 54 if study_start <= date("11jan2021", "DMY")
+replace start_week = 53 if study_start <= date("03jan2021", "DMY")
 replace start_week = 52 if study_start <= date("27dec2020", "DMY")
 replace start_week = 51 if study_start <= date("20dec2020", "DMY")
 replace start_week = 50 if study_start <= date("13dec2020", "DMY")
@@ -628,7 +629,8 @@ label define start_weekLab	1 "16Nov-22Nov" ///
 							4 "07Dec-13Dec" ///
 							5 "14Dec-20Dec" ///
 							6 "21Dec-27Dec" ///
-							7 "28Dec-04Jan" ///
+							7 "28Dec-03Jan" ///
+							8 "04Jan-11Jan"
 							
 label values start_week start_weekLab
 
@@ -641,7 +643,8 @@ label define start_weekLabA	2 "16Nov-29Nov"	///
 							4 "07Dec-13Dec" ///
 							5 "14Dec-20Dec" ///
 							6 "21Dec-27Dec" ///
-							7 "28Dec-04Jan" ///
+							7 "28Dec-03Jan" ///
+							8 "04Jan-11Jan"
 							
 label values start_weekA start_weekLabA
 
@@ -1091,12 +1094,22 @@ label var risk_pop_40					"1=Population for 40-day risk analysis"
 label var risk_28						"28-day outcome"
 label var risk_40						"40-day outcome"
 label var cox_pop						"1=Population for Cox analysis"
+label var died_date_ons					"ONS death date"
 label var stime_death					"Date of study exit"
 label var cox_death						"Outcome for Cox"
 label var cox_time						"Follow-up time"
 label var cox_time_d					"Time to death"
 label var sgtf							"SGTF (exposure)"
 label var has_sgtf						"1=Has SGTF data"
+
+
+* Deaths before exclusions
+tab cox_death utla_group if cox_pop==1 & has_sgtf==1, m
+tab cox_death eth2 if cox_pop==1 & has_sgtf==1, m
+tab cox_death hh_total_cat if cox_pop==1 & has_sgtf==1, m
+tab cox_death comorb_cat if cox_pop==1 & has_sgtf==1, m
+tab cox_death start_week if cox_pop==1 & has_sgtf==1, m
+
 
 
 ***************

@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /workspace/logs/cr_analysis_dataset.log
   log type:  text
- opened on:  19 Feb 2021, 14:32:12
+ opened on:  20 Feb 2021, 09:33:56
 
 . 
 . clear
@@ -1089,7 +1089,14 @@ Yorkshire and The Humber |     18,495        9.95      100.00
 . *  Categorise variables  *
 . **************************
 . 
-. /*  Age variables  */ 
+. /*  Age variables  */
+. 
+. noi di "DROPPING IF NO AGE" 
+DROPPING IF NO AGE
+
+. drop if age>=.
+(0 observations deleted)
+
 . 
 . * Create categorised age
 . recode age      0/17.9999=0 ///
@@ -1647,6 +1654,52 @@ care_home_ |       home_bin
 ------------+-----------------------------------
       Total |    185,844      100.00
 
+. 
+. * Recode small epi weeks 1 and 2 for epi week interaction
+. recode start_week 1=2, gen(start_weekA)
+(26145 differences between start_week and start_weekA)
+
+. label define start_weekLabA     2 "16Nov-29Nov" ///
+>                                                         3 "30Nov-06Dec" ///
+>                                                         4 "07Dec-13Dec" ///
+>                                                         5 "14Dec-20Dec" ///
+>                                                         6 "21Dec-27Dec" ///
+>                                                         7 "28Dec-04Jan" ///
+>                                                         
+
+. label values start_weekA start_weekLabA
+
+. 
+. tab start_week start_weekA
+
+            |            RECODE of start_week
+ start_week | 16Nov-29N  30Nov-06D  07Dec-13D  14Dec-20D |     Total
+------------+--------------------------------------------+----------
+16Nov-22Nov |    26,145          0          0          0 |    26,145 
+23Nov-29Nov |    29,254          0          0          0 |    29,254 
+30Nov-06Dec |         0     28,008          0          0 |    28,008 
+07Dec-13Dec |         0          0     27,048          0 |    27,048 
+14Dec-20Dec |         0          0          0     25,496 |    25,496 
+21Dec-27Dec |         0          0          0          0 |    24,017 
+28Dec-04Jan |         0          0          0          0 |    25,876 
+------------+--------------------------------------------+----------
+      Total |    55,399     28,008     27,048     25,496 |   185,844 
+
+
+            | RECODE of start_week
+ start_week | 21Dec-27D  28Dec-04J |     Total
+------------+----------------------+----------
+16Nov-22Nov |         0          0 |    26,145 
+23Nov-29Nov |         0          0 |    29,254 
+30Nov-06Dec |         0          0 |    28,008 
+07Dec-13Dec |         0          0 |    27,048 
+14Dec-20Dec |         0          0 |    25,496 
+21Dec-27Dec |    24,017          0 |    24,017 
+28Dec-04Jan |         0     25,876 |    25,876 
+------------+----------------------+----------
+      Total |    24,017     25,876 |   185,844 
+
+. 
 . 
 . 
 . ***************************
@@ -2363,7 +2416,7 @@ osuppressio |
 . noi di "REMEMBER TO UPDATE DATE OF ONS DATA UPLOAD"
 REMEMBER TO UPDATE DATE OF ONS DATA UPLOAD
 
-. gen ons_data_date = date("12feb2021", "DMY")
+. gen ons_data_date = date("19feb2021", "DMY")
 
 . gen ons_data_cens = ons_data_date-14                    // Censor 14 days pri
 > or to ONS death data upload
@@ -2384,17 +2437,17 @@ REMEMBER TO UPDATE DATE OF ONS DATA UPLOAD
                         time_check_28
 -------------------------------------------------------------
       Percentiles      Smallest
- 1%           28             28
- 5%           30             28
-10%           33             28       Obs             176,466
-25%           41             28       Sum of Wgt.     176,466
+ 1%           32             32
+ 5%           34             32
+10%           37             32       Obs             185,844
+25%           45             32       Sum of Wgt.     185,844
 
-50%           52                      Mean           51.70044
-                        Largest       Std. Dev.      13.20709
-75%           63             73
-90%           69             73       Variance       174.4272
-95%           71             73       Skewness      -.1092679
-99%           73             73       Kurtosis       1.823738
+50%           58                      Mean           57.40323
+                        Largest       Std. Dev.      14.04719
+75%           70             80
+90%           76             80       Variance       197.3236
+95%           78             80       Skewness      -.1186121
+99%           80             80       Kurtosis       1.827506
 
 . 
 . * 40-day risk population
@@ -2409,16 +2462,16 @@ REMEMBER TO UPDATE DATE OF ONS DATA UPLOAD
 -------------------------------------------------------------
       Percentiles      Smallest
  1%           40             40
- 5%           41             40
-10%           43             40       Obs             135,951
-25%           49             40       Sum of Wgt.     135,951
+ 5%           42             40
+10%           44             40       Obs             159,968
+25%           51             40       Sum of Wgt.     159,968
 
-50%           57                      Mean           57.10465
-                        Largest       Std. Dev.      9.781441
-75%           66             73
-90%           70             73       Variance       95.67659
-95%           72             73       Skewness      -.0709911
-99%           73             73       Kurtosis       1.808783
+50%           61                      Mean           60.93686
+                        Largest       Std. Dev.      11.77762
+75%           71             80
+90%           77             80       Variance       138.7123
+95%           79             80       Skewness      -.0945495
+99%           80             80       Kurtosis       1.819864
 
 . 
 . /*   Outcomes   */
@@ -2427,7 +2480,7 @@ REMEMBER TO UPDATE DATE OF ONS DATA UPLOAD
 . gen died_pre_cens = (died_date_ons < ons_data_cens)
 
 . gen death_time = died_date_ons-study_start if died_pre_cens == 1
-(180,848 missing values generated)
+(180,188 missing values generated)
 
 . summ death_time, d
 
@@ -2436,15 +2489,15 @@ REMEMBER TO UPDATE DATE OF ONS DATA UPLOAD
       Percentiles      Smallest
  1%            1              1
  5%            3              1
-10%            5              1       Obs               4,996
-25%           13              1       Sum of Wgt.       4,996
+10%            6              1       Obs               5,656
+25%           14              1       Sum of Wgt.       5,656
 
-50%           26                      Mean           27.23559
-                        Largest       Std. Dev.      17.03464
-75%           40             71
-90%           52             71       Variance       290.1789
-95%           58             72       Skewness       .3711158
-99%           66             72       Kurtosis       2.243476
+50%           29                      Mean           30.23851
+                        Largest       Std. Dev.       18.6766
+75%           44             78
+90%           57             78       Variance       348.8154
+95%           64             78       Skewness       .3524142
+99%           73             78       Kurtosis       2.262908
 
 . 
 . gen risk_28 = (death_time <= 28)
@@ -2461,14 +2514,14 @@ REMEMBER TO UPDATE DATE OF ONS DATA UPLOAD
 died_pre_c |        risk_28
        ens |         0          1 |     Total
 -----------+----------------------+----------
-         0 |   180,848          0 |   180,848 
+         0 |   180,188          0 |   180,188 
            |    100.00       0.00 |    100.00 
 -----------+----------------------+----------
-         1 |     2,218      2,778 |     4,996 
-           |     44.40      55.60 |    100.00 
+         1 |     2,865      2,791 |     5,656 
+           |     50.65      49.35 |    100.00 
 -----------+----------------------+----------
-     Total |   183,066      2,778 |   185,844 
-           |     98.51       1.49 |    100.00 
+     Total |   183,053      2,791 |   185,844 
+           |     98.50       1.50 |    100.00 
 
 . 
 . * 40-day risk indicator
@@ -2486,14 +2539,14 @@ died_pre_c |        risk_28
 died_pre_c |        risk_40
        ens |         0          1 |     Total
 -----------+----------------------+----------
-         0 |   180,848          0 |   180,848 
+         0 |   180,188          0 |   180,188 
            |    100.00       0.00 |    100.00 
 -----------+----------------------+----------
-         1 |     1,179      3,817 |     4,996 
-           |     23.60      76.40 |    100.00 
+         1 |     1,682      3,974 |     5,656 
+           |     29.74      70.26 |    100.00 
 -----------+----------------------+----------
-     Total |   182,027      3,817 |   185,844 
-           |     97.95       2.05 |    100.00 
+     Total |   181,870      3,974 |   185,844 
+           |     97.86       2.14 |    100.00 
 
 . 
 . /* Survival time */
@@ -2513,13 +2566,13 @@ died_pre_c |        risk_40
 . gen cox_death = (died_date_ons < .)
 
 . replace cox_death = 0 if (died_date_ons > stime_death)
-(2,069 real changes made)
+(1,527 real changes made)
 
 . 
 . gen cox_time = stime_death-study_start
 
 . gen cox_time_d = stime_death-study_start if cox_death==1
-(181,314 missing values generated)
+(180,772 missing values generated)
 
 . 
 . * Format date variables
@@ -2541,6 +2594,9 @@ died_pre_c |        risk_40
 . label var patient_id                                    "Patient ID"
 
 . label var start_week                                    "Epidemiological week
+>  of study"
+
+. label var start_weekA                                   "Epidemiological week
 >  of study"
 
 . label var age                                                   "Age (years)"
@@ -2741,6 +2797,8 @@ died_pre_c |        risk_40
 . label var cox_pop                                               "1=Population
 >  for Cox analysis"
 
+. label var died_date_ons                                 "ONS death date"
+
 . label var stime_death                                   "Date of study exit"
 
 . label var cox_death                                             "Outcome for 
@@ -2765,15 +2823,16 @@ died_pre_c |        risk_40
 . 
 . * REDUCE DATASET SIZE TO VARIABLES NEEDED - KEEP THOSE WITH LABELS
 . ds , has(varl)
-bmi_date_m~d  study_start   ethnicity_~d  age3          risk_pop
-sgtf          study_end     stp           bmicat        risk_pop_40
-age           has_sgtf      utla_group    obese4cat     risk_28
-rural_urban   male          region        imd           risk_40
-household_~e  smoke         agegroup      hh_total_cat  cox_pop
-care_home_~e  smoke_nomiss  agegroupA     rural_urban5  stime_death
-bmi           smoke_nomi~2  age70         home_bin      cox_death
-ethnicity_16  eth5          age1          start_week    cox_time
-patient_id    eth2          age2          comorb_cat    cox_time_d
+bmi_date_m~d  study_end     stp           obese4cat     risk_28
+sgtf          has_sgtf      utla_group    imd           risk_40
+age           died_date_~s  region        hh_total_cat  cox_pop
+rural_urban   male          agegroup      rural_urban5  stime_death
+household_~e  smoke         agegroupA     home_bin      cox_death
+care_home_~e  smoke_nomiss  age70         start_week    cox_time
+bmi           smoke_nomi~2  age1          start_weekA   cox_time_d
+ethnicity_16  eth5          age2          comorb_cat
+patient_id    eth2          age3          risk_pop
+study_start   ethnicity_~d  bmicat        risk_pop_40
 
 . keep `r(varlist)'
 
@@ -2801,5 +2860,5 @@ file ./output/cr_analysis_dataset.dta saved
       name:  <unnamed>
        log:  /workspace/logs/cr_analysis_dataset.log
   log type:  text
- closed on:  19 Feb 2021, 14:32:53
+ closed on:  20 Feb 2021, 09:35:06
 -------------------------------------------------------------------------------

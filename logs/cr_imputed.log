@@ -1,0 +1,189 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /workspace/logs/cr_imputed.log
+  log type:  text
+ opened on:  19 Feb 2021, 23:07:48
+
+. 
+. clear
+
+. 
+. use ./output/cr_analysis_dataset.dta
+(SGTF CFR ANALYSIS DATASET: 19 Feb 2021)
+
+. 
+. 
+. recode eth2 6=. 5=0
+(eth2: 81465 changes made)
+
+. tab eth2, m
+
+  Ethnicity |
+       in 2 |
+catergories |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |     34,852       18.75       18.75
+      White |    104,379       56.16       74.92
+          . |     46,613       25.08      100.00
+------------+-----------------------------------
+      Total |    185,844      100.00
+
+. 
+. 
+. egen inc = rowmiss(age1 age2 age3 male obese4cat smoke_nomiss imd comorb_cat 
+> region ///
+>                                         rural_urban hh_total_cat home_bin sgt
+> f start_week cox_death)
+
+.                                         
+. keep if inc==0
+(22,680 observations deleted)
+
+. 
+. 
+. mi set wide
+
+. mi register imputed eth2
+
+. 
+. mi impute logit eth2                            ///
+>                         age1 age2 age3                  ///
+>                         i.male                                  ///
+>                         i.obese4cat                             ///
+>                         i.smoke_nomiss                  ///
+>                         i.imd                                   ///
+>                         i.comorb_cat                    ///
+>                         i.region                                ///
+>                         i.rural_urban                   ///
+>                         i.hh_total_cat                  ///
+>                         i.home_bin                              ///
+>                         i.sgtf                                  ///
+>                         i.start_week                    ///
+>                         cox_death, add(10) rseed(19022021) noisily iter(20)
+
+Running logit on observed data:
+
+
+Iteration 0:   log likelihood = -68831.813  
+Iteration 1:   log likelihood = -68815.171  
+Iteration 2:   log likelihood = -68815.169  
+
+Logistic regression                             Number of obs     =    122,285
+                                                LR chi2(42)       =      33.29
+                                                Prob > chi2       =     0.8293
+Log likelihood = -68815.169                     Pseudo R2         =     0.0002
+
+------------------------------------------------------------------------------
+        eth2 |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        age1 |   .0002229   .0013726     0.16   0.871    -.0024673    .0029132
+        age2 |  -.0002792   .0044653    -0.06   0.950     -.009031    .0084726
+        age3 |  -.0002624   .0126225    -0.02   0.983    -.0250021    .0244774
+             |
+        male |
+          F  |          0  (empty)
+          M  |   .0153763   .0132067     1.16   0.244    -.0105083    .0412609
+             |
+   obese4cat |
+No record..  |          0  (empty)
+Obese I ..)  |    .001773   .0186465     0.10   0.924    -.0347735    .0383194
+Obese II..)  |  -.0071824   .0186008    -0.39   0.699    -.0436393    .0292745
+Obese II..)  |   .0090802   .0172357     0.53   0.598    -.0247012    .0428615
+             |
+smoke_nomiss |
+      Never  |          0  (empty)
+     Former  |  -.0124354   .0473022    -0.26   0.793     -.105146    .0802751
+    Current  |   .0356387   .0203795     1.75   0.080    -.0043043    .0755818
+             |
+         imd |
+1 least d..  |          0  (empty)
+          2  |   .0144803   .0190224     0.76   0.447    -.0228029    .0517635
+          3  |   .0333528   .0190422     1.75   0.080    -.0039691    .0706748
+          4  |   .0339339    .019028     1.78   0.075    -.0033603    .0712281
+5 most de..  |    .045179   .0242205     1.87   0.062    -.0022922    .0926502
+             |
+  comorb_cat |
+No comorb..  |          0  (empty)
+1 comorbi..  |  -.0492641   .0299271    -1.65   0.100    -.1079202     .009392
+2+ comorb..  |  -.0513494   .0274195    -1.87   0.061    -.1050906    .0023918
+             |
+      region |
+East Midl..  |          0  (empty)
+     London  |   .0088626   .0241422     0.37   0.714    -.0384553    .0561804
+ North East  |   .0418287   .0280522     1.49   0.136    -.0131525    .0968099
+ North West  |   .0057882   .0278709     0.21   0.835    -.0488378    .0604141
+ South East  |   .0460611   .0279711     1.65   0.100    -.0087612    .1008834
+ South West  |  -.0153923   .0278492    -0.55   0.580    -.0699757    .0391911
+West Midl..  |   .0067246   .0279427     0.24   0.810    -.0480422    .0614913
+Yorkshire..  |   .0362284    .028051     1.29   0.197    -.0187505    .0912072
+             |
+ rural_urban |
+          1  |          0  (empty)
+          2  |  -.0098005   .0295959    -0.33   0.741    -.0678073    .0482063
+          3  |  -.0022235   .0295264    -0.08   0.940    -.0600942    .0556472
+          4  |   .0045526   .0296335     0.15   0.878     -.053528    .0626333
+          5  |   .0027914   .0294759     0.09   0.925    -.0549803     .060563
+          6  |   .0183991   .0296484     0.62   0.535    -.0397108     .076509
+          7  |  -.0033779    .025598    -0.13   0.895    -.0535489    .0467932
+          8  |  -.0186197   .0255428    -0.73   0.466    -.0686827    .0314432
+             |
+hh_total_cat |
+        1-2  |          0  (empty)
+        3-5  |    .007025   .0132146     0.53   0.595    -.0188753    .0329252
+       6-10  |  -.0398582   .1754108    -0.23   0.820    -.3836571    .3039407
+             |
+    home_bin |
+Private h..  |          0  (empty)
+  Care home  |   .0191309   .0184568     1.04   0.300    -.0170436    .0553055
+             |
+        sgtf |
+    non-VOC  |          0  (empty)
+        VOC  |  -.0190951    .014763    -1.29   0.196    -.0480301    .0098399
+Unclassif~d  |   .0060885   .0234687     0.26   0.795    -.0399094    .0520864
+      Blank  |  -.0233896   .0232518    -1.01   0.314    -.0689624    .0221831
+             |
+  start_week |
+16Nov-22Nov  |          0  (empty)
+23Nov-29Nov  |   .0029982   .0242353     0.12   0.902    -.0445021    .0504985
+30Nov-06Dec  |  -.0125331   .0244386    -0.51   0.608    -.0604319    .0353657
+07Dec-13Dec  |   .0118478   .0246673     0.48   0.631    -.0364992    .0601949
+14Dec-20Dec  |  -.0105507   .0250605    -0.42   0.674    -.0596683    .0385669
+21Dec-27Dec  |  -.0238287   .0253866    -0.94   0.348    -.0735856    .0259281
+28Dec-04Jan  |  -.0013949   .0249727    -0.06   0.955    -.0503405    .0475507
+             |
+   cox_death |  -.0099021   .0426049    -0.23   0.816    -.0934062    .0736021
+       _cons |   1.116981   .0838963    13.31   0.000     .9525477    1.281415
+------------------------------------------------------------------------------
+
+Univariate imputation                       Imputations =       10
+Logistic regression                               added =       10
+Imputed: m=1 through m=10                       updated =        0
+
+------------------------------------------------------------------
+                   |               Observations per m             
+                   |----------------------------------------------
+          Variable |   Complete   Incomplete   Imputed |     Total
+-------------------+-----------------------------------+----------
+              eth2 |     122285        40879     40879 |    163164
+------------------------------------------------------------------
+(complete + incomplete = total; imputed is the minimum across m
+ of the number of filled-in observations.)
+
+.                         
+.                         
+. 
+. 
+. label data "SGTF CFR IMPUTED DATASET: $S_DATE"
+
+. 
+. save ./output/cr_imputed_dataset.dta, replace
+(note: file ./output/cr_imputed_dataset.dta not found)
+file ./output/cr_imputed_dataset.dta saved
+
+. 
+. log close
+      name:  <unnamed>
+       log:  /workspace/logs/cr_imputed.log
+  log type:  text
+ closed on:  19 Feb 2021, 23:08:02
+-------------------------------------------------------------------------------

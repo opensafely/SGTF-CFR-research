@@ -20,6 +20,15 @@ actions:
       highly_sensitive:
         data: output/cr_analysis_dataset.dta
 
+  crIMP:
+    run: stata-mp:latest analysis/cr_imputed_dataset.do
+    needs: [crMAIN]
+    outputs:
+      moderately_sensitive:
+        log: logs/cr_imputed.log
+      highly_sensitive:
+        data: output/cr_imputed_dataset.dta
+
   anSUMM:
     run: stata-mp:latest analysis/an_summary.do
     needs: [crMAIN]
@@ -46,6 +55,8 @@ actions:
         table1text: output/table1_cox.txt
         table1xlsx: output/table1_cox.xlsx
         figure1: output/time_death_hist.svg
+        figure2: output/time_date_death_hist.svg
+        figure3: output/time_date_death_hist1.svg
 
   anCOX_STAB1:
     run: stata-mp:latest analysis/an_cox_stable1.do
@@ -100,3 +111,12 @@ actions:
     outputs:
       moderately_sensitive:
         log: logs/an_cox_models_sgtf_sens.log
+
+  anCOX_IMP:
+    run: stata-mp:latest analysis/an_cox_imputed.do
+    needs: [crIMP]
+    outputs:
+      moderately_sensitive:
+        log: logs/an_cox_imputed.log
+      highly_sensitive:
+        data2: output/an_imputed_eth2.dta

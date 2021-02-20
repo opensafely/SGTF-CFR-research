@@ -298,6 +298,21 @@ twoway (histogram cox_time_d if sgtf==0, color(red%30)) ///
 
 graph export ./output/time_death_hist.svg, as(svg) replace
 
+/* Histogram of date of death */
+
+twoway (histogram died_date_ons if sgtf==0, color(red%30)) ///        
+       (histogram died_date_ons if cox_death==1 & sgtf==0, color(blue%30)), ///   
+       legend(order(1 "non-VOC" 2 "VOC" ))
+
+graph export ./output/time_date_death_hist.svg, as(svg) replace
+
+twoway (histogram died_date_ons if sgtf==1, color(red%30)) ///        
+       (histogram died_date_ons if cox_death==1 & sgtf==1, color(blue%30)), ///   
+       legend(order(1 "non-VOC" 2 "VOC" ))
+
+graph export ./output/time_date_death_hist1.svg, as(svg) replace
+
+
 
 
 * Close log file 
