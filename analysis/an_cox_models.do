@@ -501,6 +501,17 @@ file write tablecontent ("No care home adj.") _tab
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
 
+* Imputed ethnicity
+est use ./output/an_imputed_eth2.ster
+
+* N (events)
+tab sgtf cox_death if e(sample)
+
+lincom 1.sgtf, eform
+file write tablecontent ("Imputed ethnicity") _tab 
+file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+
 
 **************************************************
 /* Fully adjusted HR - age grouped, cat hh size */
