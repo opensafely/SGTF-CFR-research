@@ -130,6 +130,7 @@ line phe_sgtf os_sgtf start_week, by(region) ///
 	xlabel(1(1)10, valuelabel) ///
 	legend(label(1 "PHE") label(2 "TPP"))
 graph export ./output/sgtf_perc_region.svg, as(svg) replace
+graph export ./output/sgtf_perc_region.pdf, as(pdf) replace
 
 
 log close

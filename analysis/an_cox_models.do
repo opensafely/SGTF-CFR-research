@@ -501,6 +501,22 @@ file write tablecontent ("No care home adj.") _tab
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
 
+* NHS England coverage - exclude SE and NE
+* Stratified by region
+stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
+			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 age2 age3 i.home_bin ///
+			 if eth2 != 6 & !inlist(region,3,5) ///
+			 , strata(utla_group)
+			 
+* N (events)
+tab sgtf cox_death if e(sample)
+tab region if e(sample)
+
+lincom 1.sgtf, eform
+file write tablecontent ("Exluding NE/SE") _tab 
+file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+
 
 **************************************************
 /* Fully adjusted HR - age grouped, cat hh size */

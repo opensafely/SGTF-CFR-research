@@ -36,6 +36,7 @@ actions:
       moderately_sensitive:
         log: logs/an_summary.log
         figure1: output/sgtf_perc_region.svg
+        figure2: output/sgtf_perc_region.pdf
 
   anRISK_TAB1:
     run: stata-mp:latest analysis/an_risk28_table1.do
