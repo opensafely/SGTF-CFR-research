@@ -134,10 +134,10 @@ order lb ub, after(risk0)
 
 est restore fully
 
-* Adjusted absolute odds
+* Adjusted absolute risks
 margins comorb_cat#male#agegroupA if sgtf==1, post asobserved
 
-* Save odds estimates
+* Save risk estimates
 matrix est1 = e(b)
 matrix inv_estx = est1'
 svmat inv_estx
@@ -158,6 +158,36 @@ gen lb1 = (inv_estx1 - invnormal(0.975)*sq_varx)*100
 gen ub1 = (inv_estx1 + invnormal(0.975)*sq_varx)*100
 
 order lb1 ub1, after(risk1)
+
+
+* Adjusted risk difference
+est restore fully
+
+margins comorb_cat#male#agegroupA, dydx(sgtf) post asobserved
+
+* Save risk estimates
+matrix diff = e(b)
+matrix diff = diff[1, 25..48]
+matrix inv_diff = diff'
+svmat inv_diff
+
+* Save SE estimates
+matrix dvar = e(V)
+matrix diag_dvar = vecdiag(dvar)
+matrix inv_dvar = diag_dvar'
+matrix inv_dvar = inv_dvar[25..48,1]
+svmat inv_dvar
+gen sq_dvar = sqrt(inv_dvar1)
+
+noi disp "CHECK MARGINS ARE CORRECTLY CALCULATED TO MATCH ABOVE"
+list inv_diff1 sq_dvar in 1/24
+
+* Re-Calculate CI
+gen diff1 = inv_diff1*100
+gen dlb = (inv_diff1 - invnormal(0.975)*sq_dvar)*100
+gen dub = (inv_diff1 + invnormal(0.975)*sq_dvar)*100
+
+order dlb dub, after(diff1)
 
 
 gen risk_labels = "Female: 0-<65" in 1
@@ -191,6 +221,7 @@ replace risk_labels = "75-<85" in 23
 replace risk_labels = "85+" in 24
 
 
+
 ***********************************
 /* Output table of absolute risk */
 ***********************************
@@ -203,7 +234,8 @@ file write tablecontent ("Table 3: Absolute risk of death by 28-days") _n _n
 
 file write tablecontent ("Comorbidities/Sex/Age group")		_tab ///
 						("non-VOC (95% CI)")				_tab ///
-						("VOC (95% CI)")					_n
+						("VOC (95% CI)")					_tab ///
+						("Diff (95% CI)")					_n
 
 forvalues i=1/24 {
 	
@@ -221,7 +253,7 @@ forvalues i=1/24 {
 		if `i'==17 {
 			file write tablecontent _n ("2+ Comorbidities") _n
 		}
-		file write tablecontent %9s (risk_labels) _tab %4.2f (risk0) (" (") %4.2f (lb0) ("-") %4.2f (ub0) (")") _tab %4.2f (risk1) (" (") %4.2f (lb1) ("-") %4.2f (ub1) (")") _n
+		file write tablecontent %9s (risk_labels) _tab %4.2f (risk0) (" (") %4.2f (lb0) ("-") %4.2f (ub0) (")") _tab %4.2f (risk1) (" (") %4.2f (lb1) ("-") %4.2f (ub1) (")") _tab %4.2f (diff1) (" (") %4.2f (dlb) ("-") %4.2f (dub) (")") _n
 	restore
 
 }
