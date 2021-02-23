@@ -102,7 +102,6 @@ stcox i.sgtf if study_start >= date("01dec2020", "DMY"), tvc(i.sgtf) strata(utla
 
 * Stratified by region
 stcox i.sgtf age1 age2 age3 ///
-			 if eth2 != 6 ///
 			 , strata(utla_group)
 			 
 * N (events)
@@ -114,7 +113,6 @@ file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(
 
 * Age grouped only
 stcox i.sgtf ib2.agegroupA ///
-			 if eth2 != 6 ///
 			 , strata(utla_group)
 
 
@@ -125,7 +123,6 @@ stcox i.sgtf ib2.agegroupA ///
 
 * Stratified by region
 stcox i.sgtf age1 age2 age3 ib0.comorb_cat ib1.smoke_nomiss2 ib1.obese4cat ///
-			 if eth2 != 6 ///
 			 , strata(utla_group)
 		 
 * N (events)
