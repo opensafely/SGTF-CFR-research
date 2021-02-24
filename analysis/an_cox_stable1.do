@@ -190,6 +190,11 @@ end
 noi di "SUBSETTING ON COX POPULATION"
 keep if cox_pop==1
 
+* DROP MISSING UTLA
+noi di "DROPPING MISSING UTLA DATA"
+drop if utla_group==""
+
+
 
 *Set up output file
 cap file close tablecontent
