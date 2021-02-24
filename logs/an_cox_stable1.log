@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /workspace/logs/an_cox_stable1.log
   log type:  text
- opened on:  24 Feb 2021, 13:06:43
+ opened on:  24 Feb 2021, 14:03:49
 
 . 
 . clear
@@ -232,16 +232,6 @@ SUBSETTING ON COX POPULATION
 
 .                                                          
 . 
-. 
-. * DEMOGRAPHICS (more than one level, potentially missing) 
-. 
-. /*reminder of variables:
-> patient_id age ageCat hh_id hh_size hh_composition case_date case eth5 eth16 
-> ethnicity_16 indexdate sex bmicat smoke imd region comorb_Neuro comorb_Immuno
-> suppression shielding chronic_respiratory_disease chronic_cardiac_disease dia
-> betes chronic_liver_disease cancer egfr_cat hypertension smoke_nomiss rural_u
-> rban
-> */
 . 
 . *DIED
 . tabulatevariable, variable(cox_death) min(0) max(1) 
@@ -1216,8 +1206,25 @@ rural_urban5 |     73,275           5           0          5          5
 
 .                                                          
 . 
-. 
-. * DEMOGRAPHICS (more than one level, potentially missing) 
+. *N
+. tabulatevariable, variable(cox_pop) min(1) max(1) 
+  182,968
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+     cox_pop |    182,968           1           0          1          1
+  182,968
+  73,088
+  73,088
+  73,422
+  73,422
+  18,220
+  18,220
+  18,238
+  18,238
+
+. file write tablecontent _n 
+
 . 
 . *EPI WEEK
 . tabulatevariable, variable(start_week) min(1) max(8) 
@@ -1352,5 +1359,5 @@ rural_urban5 |     73,275           5           0          5          5
       name:  <unnamed>
        log:  /workspace/logs/an_cox_stable1.log
   log type:  text
- closed on:  24 Feb 2021, 13:06:52
+ closed on:  24 Feb 2021, 14:03:58
 -------------------------------------------------------------------------------

@@ -294,6 +294,9 @@ file write tablecontent _tab ("Total")			_tab ///
 							 ("Blank")			_n
 							 
 
+*N
+tabulatevariable, variable(cox_pop) min(1) max(1) 
+file write tablecontent _n 
 
 *EPI WEEK
 tabulatevariable, variable(start_week) min(1) max(8) 
