@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /workspace/logs/an_logit_models.log
   log type:  text
- opened on:  23 Feb 2021, 20:47:14
+ opened on:  23 Feb 2021, 20:59:46
 
 . 
 . clear
@@ -940,11 +940,1698 @@ Note: dy/dx for factor levels is the discrete change from the base level.
 . * Save SE estimates
 . matrix dvar = e(V)
 
-. matrix dvar = dvar[1, 25..48]
-
 . matrix diag_dvar = vecdiag(dvar)
-conformability error
-r(503);
+
+. matrix inv_dvar = diag_dvar'
+
+. matrix inv_dvar = inv_dvar[25..48,1]
+
+. svmat inv_dvar
+
+. gen sq_dvar = sqrt(inv_dvar1)
+(148,756 missing values generated)
+
+. 
+. noi disp "CHECK MARGINS ARE CORRECTLY CALCULATED TO MATCH ABOVE"
+CHECK MARGINS ARE CORRECTLY CALCULATED TO MATCH ABOVE
+
+. list inv_diff1 sq_dvar in 1/24
+
+     +----------------------+
+     | inv_diff1    sq_dvar |
+     |----------------------|
+  1. | -.0004718   .0009062 |
+  2. | -.0004284   .0008236 |
+  3. | -.0004845   .0009319 |
+  4. | -.0006093   .0011733 |
+  5. | -.0005051   .0009702 |
+     |----------------------|
+  6. | -.0004588    .000882 |
+  7. | -.0005187   .0009977 |
+  8. | -.0006519   .0012552 |
+  9. | -.0003951   .0007582 |
+ 10. | -.0003585   .0006887 |
+     |----------------------|
+ 11. | -.0004058   .0007799 |
+ 12. | -.0005111   .0009835 |
+ 13. | -.0004232   .0008121 |
+ 14. | -.0003841   .0007378 |
+ 15. | -.0004347   .0008353 |
+     |----------------------|
+ 16. | -.0005472   .0010528 |
+ 17. | -.0003886   .0007456 |
+ 18. | -.0003526   .0006772 |
+ 19. | -.0003992    .000767 |
+ 20. | -.0005028   .0009674 |
+     |----------------------|
+ 21. | -.0004163   .0007987 |
+ 22. | -.0003778   .0007256 |
+ 23. | -.0004276   .0008215 |
+ 24. | -.0005383   .0010355 |
+     +----------------------+
+
+. 
+. * Re-Calculate CI
+. gen diff1 = inv_diff1*100
+(148,756 missing values generated)
+
+. gen dlb = (inv_diff1 - invnormal(0.975)*sq_dvar)*100
+(148,756 missing values generated)
+
+. gen dub = (inv_diff1 + invnormal(0.975)*sq_dvar)*100
+(148,756 missing values generated)
+
+. 
+. order dlb dub, after(diff1)
+
+. 
+. 
+. gen risk_labels = "Female: 0-<65" in 1
+(148,779 missing values generated)
+
+. replace risk_labels = "65-<75" in 2
+(1 real change made)
+
+. replace risk_labels = "75-<85" in 3
+(1 real change made)
+
+. replace risk_labels = "85+" in 4
+(1 real change made)
+
+. 
+. replace risk_labels = "Male: 0-<65" in 5
+(1 real change made)
+
+. replace risk_labels = "65-<75" in 6
+(1 real change made)
+
+. replace risk_labels = "75-<85" in 7
+(1 real change made)
+
+. replace risk_labels = "85+" in 8
+(1 real change made)
+
+. 
+. replace risk_labels = "Female: 0-<65" in 9
+(1 real change made)
+
+. replace risk_labels = "65-<75" in 10
+(1 real change made)
+
+. replace risk_labels = "75-<85" in 11
+(1 real change made)
+
+. replace risk_labels = "85+" in 12
+(1 real change made)
+
+. 
+. replace risk_labels = "Male: 0-<65" in 13
+(1 real change made)
+
+. replace risk_labels = "65-<75" in 14
+(1 real change made)
+
+. replace risk_labels = "75-<85" in 15
+(1 real change made)
+
+. replace risk_labels = "85+" in 16
+(1 real change made)
+
+. 
+. replace risk_labels = "Female: 0-<65" in 17
+(1 real change made)
+
+. replace risk_labels = "65-<75" in 18
+(1 real change made)
+
+. replace risk_labels = "75-<85" in 19
+(1 real change made)
+
+. replace risk_labels = "85+" in 20
+(1 real change made)
+
+. 
+. replace risk_labels = "Male: 0-<65" in 21
+(1 real change made)
+
+. replace risk_labels = "65-<75" in 22
+(1 real change made)
+
+. replace risk_labels = "75-<85" in 23
+(1 real change made)
+
+. replace risk_labels = "85+" in 24
+(1 real change made)
+
+. 
+. 
+. 
+. ***********************************
+. /* Output table of absolute risk */
+. ***********************************
+. 
+. cap file close tablecontent
+
+. 
+. file open tablecontent using ./output/table3_abs_risk.txt, write text replace
+(note: file ./output/table3_abs_risk.txt not found)
+
+. 
+. file write tablecontent ("Table 3: Absolute risk of death by 28-days") _n _n
+
+. 
+. file write tablecontent ("Comorbidities/Sex/Age group")         _tab ///
+>                                                 ("non-VOC (95% CI)")         
+>                    _tab ///
+>                                                 ("VOC (95% CI)")             
+>                            _tab ///
+>                                                 ("Diff (95% CI)")            
+>                            _n
+
+. 
+. forvalues i=1/24 {
+  2.         
+.         preserve
+  3.                 keep if _n == `i'
+  4.                 if inlist(`i',5,13,21) {
+  5.                         file write tablecontent _n
+  6.                 }
+  7.                 if `i'==1 {
+  8.                         file write tablecontent _n ("No Comorbidities") _n
+  9.                 }
+ 10.                 if `i'==9 {
+ 11.                         file write tablecontent _n ("1 Comorbidity") _n
+ 12.                 }
+ 13.                 if `i'==17 {
+ 14.                         file write tablecontent _n ("2+ Comorbidities") _n
+ 15.                 }
+ 16.                 file write tablecontent %9s (risk_labels) _tab %4.2f (risk
+> 0) (" (") %4.2f (lb0) ("-") %4.2f (ub0) (")") _tab %4.2f (risk1) (" (") %4.2f
+>  (lb1) ("-") %4.2f (ub1) (")") _tab %4.2f (diff1) (" (") %4.2f (dlb) ("-") %4
+> .2f (dub) (")") _n
+ 17.         restore
+ 18. 
+. }
+(148,779 observations deleted)
+(148,779 observations deleted)
+(148,779 observations deleted)
+(148,779 observations deleted)
+(148,779 observations deleted)
+(148,779 observations deleted)
+(148,779 observations deleted)
+(148,779 observations deleted)
+(148,779 observations deleted)
+(148,779 observations deleted)
+(148,779 observations deleted)
+(148,779 observations deleted)
+(148,779 observations deleted)
+(148,779 observations deleted)
+(148,779 observations deleted)
+(148,779 observations deleted)
+(148,779 observations deleted)
+(148,779 observations deleted)
+(148,779 observations deleted)
+(148,779 observations deleted)
+(148,779 observations deleted)
+(148,779 observations deleted)
+(148,779 observations deleted)
+(148,779 observations deleted)
+
+. 
+. file close tablecontent
+
+. 
+. 
+. * Risks as balanced
+. est restore fully
+(results fully are active now)
+
+. margins comorb_cat#male#agegroupA, post asbalanced over(sgtf) grand
+
+Adjusted predictions                            Number of obs     =     97,797
+Model VCE    : OIM
+
+Expression   : Predicted mean risk_28, predict()
+over         : sgtf
+at           : 0.sgtf
+                   sgtf             (asbalanced)
+                   agegroupA        (asbalanced)
+                   male             (asbalanced)
+                   imd              (asbalanced)
+                   eth2             (asbalanced)
+                   smoke_nomiss2    (asbalanced)
+                   obese4cat        (asbalanced)
+                   hh_total_cat     (asbalanced)
+                   region           (asbalanced)
+                   rural_urban5     (asbalanced)
+                   comorb_cat       (asbalanced)
+                   start_week       (asbalanced)
+                   home_bin         (asbalanced)
+               1.sgtf
+                   sgtf             (asbalanced)
+                   agegroupA        (asbalanced)
+                   male             (asbalanced)
+                   imd              (asbalanced)
+                   eth2             (asbalanced)
+                   smoke_nomiss2    (asbalanced)
+                   obese4cat        (asbalanced)
+                   hh_total_cat     (asbalanced)
+                   region           (asbalanced)
+                   rural_urban5     (asbalanced)
+                   comorb_cat       (asbalanced)
+                   start_week       (asbalanced)
+                   home_bin         (asbalanced)
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |     Margin   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf#|
+  comorb_cat#|
+        male#|
+   agegroupA |
+    non-VOC #|
+No comorb.. #|
+          F #|
+      0-<65  |   .0142433    .004941     2.88   0.004     .0045591    .0239275
+    non-VOC #|
+No comorb.. #|
+          F #|
+     65-<75  |   .0129069   .0046034     2.80   0.005     .0038845    .0219294
+    non-VOC #|
+No comorb.. #|
+          F #|
+     75-<85  |   .0146365   .0052875     2.77   0.006     .0042731    .0249999
+    non-VOC #|
+No comorb.. #|
+          F #|
+        85+  |   .0185159   .0069176     2.68   0.007     .0049576    .0320743
+    non-VOC #|
+No comorb.. #|
+          M #|
+      0-<65  |   .0152747   .0052921     2.89   0.004     .0049023    .0256471
+    non-VOC #|
+No comorb.. #|
+          M #|
+     65-<75  |    .013843   .0049316     2.81   0.005     .0041772    .0235087
+    non-VOC #|
+No comorb.. #|
+          M #|
+     75-<85  |    .015696   .0056623     2.77   0.006     .0045981    .0267938
+    non-VOC #|
+No comorb.. #|
+          M #|
+        85+  |   .0198506   .0074032     2.68   0.007     .0053406    .0343606
+    non-VOC #|
+1 comorbi.. #|
+          F #|
+      0-<65  |   .0118843   .0040371     2.94   0.003     .0039718    .0197968
+    non-VOC #|
+1 comorbi.. #|
+          F #|
+     65-<75  |   .0107669   .0037625     2.86   0.004     .0033925    .0181413
+    non-VOC #|
+1 comorbi.. #|
+          F #|
+     75-<85  |   .0122132   .0043301     2.82   0.005     .0037262    .0207001
+    non-VOC #|
+1 comorbi.. #|
+          F #|
+        85+  |   .0154604   .0056829     2.72   0.007     .0043221    .0265987
+    non-VOC #|
+1 comorbi.. #|
+          M #|
+      0-<65  |   .0127471    .004326     2.95   0.003     .0042683     .021226
+    non-VOC #|
+1 comorbi.. #|
+          M #|
+     65-<75  |   .0115495   .0040326     2.86   0.004     .0036459    .0194532
+    non-VOC #|
+1 comorbi.. #|
+          M #|
+     75-<85  |   .0130996   .0046392     2.82   0.005      .004007    .0221922
+    non-VOC #|
+1 comorbi.. #|
+          M #|
+        85+  |   .0165785   .0060852     2.72   0.006     .0046518    .0285052
+    non-VOC #|
+2+ comorb.. #|
+          F #|
+      0-<65  |   .0116858   .0039339     2.97   0.003     .0039755    .0193961
+    non-VOC #|
+2+ comorb.. #|
+          F #|
+     65-<75  |   .0105869   .0036671     2.89   0.004     .0033995    .0177742
+    non-VOC #|
+2+ comorb.. #|
+          F #|
+     75-<85  |   .0120093   .0042221     2.84   0.004     .0037342    .0202844
+    non-VOC #|
+2+ comorb.. #|
+          F #|
+        85+  |   .0152032   .0055423     2.74   0.006     .0043404    .0260659
+    non-VOC #|
+2+ comorb.. #|
+          M #|
+      0-<65  |   .0125344   .0042158     2.97   0.003     .0042717    .0207972
+    non-VOC #|
+2+ comorb.. #|
+          M #|
+     65-<75  |   .0113566   .0039306     2.89   0.004     .0036528    .0190603
+    non-VOC #|
+2+ comorb.. #|
+          M #|
+     75-<85  |   .0128811   .0045237     2.85   0.004     .0040147    .0217474
+    non-VOC #|
+2+ comorb.. #|
+          M #|
+        85+  |    .016303   .0059351     2.75   0.006     .0046704    .0279355
+        VOC #|
+No comorb.. #|
+          F #|
+      0-<65  |   .0138665   .0048134     2.88   0.004     .0044325    .0233005
+        VOC #|
+No comorb.. #|
+          F #|
+     65-<75  |    .012565    .004484     2.80   0.005     .0037766    .0213535
+        VOC #|
+No comorb.. #|
+          F #|
+     75-<85  |   .0142494   .0051507     2.77   0.006     .0041543    .0243445
+        VOC #|
+No comorb.. #|
+          F #|
+        85+  |   .0180282   .0067401     2.67   0.007     .0048178    .0312385
+        VOC #|
+No comorb.. #|
+          M #|
+      0-<65  |   .0148711   .0051559     2.88   0.004     .0047658    .0249764
+        VOC #|
+No comorb.. #|
+          M #|
+     65-<75  |   .0134766   .0048041     2.81   0.005     .0040608    .0228925
+        VOC #|
+No comorb.. #|
+          M #|
+     75-<85  |   .0152813   .0055161     2.77   0.006     .0044699    .0260928
+        VOC #|
+No comorb.. #|
+          M #|
+        85+  |   .0193284   .0072139     2.68   0.007     .0051893    .0334674
+        VOC #|
+1 comorbi.. #|
+          F #|
+      0-<65  |   .0115692    .003933     2.94   0.003     .0038606    .0192777
+        VOC #|
+1 comorbi.. #|
+          F #|
+     65-<75  |    .010481   .0036652     2.86   0.004     .0032975    .0176646
+        VOC #|
+1 comorbi.. #|
+          F #|
+     75-<85  |   .0118894   .0042182     2.82   0.005     .0036219     .020157
+        VOC #|
+1 comorbi.. #|
+          F #|
+        85+  |   .0150519    .005537     2.72   0.007     .0041996    .0259043
+        VOC #|
+1 comorbi.. #|
+          M #|
+      0-<65  |   .0124094   .0042148     2.94   0.003     .0041485    .0206704
+        VOC #|
+1 comorbi.. #|
+          M #|
+     65-<75  |   .0112432   .0039285     2.86   0.004     .0035435    .0189429
+        VOC #|
+1 comorbi.. #|
+          M #|
+     75-<85  |   .0127527   .0045196     2.82   0.005     .0038944    .0216109
+        VOC #|
+1 comorbi.. #|
+          M #|
+        85+  |    .016141   .0059295     2.72   0.006     .0045195    .0277625
+        VOC #|
+2+ comorb.. #|
+          F #|
+      0-<65  |   .0113759    .003832     2.97   0.003     .0038653    .0188865
+        VOC #|
+2+ comorb.. #|
+          F #|
+     65-<75  |   .0103058   .0035718     2.89   0.004     .0033052    .0173063
+        VOC #|
+2+ comorb.. #|
+          F #|
+     75-<85  |   .0116909   .0041124     2.84   0.004     .0036307    .0197511
+        VOC #|
+2+ comorb.. #|
+          F #|
+        85+  |   .0148014   .0053994     2.74   0.006     .0042186    .0253841
+        VOC #|
+2+ comorb.. #|
+          M #|
+      0-<65  |   .0122023   .0041069     2.97   0.003     .0041528    .0202517
+        VOC #|
+2+ comorb.. #|
+          M #|
+     65-<75  |   .0110553   .0038287     2.89   0.004     .0035512    .0185594
+        VOC #|
+2+ comorb.. #|
+          M #|
+     75-<85  |   .0125399   .0044066     2.85   0.004     .0039031    .0211767
+        VOC #|
+2+ comorb.. #|
+          M #|
+        85+  |   .0158726   .0057826     2.74   0.006      .004539    .0272062
+             |
+        sgtf |
+    non-VOC  |     .01364    .004613     2.96   0.003     .0045987    .0226813
+        VOC  |   .0132789    .004494     2.95   0.003     .0044708    .0220871
+------------------------------------------------------------------------------
+
+. 
+. est restore fully
+(results fully are active now)
+
+. margins comorb_cat#male#agegroupA, post over(sgtf) grand
+
+Predictive margins                              Number of obs     =     97,797
+Model VCE    : OIM
+
+Expression   : Predicted mean risk_28, predict()
+over         : sgtf
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |     Margin   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf#|
+  comorb_cat#|
+        male#|
+   agegroupA |
+    non-VOC #|
+No comorb.. #|
+          F #|
+      0-<65  |   .0179063   .0017929     9.99   0.000     .0143923    .0214203
+    non-VOC #|
+No comorb.. #|
+          F #|
+     65-<75  |   .0162324    .002099     7.73   0.000     .0121184    .0203463
+    non-VOC #|
+No comorb.. #|
+          F #|
+     75-<85  |   .0183986   .0026073     7.06   0.000     .0132884    .0235089
+    non-VOC #|
+No comorb.. #|
+          F #|
+        85+  |   .0232501   .0040181     5.79   0.000     .0153747    .0311254
+    non-VOC #|
+No comorb.. #|
+          M #|
+      0-<65  |   .0191975   .0019125    10.04   0.000     .0154491    .0229459
+    non-VOC #|
+No comorb.. #|
+          M #|
+     65-<75  |    .017405   .0022431     7.76   0.000     .0130085    .0218015
+    non-VOC #|
+No comorb.. #|
+          M #|
+     75-<85  |   .0197246   .0027837     7.09   0.000     .0142687    .0251805
+    non-VOC #|
+No comorb.. #|
+          M #|
+        85+  |   .0249167   .0042891     5.81   0.000     .0165103    .0333231
+    non-VOC #|
+1 comorbi.. #|
+          F #|
+      0-<65  |   .0149505   .0010088    14.82   0.000     .0129734    .0169276
+    non-VOC #|
+1 comorbi.. #|
+          F #|
+     65-<75  |    .013549   .0014313     9.47   0.000     .0107437    .0163543
+    non-VOC #|
+1 comorbi.. #|
+          F #|
+     75-<85  |   .0153629   .0018659     8.23   0.000     .0117058    .0190199
+    non-VOC #|
+1 comorbi.. #|
+          F #|
+        85+  |   .0194299   .0030577     6.35   0.000     .0134369    .0254229
+    non-VOC #|
+1 comorbi.. #|
+          M #|
+      0-<65  |   .0160321   .0010754    14.91   0.000     .0139244    .0181398
+    non-VOC #|
+1 comorbi.. #|
+          M #|
+     65-<75  |   .0145307   .0015307     9.49   0.000     .0115306    .0175309
+    non-VOC #|
+1 comorbi.. #|
+          M #|
+     75-<85  |   .0164738   .0019931     8.27   0.000     .0125675    .0203801
+    non-VOC #|
+1 comorbi.. #|
+          M #|
+        85+  |   .0208286   .0032662     6.38   0.000     .0144269    .0272302
+    non-VOC #|
+2+ comorb.. #|
+          F #|
+      0-<65  |   .0147017   .0007209    20.39   0.000     .0132886    .0161147
+    non-VOC #|
+2+ comorb.. #|
+          F #|
+     65-<75  |   .0133232   .0012602    10.57   0.000     .0108533    .0157931
+    non-VOC #|
+2+ comorb.. #|
+          F #|
+     75-<85  |   .0151073   .0016937     8.92   0.000     .0117876    .0184269
+    non-VOC #|
+2+ comorb.. #|
+          F #|
+        85+  |   .0191079   .0028641     6.67   0.000     .0134944    .0247214
+    non-VOC #|
+2+ comorb.. #|
+          M #|
+      0-<65  |   .0157656   .0007672    20.55   0.000     .0142619    .0172692
+    non-VOC #|
+2+ comorb.. #|
+          M #|
+     65-<75  |   .0142888   .0013481    10.60   0.000     .0116466    .0169309
+    non-VOC #|
+2+ comorb.. #|
+          M #|
+     75-<85  |      .0162   .0018092     8.95   0.000      .012654     .019746
+    non-VOC #|
+2+ comorb.. #|
+          M #|
+        85+  |   .0204839   .0030597     6.69   0.000     .0144871    .0264808
+        VOC #|
+No comorb.. #|
+          F #|
+      0-<65  |   .0174291   .0017464     9.98   0.000     .0140062    .0208519
+        VOC #|
+No comorb.. #|
+          F #|
+     65-<75  |    .015799   .0020438     7.73   0.000     .0117932    .0198048
+        VOC #|
+No comorb.. #|
+          F #|
+     75-<85  |   .0179085   .0025385     7.05   0.000     .0129331    .0228839
+        VOC #|
+No comorb.. #|
+          F #|
+        85+  |   .0226337    .003914     5.78   0.000     .0149624     .030305
+        VOC #|
+No comorb.. #|
+          M #|
+      0-<65  |   .0186865   .0018637    10.03   0.000     .0150337    .0223394
+        VOC #|
+No comorb.. #|
+          M #|
+     65-<75  |   .0169409   .0021848     7.75   0.000     .0126587    .0212231
+        VOC #|
+No comorb.. #|
+          M #|
+     75-<85  |   .0191999   .0027109     7.08   0.000     .0138866    .0245131
+        VOC #|
+No comorb.. #|
+          M #|
+        85+  |   .0242572   .0041789     5.80   0.000     .0160668    .0324477
+        VOC #|
+1 comorbi.. #|
+          F #|
+      0-<65  |   .0145509    .000987    14.74   0.000     .0126165    .0164853
+        VOC #|
+1 comorbi.. #|
+          F #|
+     65-<75  |   .0131863   .0013959     9.45   0.000     .0104504    .0159223
+        VOC #|
+1 comorbi.. #|
+          F #|
+     75-<85  |   .0149524   .0018186     8.22   0.000      .011388    .0185167
+        VOC #|
+1 comorbi.. #|
+          F #|
+        85+  |   .0189128   .0029802     6.35   0.000     .0130717    .0247539
+        VOC #|
+1 comorbi.. #|
+          M #|
+      0-<65  |    .015604   .0010532    14.82   0.000     .0135399    .0176681
+        VOC #|
+1 comorbi.. #|
+          M #|
+     65-<75  |   .0141421   .0014935     9.47   0.000     .0112149    .0170693
+        VOC #|
+1 comorbi.. #|
+          M #|
+     75-<85  |   .0160341   .0019432     8.25   0.000     .0122255    .0198426
+        VOC #|
+1 comorbi.. #|
+          M #|
+        85+  |   .0202751   .0031842     6.37   0.000     .0140342     .026516
+        VOC #|
+2+ comorb.. #|
+          F #|
+      0-<65  |   .0143086   .0007044    20.31   0.000     .0129279    .0156892
+        VOC #|
+2+ comorb.. #|
+          F #|
+     65-<75  |   .0129664   .0012277    10.56   0.000     .0105603    .0153726
+        VOC #|
+2+ comorb.. #|
+          F #|
+     75-<85  |   .0147035   .0016493     8.92   0.000      .011471     .017936
+        VOC #|
+2+ comorb.. #|
+          F #|
+        85+  |   .0185993     .00279     6.67   0.000      .013131    .0240675
+        VOC #|
+2+ comorb.. #|
+          M #|
+      0-<65  |   .0153445   .0007509    20.43   0.000     .0138727    .0168162
+        VOC #|
+2+ comorb.. #|
+          M #|
+     65-<75  |   .0139066   .0013139    10.58   0.000     .0113313    .0164818
+        VOC #|
+2+ comorb.. #|
+          M #|
+     75-<85  |   .0157675   .0017624     8.95   0.000     .0123133    .0192216
+        VOC #|
+2+ comorb.. #|
+          M #|
+        85+  |   .0199394   .0029813     6.69   0.000     .0140963    .0257826
+             |
+        sgtf |
+    non-VOC  |   .0154841   .0005594    27.68   0.000     .0143877    .0165806
+        VOC  |   .0150707   .0005497    27.41   0.000     .0139932    .0161481
+------------------------------------------------------------------------------
+
+. 
+. 
+. 
+. ***********************
+. /* Subgroup analyses */
+. ***********************
+. 
+. /* Fully adjusted OR - age grouped, cat hh size */
+. 
+. glm risk_28 i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib
+> 1.obese4cat ///
+>                         ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb
+> _cat ib1.start_week i.home_bin ///
+>                         if eth2 != 6 ///
+>                         , family(bin) link(logit) eform
+
+Iteration 0:   log likelihood = -12363.964  
+Iteration 1:   log likelihood = -7729.9636  
+Iteration 2:   log likelihood = -7712.8152  
+Iteration 3:   log likelihood = -7712.7921  
+Iteration 4:   log likelihood = -7712.7921  
+
+Generalized linear models                         Number of obs   =     97,797
+Optimization     : ML                             Residual df     =     97,760
+                                                  Scale parameter =          1
+Deviance         =  15425.58416                   (1/df) Deviance =   .1577903
+Pearson          =  97831.89184                   (1/df) Pearson  =   1.000735
+
+Variance function: V(u) = u*(1-u)                 [Bernoulli]
+Link function    : g(u) = ln(u/(1-u))             [Logit]
+
+                                                  AIC             =   .1584873
+Log likelihood   = -7712.792081                   BIC             =   -1107900
+
+------------------------------------------------------------------------------
+             |                 OIM
+     risk_28 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |    .973174   .0507656    -0.52   0.602     .8785927    1.077937
+             |
+   agegroupA |
+      0-<65  |   1.105033   .1012945     1.09   0.276     .9233122    1.322519
+     75-<85  |   1.135993   .1560403     0.93   0.353      .867869    1.486951
+        85+  |   1.442773   .2469418     2.14   0.032     1.031592    2.017844
+             |
+        male |
+          M  |   1.073541    .056004     1.36   0.174     .9692005    1.189115
+             |
+         imd |
+          2  |   1.016121   .0750175     0.22   0.829     .8792316    1.174322
+          3  |   .8118502   .0639105    -2.65   0.008      .695773    .9472929
+          4  |   .9931844   .0736035    -0.09   0.926     .8589117    1.148448
+5 most de..  |   1.024987   .0954334     0.27   0.791     .8540152    1.230187
+             |
+        eth2 |
+      Other  |   .9650837   .0586267    -0.59   0.559     .8567544     1.08711
+             |
+smoke_nomi~2 |
+     Former  |   .9885703   .0743291    -0.15   0.878     .8531139    1.145534
+             |
+   obese4cat |
+Obese I ..)  |   1.073969   .0784184     0.98   0.328      .930763    1.239208
+Obese II..)  |   1.037142   .0764598     0.49   0.621     .8976069    1.198368
+Obese II..)  |   1.039768    .070842     0.57   0.567     .9097918    1.188313
+             |
+hh_total_cat |
+        3-5  |   .9569096   .0499301    -0.84   0.399     .8638862     1.05995
+       6-10  |   .4731778   .4753605    -0.74   0.456     .0660536    3.389631
+             |
+      region |
+     London  |   1.011638   .0972746     0.12   0.904     .8378712    1.221442
+ North East  |   1.047686    .115435     0.42   0.672     .8441993    1.300221
+ North West  |   .9704385   .1088445    -0.27   0.789     .7789276    1.209035
+ South East  |   1.072172   .1169965     0.64   0.523     .8657263    1.327848
+ South West  |   .9773773   .1094512    -0.20   0.838     .7847671    1.217261
+West Midl..  |   .9756929   .1094402    -0.22   0.826     .7831351    1.215597
+Yorkshire..  |   1.039904   .1147404     0.35   0.723     .8376717     1.29096
+             |
+rural_urban5 |
+Urban min..  |   .8752367   .1036852    -1.12   0.261     .6938852    1.103986
+Urban cit..  |   .9890683   .0980642    -0.11   0.912     .8143879    1.201216
+Rural tow..  |   .9538749   .0950394    -0.47   0.636     .7846608    1.159581
+Rural vil..  |   .9597758   .0870064    -0.45   0.651     .8035371    1.146393
+             |
+  comorb_cat |
+1 comorbi..  |   .8323873   .0914118    -1.67   0.095     .6711931    1.032294
+2+ comorb..  |   .8183225   .0811031    -2.02   0.043     .6738493    .9937708
+             |
+  start_week |
+23Nov-29Nov  |   1.233122   .1199253     2.15   0.031     1.019116    1.492067
+30Nov-06Dec  |   1.116092   .1118813     1.10   0.273      .917006      1.3584
+07Dec-13Dec  |   1.095122   .1109602     0.90   0.370     .8978768    1.335697
+14Dec-20Dec  |    1.19178   .1206528     1.73   0.083      .977288    1.453348
+21Dec-27Dec  |   1.161458   .1197992     1.45   0.147     .9488679    1.421677
+28Dec-04Jan  |   1.170551   .1182369     1.56   0.119     .9603088    1.426822
+             |
+    home_bin |
+  Care home  |   1.070126   .0759067     0.96   0.339     .9312302    1.229738
+       _cons |   .0153403   .0029553   -21.68   0.000      .010516    .0223778
+------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+.                         
+. est store e_no_int
+
+. 
+. * Constant VOC effect over subgroups
+. lincom 1.sgtf, eform
+
+ ( 1)  [risk_28]1.sgtf = 0
+
+------------------------------------------------------------------------------
+     risk_28 |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |    .973174   .0507656    -0.52   0.602     .8785927    1.077937
+------------------------------------------------------------------------------
+
+. 
+. 
+. 
+. /* Age group */
+. glm risk_28 i.sgtf##ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 i
+> b1.obese4cat ///
+>                         ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb
+> _cat ib1.start_week i.home_bin ///
+>                         if eth2 != 6 ///
+>                         , family(bin) link(logit) eform
+
+Iteration 0:   log likelihood = -12363.846  
+Iteration 1:   log likelihood = -7729.3454  
+Iteration 2:   log likelihood = -7711.8297  
+Iteration 3:   log likelihood = -7711.8066  
+Iteration 4:   log likelihood = -7711.8066  
+
+Generalized linear models                         Number of obs   =     97,797
+Optimization     : ML                             Residual df     =     97,757
+                                                  Scale parameter =          1
+Deviance         =  15423.61326                   (1/df) Deviance =    .157775
+Pearson          =  97836.94619                   (1/df) Pearson  =   1.000818
+
+Variance function: V(u) = u*(1-u)                 [Bernoulli]
+Link function    : g(u) = ln(u/(1-u))             [Logit]
+
+                                                  AIC             =   .1585285
+Log likelihood   = -7711.806631                   BIC             =   -1107868
+
+------------------------------------------------------------------------------
+             |                 OIM
+     risk_28 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   .9028617   .1572772    -0.59   0.557     .6417164     1.27028
+             |
+   agegroupA |
+      0-<65  |   1.050307   .1335682     0.39   0.700     .8185935    1.347609
+     75-<85  |   1.238765    .230031     1.15   0.249     .8608469    1.782591
+        85+  |   1.410299   .3369116     1.44   0.150     .8830072    2.252464
+             |
+        sgtf#|
+   agegroupA |
+  VOC#0-<65  |    1.10915   .2035176     0.56   0.572     .7741119    1.589195
+ VOC#75-<85  |   .8276587   .2286529    -0.68   0.494     .4816087    1.422356
+    VOC#85+  |   1.048203   .3589668     0.14   0.891     .5357266    2.050913
+             |
+        male |
+          M  |   1.073001    .055978     1.35   0.177     .9687091    1.188521
+             |
+         imd |
+          2  |   1.016272   .0750297     0.22   0.827     .8793613      1.1745
+          3  |   .8119291   .0639183    -2.65   0.008      .695838    .9473885
+          4  |   .9933116   .0736145    -0.09   0.928     .8590192    1.148598
+5 most de..  |    1.02481   .0954195     0.26   0.792     .8538635    1.229981
+             |
+        eth2 |
+      Other  |   .9645004   .0585934    -0.59   0.552     .8562329    1.086458
+             |
+smoke_nomi~2 |
+     Former  |   .9886663   .0743378    -0.15   0.880     .8531943    1.145649
+             |
+   obese4cat |
+Obese I ..)  |   1.074116   .0784302     0.98   0.327     .9308893    1.239381
+Obese II..)  |   1.036668   .0764265     0.49   0.625     .8971939    1.197824
+Obese II..)  |   1.039892   .0708522     0.57   0.566     .9098966    1.188458
+             |
+hh_total_cat |
+        3-5  |   .9567038   .0499202    -0.85   0.396     .8636989    1.059724
+       6-10  |    .473443   .4756325    -0.74   0.457     .0660891    3.391608
+             |
+      region |
+     London  |   1.011643   .0972765     0.12   0.904     .8378729    1.221451
+ North East  |   1.047911   .1154615     0.42   0.671      .844378    1.300505
+ North West  |   .9710323   .1089132    -0.26   0.793      .779401     1.20978
+ South East  |   1.072106    .116991     0.64   0.523     .8656697     1.32777
+ South West  |   .9773313   .1094482    -0.20   0.838     .7847268    1.217209
+West Midl..  |   .9755583   .1094271    -0.22   0.825      .783024    1.215434
+Yorkshire..  |   1.040125   .1147664     0.36   0.721     .8378476    1.291238
+             |
+rural_urban5 |
+Urban min..  |   .8756621   .1037385    -1.12   0.262     .6942179    1.104529
+Urban cit..  |    .989652   .0981251    -0.10   0.916     .8148636    1.201933
+Rural tow..  |   .9539977   .0950538    -0.47   0.636     .7847582    1.159735
+Rural vil..  |   .9603086   .0870572    -0.45   0.655      .803979    1.147036
+             |
+  comorb_cat |
+1 comorbi..  |   .8325962   .0914362    -1.67   0.095     .6713592    1.032557
+2+ comorb..  |   .8185993   .0811322    -2.02   0.043     .6740746    .9941107
+             |
+  start_week |
+23Nov-29Nov  |    1.23232   .1198518     2.15   0.032     1.018446    1.491107
+30Nov-06Dec  |   1.116014   .1118752     1.09   0.274     .9169393    1.358309
+07Dec-13Dec  |   1.094111   .1108648     0.89   0.375      .897037    1.334481
+14Dec-20Dec  |   1.191477   .1206238     1.73   0.084      .977037    1.452983
+21Dec-27Dec  |   1.161395   .1197944     1.45   0.147     .9488139    1.421604
+28Dec-04Jan  |   1.170898    .118275     1.56   0.118     .9605886    1.427253
+             |
+    home_bin |
+  Care home  |   1.069663   .0758759     0.95   0.342     .9308236    1.229211
+       _cons |    .015911   .0033155   -19.87   0.000     .0105762    .0239368
+------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+.                         
+. est store e_ageX
+
+. 
+. lrtest e_no_int e_ageX
+
+Likelihood-ratio test                                 LR chi2(3)  =      1.97
+(Assumption: e_no_int nested in e_ageX)               Prob > chi2 =    0.5785
+
+. 
+. * Age group VOC vs. non-VOC OR
+. lincom 1.sgtf, eform                                            // 0-<65
+
+ ( 1)  [risk_28]1.sgtf = 0
+
+------------------------------------------------------------------------------
+     risk_28 |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .9028617   .1572772    -0.59   0.557     .6417164     1.27028
+------------------------------------------------------------------------------
+
+. lincom 1.sgtf + 1.sgtf#2.agegroupA, eform       // 65-<75
+
+ ( 1)  [risk_28]1.sgtf + [risk_28]1o.sgtf#2b.agegroupA = 0
+
+------------------------------------------------------------------------------
+     risk_28 |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .9028617   .1572772    -0.59   0.557     .6417164     1.27028
+------------------------------------------------------------------------------
+
+. lincom 1.sgtf + 1.sgtf#3.agegroupA, eform       // 75-<85
+
+ ( 1)  [risk_28]1.sgtf + [risk_28]1.sgtf#3.agegroupA = 0
+
+------------------------------------------------------------------------------
+     risk_28 |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .7472613   .1602465    -1.36   0.174     .4908362    1.137649
+------------------------------------------------------------------------------
+
+. lincom 1.sgtf + 1.sgtf#4.agegroupA, eform       // 85+
+
+ ( 1)  [risk_28]1.sgtf + [risk_28]1.sgtf#4.agegroupA = 0
+
+------------------------------------------------------------------------------
+     risk_28 |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |    .946382   .2790308    -0.19   0.852     .5310049    1.686686
+------------------------------------------------------------------------------
+
+. 
+. 
+. 
+. /* Ethnicity */
+. glm risk_28 i.sgtf##ib1.eth2 ib0.comorb_cat ib2.agegroupA i.male ib1.imd ib1.
+> smoke_nomiss2 ib1.obese4cat ///
+>                         ib1.hh_total_cat i.region ib1.rural_urban5 ib1.start_
+> week i.home_bin ///
+>                         if eth2 != 6 ///
+>                         , family(bin) link(logit) eform
+
+Iteration 0:   log likelihood = -12363.944  
+Iteration 1:   log likelihood = -7729.8586  
+Iteration 2:   log likelihood = -7712.6397  
+Iteration 3:   log likelihood = -7712.6168  
+Iteration 4:   log likelihood = -7712.6168  
+
+Generalized linear models                         Number of obs   =     97,797
+Optimization     : ML                             Residual df     =     97,759
+                                                  Scale parameter =          1
+Deviance         =  15425.23355                   (1/df) Deviance =   .1577884
+Pearson          =  97832.66255                   (1/df) Pearson  =   1.000754
+
+Variance function: V(u) = u*(1-u)                 [Bernoulli]
+Link function    : g(u) = ln(u/(1-u))             [Logit]
+
+                                                  AIC             =   .1585042
+Log likelihood   = -7712.616776                   BIC             =   -1107889
+
+------------------------------------------------------------------------------
+             |                 OIM
+     risk_28 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   .9903895   .0594063    -0.16   0.872     .8805389    1.113944
+             |
+        eth2 |
+      Other  |   .9999952   .0850197    -0.00   1.000     .8465033    1.181319
+             |
+   sgtf#eth2 |
+  VOC#Other  |   .9305785   .1130899    -0.59   0.554      .733347    1.180855
+             |
+  comorb_cat |
+1 comorbi..  |   .8325166   .0914264    -1.67   0.095     .6712967    1.032455
+2+ comorb..  |   .8182834   .0810995    -2.02   0.043     .6738167    .9937239
+             |
+   agegroupA |
+      0-<65  |   1.105206   .1013109     1.09   0.275     .9234559    1.322727
+     75-<85  |   1.135678    .155998     0.93   0.354     .8676275    1.486542
+        85+  |   1.442997   .2469808     2.14   0.032     1.031752     2.01816
+             |
+        male |
+          M  |   1.073539   .0560039     1.36   0.174     .9691989    1.189113
+             |
+         imd |
+          2  |   1.015981   .0750076     0.21   0.830     .8791097    1.174161
+          3  |   .8116252    .063894    -2.65   0.008     .6955782    .9470329
+          4  |   .9930933   .0735968    -0.09   0.925     .8588329    1.148343
+5 most de..  |   1.024949   .0954298     0.26   0.791     .8539837    1.230141
+             |
+smoke_nomi~2 |
+     Former  |   .9887106   .0743403    -0.15   0.880     .8532339    1.145698
+             |
+   obese4cat |
+Obese I ..)  |   1.073928   .0784157     0.98   0.329     .9307277    1.239162
+Obese II..)  |   1.037096   .0764566     0.49   0.621     .8975672    1.198315
+Obese II..)  |   1.039794    .070844     0.57   0.567     .9098142    1.188344
+             |
+hh_total_cat |
+        3-5  |   .9569668   .0499332    -0.84   0.399     .8639376    1.060013
+       6-10  |   .4729206   .4751033    -0.75   0.456     .0660174    3.387804
+             |
+      region |
+     London  |   1.011552   .0972666     0.12   0.905        .8378    1.221339
+ North East  |    1.04792   .1154617     0.42   0.671     .8443862    1.300514
+ North West  |   .9702022   .1088189    -0.27   0.787     .7787366    1.208743
+ South East  |    1.07245    .117028     0.64   0.522     .8659483    1.328195
+ South West  |   .9772751   .1094401    -0.21   0.837     .7846845    1.217135
+West Midl..  |   .9754869   .1094179    -0.22   0.825     .7829686    1.215342
+Yorkshire..  |   1.040014   .1147531     0.36   0.722     .8377591    1.291097
+             |
+rural_urban5 |
+Urban min..  |    .875223   .1036839    -1.13   0.261     .6938738    1.103969
+Urban cit..  |   .9890438    .098062    -0.11   0.912     .8143674    1.201187
+Rural tow..  |   .9539432   .0950463    -0.47   0.636     .7847167    1.159664
+Rural vil..  |    .960054   .0870331    -0.45   0.653     .8037676    1.146729
+             |
+  start_week |
+23Nov-29Nov  |   1.233037   .1199174     2.15   0.031     1.019046    1.491965
+30Nov-06Dec  |     1.1162   .1118925     1.10   0.273     .9170945    1.358532
+07Dec-13Dec  |   1.095123   .1109605     0.90   0.370     .8978775    1.335699
+14Dec-20Dec  |    1.19191   .1206665     1.73   0.083     .9773937    1.453507
+21Dec-27Dec  |    1.16167   .1198216     1.45   0.146     .9490405    1.421938
+28Dec-04Jan  |   1.170722   .1182547     1.56   0.119     .9604475    1.427032
+             |
+    home_bin |
+  Care home  |   1.070182   .0759108     0.96   0.339     .9312784    1.229803
+       _cons |   .0152037   .0029384   -21.66   0.000     .0104098    .0222054
+------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+.                         
+. est store e_ethX
+
+. 
+. * Test for interaction
+. lrtest e_no_int e_ethX
+
+Likelihood-ratio test                                 LR chi2(1)  =      0.35
+(Assumption: e_no_int nested in e_ethX)               Prob > chi2 =    0.5538
+
+. 
+. * Ethnicity VOC vs. non-VOC OR
+. lincom 1.sgtf, eform                                    // White
+
+ ( 1)  [risk_28]1.sgtf = 0
+
+------------------------------------------------------------------------------
+     risk_28 |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .9903895   .0594063    -0.16   0.872     .8805389    1.113944
+------------------------------------------------------------------------------
+
+. *lincom 1.sgtf + 1.sgtf#2.eth5, eform   // S Asian
+. *lincom 1.sgtf + 1.sgtf#3.eth5, eform   // Black
+. *lincom 1.sgtf + 1.sgtf#4.eth5, eform   // Mixed
+. lincom 1.sgtf + 1.sgtf#5.eth2, eform    // Other
+
+ ( 1)  [risk_28]1.sgtf + [risk_28]1.sgtf#5.eth2 = 0
+
+------------------------------------------------------------------------------
+     risk_28 |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .9216351   .0974092    -0.77   0.440     .7491936    1.133767
+------------------------------------------------------------------------------
+
+. *lincom 1.sgtf + 1.sgtf#6.eth2, eform   // Missing
+. 
+. 
+. 
+. /* Comorbidities */
+. glm risk_28 i.sgtf##ib0.comorb_cat ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.
+> smoke_nomiss2 ib1.obese4cat ///
+>                         ib1.hh_total_cat i.region ib1.rural_urban5 ib1.start_
+> week i.home_bin ///
+>                         if eth2 != 6 ///
+>                         , family(bin) link(logit) eform
+
+Iteration 0:   log likelihood = -12363.835  
+Iteration 1:   log likelihood = -7729.3003  
+Iteration 2:   log likelihood = -7711.8049  
+Iteration 3:   log likelihood = -7711.7808  
+Iteration 4:   log likelihood = -7711.7808  
+
+Generalized linear models                         Number of obs   =     97,797
+Optimization     : ML                             Residual df     =     97,758
+                                                  Scale parameter =          1
+Deviance         =  15423.56151                   (1/df) Deviance =   .1577729
+Pearson          =  97822.03929                   (1/df) Pearson  =   1.000655
+
+Variance function: V(u) = u*(1-u)                 [Bernoulli]
+Link function    : g(u) = ln(u/(1-u))             [Logit]
+
+                                                  AIC             =   .1585075
+Log likelihood   = -7711.780756                   BIC             =   -1107879
+
+------------------------------------------------------------------------------
+             |                 OIM
+     risk_28 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   .8344291   .1576005    -0.96   0.338     .5762635    1.208253
+             |
+  comorb_cat |
+1 comorbi..  |   .7253528   .1103591    -2.11   0.035      .538323    .9773625
+2+ comorb..  |   .7680445   .1040459    -1.95   0.051     .5889458    1.001607
+             |
+        sgtf#|
+  comorb_cat |
+        VOC #|
+1 comorbi..  |   1.322864   .2912641     1.27   0.204     .8592115    2.036714
+        VOC #|
+2+ comorb..  |   1.141871   .2269507     0.67   0.504     .7734601    1.685762
+             |
+   agegroupA |
+      0-<65  |   1.105077   .1013001     1.09   0.276     .9233462    1.322575
+     75-<85  |   1.135941   .1560352     0.93   0.353     .8678262    1.486889
+        85+  |   1.442593   .2469138     2.14   0.032      1.03146    2.017601
+             |
+        male |
+          M  |   1.073667   .0560114     1.36   0.173     .9693122    1.189256
+             |
+         imd |
+          2  |   1.016321   .0750337     0.22   0.826     .8794025    1.174557
+          3  |   .8113891   .0638762    -2.65   0.008     .6953745    .9467593
+          4  |   .9931984   .0736078    -0.09   0.927     .8589184    1.148471
+5 most de..  |   1.025459   .0954794     0.27   0.787     .8544048    1.230758
+             |
+        eth2 |
+      Other  |   .9647308   .0586068    -0.59   0.554     .8564385    1.086716
+             |
+smoke_nomi~2 |
+     Former  |   .9886735   .0743379    -0.15   0.880     .8532012    1.145656
+             |
+   obese4cat |
+Obese I ..)  |   1.073779   .0784064     0.97   0.330      .930595    1.238993
+Obese II..)  |   1.036434   .0764109     0.49   0.627     .8969884    1.197557
+Obese II..)  |   1.039718   .0708399     0.57   0.568     .9097459    1.188259
+             |
+hh_total_cat |
+        3-5  |   .9574289   .0499593    -0.83   0.404     .8643513     1.06053
+       6-10  |   .4726067   .4747947    -0.75   0.456     .0659717    3.385651
+             |
+      region |
+     London  |   1.012061   .0973174     0.12   0.901     .8382187    1.221958
+ North East  |   1.047659   .1154343     0.42   0.673     .8441738    1.300193
+ North West  |   .9709788   .1089072    -0.26   0.793      .779358    1.209713
+ South East  |   1.072783   .1170654     0.64   0.520     .8662155     1.32861
+ South West  |   .9774853   .1094648    -0.20   0.839     .7848514    1.217399
+West Midl..  |    .975654   .1094382    -0.22   0.826     .7831003    1.215554
+Yorkshire..  |   1.039932   .1147453     0.35   0.723     .8376917    1.290999
+             |
+rural_urban5 |
+Urban min..  |   .8744125   .1035901    -1.13   0.257      .693228    1.102952
+Urban cit..  |   .9890555   .0980657    -0.11   0.912     .8143729    1.201207
+Rural tow..  |   .9537752   .0950312    -0.47   0.635     .7845759    1.159464
+Rural vil..  |   .9594442    .086978    -0.46   0.648     .8032568    1.146001
+             |
+  start_week |
+23Nov-29Nov  |   1.233952   .1200094     2.16   0.031     1.019797     1.49308
+30Nov-06Dec  |   1.116477   .1119224     1.10   0.272     .9173187    1.358875
+07Dec-13Dec  |   1.095856    .111038     0.90   0.366     .8984732    1.336601
+14Dec-20Dec  |   1.192412   .1207208     1.74   0.082     .9778002    1.454128
+21Dec-27Dec  |   1.161489   .1198042     1.45   0.147     .9488905     1.42172
+28Dec-04Jan  |   1.172099      .1184     1.57   0.116     .9615681    1.428726
+             |
+    home_bin |
+  Care home  |   1.070514   .0759361     0.96   0.337     .9315646    1.230189
+       _cons |   .0165049   .0034619   -19.57   0.000     .0109413    .0248974
+------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+.                         
+. est store e_comorbX
+
+. 
+. * Test for interaction
+. lrtest e_no_int e_comorbX
+
+Likelihood-ratio test                                 LR chi2(2)  =      2.02
+(Assumption: e_no_int nested in e_comorbX)            Prob > chi2 =    0.3637
+
+. 
+. * Comorbidities VOC vs. non-VOC OR
+. lincom 1.sgtf, eform                                            // no comorbs
+
+ ( 1)  [risk_28]1.sgtf = 0
+
+------------------------------------------------------------------------------
+     risk_28 |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .8344291   .1576005    -0.96   0.338     .5762635    1.208253
+------------------------------------------------------------------------------
+
+. lincom 1.sgtf + 1.sgtf#1.comorb_cat, eform      // 1 comorb
+
+ ( 1)  [risk_28]1.sgtf + [risk_28]1.sgtf#1.comorb_cat = 0
+
+------------------------------------------------------------------------------
+     risk_28 |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   1.103836   .1249285     0.87   0.383     .8842362    1.377973
+------------------------------------------------------------------------------
+
+. lincom 1.sgtf + 1.sgtf#2.comorb_cat, eform      // 2+ comorbs
+
+ ( 1)  [risk_28]1.sgtf + [risk_28]1.sgtf#2.comorb_cat = 0
+
+------------------------------------------------------------------------------
+     risk_28 |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .9528105   .0589729    -0.78   0.435     .8439614    1.075698
+------------------------------------------------------------------------------
+
+. 
+. 
+. 
+. /* IMD */
+. glm risk_28 i.sgtf##ib1.imd ib2.agegroupA i.male ib1.eth2 ib1.smoke_nomiss2 i
+> b1.obese4cat ///
+>                         ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb
+> _cat ib1.start_week i.home_bin ///
+>                         if eth2 != 6 ///
+>                         , family(bin) link(logit) eform
+
+Iteration 0:   log likelihood = -12363.731  
+Iteration 1:   log likelihood = -7728.7397  
+Iteration 2:   log likelihood = -7710.8018  
+Iteration 3:   log likelihood = -7710.7759  
+Iteration 4:   log likelihood = -7710.7759  
+
+Generalized linear models                         Number of obs   =     97,797
+Optimization     : ML                             Residual df     =     97,756
+                                                  Scale parameter =          1
+Deviance         =   15421.5518                   (1/df) Deviance =   .1577556
+Pearson          =  97812.35574                   (1/df) Pearson  =   1.000576
+
+Variance function: V(u) = u*(1-u)                 [Bernoulli]
+Link function    : g(u) = ln(u/(1-u))             [Logit]
+
+                                                  AIC             =   .1585279
+Log likelihood   =   -7710.7759                   BIC             =   -1107858
+
+------------------------------------------------------------------------------
+             |                 OIM
+     risk_28 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   1.056058   .0989181     0.58   0.560     .8789375    1.268871
+             |
+         imd |
+          2  |   1.004452   .1067243     0.04   0.967       .81562    1.237002
+          3  |   .8992903   .0984163    -0.97   0.332     .7256819    1.114432
+          4  |   1.049646   .1102635     0.46   0.645     .8543299    1.289615
+5 most de..  |   1.167057   .1486733     1.21   0.225     .9091934    1.498056
+             |
+    sgtf#imd |
+      VOC#2  |   1.022876   .1511235     0.15   0.878     .7657083    1.366415
+      VOC#3  |   .8111838   .1279691    -1.33   0.185     .5954388      1.1051
+      VOC#4  |   .8958878   .1328083    -0.74   0.458     .6699921    1.197947
+        VOC #|
+5 most de..  |   .7631318   .1427511    -1.45   0.148     .5289008    1.101095
+             |
+   agegroupA |
+      0-<65  |   1.104022   .1012054     1.08   0.280     .9224621    1.321318
+     75-<85  |   1.134409   .1558285     0.92   0.359     .8666505    1.484893
+        85+  |   1.439043   .2463155     2.13   0.033     1.028909    2.012661
+             |
+        male |
+          M  |   1.073778   .0560177     1.36   0.172      .969412     1.18938
+             |
+        eth2 |
+      Other  |   .9647758   .0586105    -0.59   0.555     .8564768    1.086769
+             |
+smoke_nomi~2 |
+     Former  |   .9892994   .0743869    -0.14   0.886      .853738    1.146386
+             |
+   obese4cat |
+Obese I ..)  |   1.073591   .0783929     0.97   0.331     .9304323    1.238777
+Obese II..)  |    1.03667   .0764283     0.49   0.625     .8971932     1.19783
+Obese II..)  |   1.039067   .0707973     0.56   0.574     .9091732    1.187519
+             |
+hh_total_cat |
+        3-5  |   .9570026   .0499372    -0.84   0.400     .8639661    1.060058
+       6-10  |   .4698339   .4720176    -0.75   0.452     .0655823    3.365907
+             |
+      region |
+     London  |   1.010998   .0972171     0.11   0.909     .8373352    1.220679
+ North East  |   1.047088   .1153762     0.42   0.676     .8437064    1.299497
+ North West  |   .9705476   .1088635    -0.27   0.790     .7790046    1.209187
+ South East  |   1.072727   .1170614     0.64   0.520     .8661674    1.328546
+ South West  |   .9762643    .109331    -0.21   0.830     .7838664    1.215886
+West Midl..  |   .9752042   .1093884    -0.22   0.823     .7827382    1.214995
+Yorkshire..  |   1.039711   .1147233     0.35   0.724     .8375096     1.29073
+             |
+rural_urban5 |
+Urban min..  |   .8758803   .1037656    -1.12   0.263     .6943891    1.104808
+Urban cit..  |    .988893   .0980509    -0.11   0.910      .814237    1.201013
+Rural tow..  |   .9535717   .0950117    -0.48   0.633     .7844072    1.159218
+Rural vil..  |   .9597078   .0870026    -0.45   0.650     .8034763    1.146318
+             |
+  comorb_cat |
+1 comorbi..  |   .8320948   .0913841    -1.67   0.094     .6709502    1.031942
+2+ comorb..  |    .817407    .081018    -2.03   0.042     .6730863    .9926724
+             |
+  start_week |
+23Nov-29Nov  |   1.233891   .1200037     2.16   0.031     1.019746    1.493005
+30Nov-06Dec  |    1.11603   .1118805     1.10   0.273     .9169463    1.358337
+07Dec-13Dec  |   1.095395   .1109944     0.90   0.369     .8980908    1.336047
+14Dec-20Dec  |   1.191382   .1206161     1.73   0.084     .9769558    1.452871
+21Dec-27Dec  |   1.160939   .1197491     1.45   0.148     .9484385     1.42105
+28Dec-04Jan  |   1.171155    .118301     1.56   0.118     .9607987    1.427566
+             |
+    home_bin |
+  Care home  |   1.069981   .0759003     0.95   0.340     .9310972     1.22958
+       _cons |   .0147527   .0029034   -21.42   0.000     .0100312    .0216965
+------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+.                         
+. est store e_imdX
+
+. 
+. * Test for interaction
+. lrtest e_no_int e_imdX
+
+Likelihood-ratio test                                 LR chi2(4)  =      4.03
+(Assumption: e_no_int nested in e_imdX)               Prob > chi2 =    0.4016
+
+. 
+. * IMD VOC vs. non-VOC OR
+. lincom 1.sgtf, eform                            // 1 least deprived
+
+ ( 1)  [risk_28]1.sgtf = 0
+
+------------------------------------------------------------------------------
+     risk_28 |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   1.056058   .0989181     0.58   0.560     .8789375    1.268871
+------------------------------------------------------------------------------
+
+. lincom 1.sgtf + 1.sgtf#2.imd, eform     // 2
+
+ ( 1)  [risk_28]1.sgtf + [risk_28]1.sgtf#2.imd = 0
+
+------------------------------------------------------------------------------
+     risk_28 |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   1.080216   .1234257     0.68   0.499     .8634802    1.351354
+------------------------------------------------------------------------------
+
+. lincom 1.sgtf + 1.sgtf#3.imd, eform     // 3
+
+ ( 1)  [risk_28]1.sgtf + [risk_28]1.sgtf#3.imd = 0
+
+------------------------------------------------------------------------------
+     risk_28 |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .8566571   .1087389    -1.22   0.223     .6679756    1.098635
+------------------------------------------------------------------------------
+
+. lincom 1.sgtf + 1.sgtf#4.imd, eform     // 4
+
+ ( 1)  [risk_28]1.sgtf + [risk_28]1.sgtf#4.imd = 0
+
+------------------------------------------------------------------------------
+     risk_28 |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .9461094   .1087209    -0.48   0.630     .7553125    1.185103
+------------------------------------------------------------------------------
+
+. lincom 1.sgtf + 1.sgtf#5.imd, eform     // 5 most deprived
+
+ ( 1)  [risk_28]1.sgtf + [risk_28]1.sgtf#5.imd = 0
+
+------------------------------------------------------------------------------
+     risk_28 |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .8059114   .1304885    -1.33   0.183     .5867671    1.106901
+------------------------------------------------------------------------------
+
+. 
+. 
+. 
+. /* Epi week */
+. glm risk_28 i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib
+> 1.obese4cat ///
+>                         ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb
+> _cat ib2.start_weekA i.home_bin ///
+>                         if eth2 != 6 ///
+>                         , family(bin) link(logit) eform
+
+Iteration 0:   log likelihood = -12364.236  
+Iteration 1:   log likelihood = -7731.3957  
+Iteration 2:   log likelihood = -7715.1594  
+Iteration 3:   log likelihood = -7715.1338  
+Iteration 4:   log likelihood = -7715.1338  
+
+Generalized linear models                         Number of obs   =     97,797
+Optimization     : ML                             Residual df     =     97,761
+                                                  Scale parameter =          1
+Deviance         =  15430.26763                   (1/df) Deviance =   .1578366
+Pearson          =  97827.38976                   (1/df) Pearson  =   1.000679
+
+Variance function: V(u) = u*(1-u)                 [Bernoulli]
+Link function    : g(u) = ln(u/(1-u))             [Logit]
+
+                                                  AIC             =   .1585148
+Log likelihood   = -7715.133813                   BIC             =   -1107907
+
+------------------------------------------------------------------------------
+             |                 OIM
+     risk_28 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |   .9727705   .0507432    -0.53   0.597     .8782307    1.077487
+             |
+   agegroupA |
+      0-<65  |    1.10544   .1013287     1.09   0.274     .9236577    1.322999
+     75-<85  |   1.137594   .1562546     0.94   0.348     .8691012    1.489033
+        85+  |   1.443507   .2470594     2.14   0.032     1.032129    2.018849
+             |
+        male |
+          M  |   1.073544   .0560029     1.36   0.174     .9692048    1.189115
+             |
+         imd |
+          2  |   1.015318   .0749552     0.21   0.837     .8785419    1.173387
+          3  |   .8111512   .0638532    -2.66   0.008     .6951779    .9464719
+          4  |   .9927202   .0735667    -0.10   0.921     .8585144    1.147906
+5 most de..  |   1.024882   .0954211     0.26   0.792     .8539316    1.230055
+             |
+        eth2 |
+      Other  |   .9648684   .0586124    -0.59   0.556     .8565654    1.086865
+             |
+smoke_nomi~2 |
+     Former  |   .9882758    .074305    -0.16   0.875     .8528631    1.145188
+             |
+   obese4cat |
+Obese I ..)  |   1.073966   .0784163     0.98   0.328     .9307636      1.2392
+Obese II..)  |   1.037035   .0764499     0.49   0.622     .8975181     1.19824
+Obese II..)  |   1.041046   .0709249     0.59   0.555     .9109166    1.189764
+             |
+hh_total_cat |
+        3-5  |   .9571732   .0499424    -0.84   0.402     .8641266    1.060239
+       6-10  |   .4754519   .4776436    -0.74   0.459     .0663714      3.4059
+             |
+      region |
+     London  |   1.010546   .0971664     0.11   0.913     .8369721    1.220116
+ North East  |   1.046958   .1153518     0.42   0.677     .8436175    1.299311
+ North West  |    .969588   .1087459    -0.28   0.783       .77825    1.207968
+ South East  |   1.072337   .1170116     0.64   0.522     .8658636    1.328045
+ South West  |   .9769186    .109397    -0.21   0.835     .7844032    1.216683
+West Midl..  |   .9749632   .1093552    -0.23   0.821     .7825544     1.21468
+Yorkshire..  |   1.038364   .1145655     0.34   0.733     .8364387    1.289036
+             |
+rural_urban5 |
+Urban min..  |   .8756927   .1037365    -1.12   0.262     .6942509    1.104554
+Urban cit..  |   .9890495     .09806    -0.11   0.912     .8143761    1.201188
+Rural tow..  |   .9532309   .0949725    -0.48   0.631     .7841354    1.158791
+Rural vil..  |   .9597842   .0870051    -0.45   0.651     .8035475    1.146399
+             |
+  comorb_cat |
+1 comorbi..  |   .8320482   .0913722    -1.67   0.094     .6709234    1.031868
+2+ comorb..  |   .8180709   .0810761    -2.03   0.043     .6736455    .9934601
+             |
+ start_weekA |
+30Nov-06Dec  |   .9942851   .0826216    -0.07   0.945      .844849    1.170153
+07Dec-13Dec  |    .975595   .0823323    -0.29   0.770     .8268659    1.151076
+14Dec-20Dec  |   1.061723   .0894981     0.71   0.477     .9000343    1.252458
+21Dec-27Dec  |     1.0347   .0895788     0.39   0.694      .873216    1.226046
+28Dec-04Jan  |   1.042807   .0876169     0.50   0.618     .8844754    1.229482
+             |
+    home_bin |
+  Care home  |   1.070202   .0759098     0.96   0.339     .9313006    1.229821
+       _cons |   .0172365   .0031746   -22.05   0.000     .0120137    .0247298
+------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+.                         
+. est store e_week
+
+. 
+. glm risk_28 i.sgtf##ib2.start_weekA ib2.agegroupA i.male ib1.imd ib1.eth2 ib1
+> .smoke_nomiss2 ib1.obese4cat ///
+>                         ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb
+> _cat i.home_bin ///
+>                         if eth2 != 6 ///
+>                         , family(bin) link(logit) eform
+
+Iteration 0:   log likelihood = -12364.007  
+Iteration 1:   log likelihood = -7730.1993  
+Iteration 2:   log likelihood = -7713.2526  
+Iteration 3:   log likelihood = -7713.2291  
+Iteration 4:   log likelihood =  -7713.229  
+
+Generalized linear models                         Number of obs   =     97,797
+Optimization     : ML                             Residual df     =     97,756
+                                                  Scale parameter =          1
+Deviance         =  15426.45808                   (1/df) Deviance =   .1578057
+Pearson          =  97808.01211                   (1/df) Pearson  =   1.000532
+
+Variance function: V(u) = u*(1-u)                 [Bernoulli]
+Link function    : g(u) = ln(u/(1-u))             [Logit]
+
+                                                  AIC             =   .1585781
+Log likelihood   = -7713.229038                   BIC             =   -1107853
+
+------------------------------------------------------------------------------
+             |                 OIM
+     risk_28 | Odds Ratio   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        sgtf |
+        VOC  |    .878508   .0845491    -1.35   0.178      .727486    1.060881
+             |
+ start_weekA |
+30Nov-06Dec  |   .9318166    .109073    -0.60   0.546     .7407877    1.172107
+07Dec-13Dec  |   .9268899    .108842    -0.65   0.518     .7363326    1.166762
+14Dec-20Dec  |   .9040951   .1105781    -0.82   0.410      .711386    1.149008
+21Dec-27Dec  |   1.018454   .1220252     0.15   0.879     .8052963    1.288035
+28Dec-04Jan  |   .9794695   .1154097    -0.18   0.860     .7774902     1.23392
+             |
+        sgtf#|
+ start_weekA |
+        VOC #|
+30Nov-06Dec  |   1.141714   .1898482     0.80   0.425     .8241697    1.581606
+        VOC #|
+07Dec-13Dec  |   1.111208   .1876822     0.62   0.532     .7980464    1.547258
+        VOC #|
+14Dec-20Dec  |   1.371008   .2319348     1.87   0.062     .9841044    1.910023
+        VOC #|
+21Dec-27Dec  |   1.033535   .1791288     0.19   0.849     .7358643    1.451618
+        VOC #|
+28Dec-04Jan  |   1.137031   .1911578     0.76   0.445     .8178396    1.580798
+             |
+   agegroupA |
+      0-<65  |   1.105423   .1013322     1.09   0.274     .9236348     1.32299
+     75-<85  |   1.137334    .156223     0.94   0.349     .8688965    1.488704
+        85+  |   1.443549   .2470799     2.14   0.032      1.03214    2.018945
+             |
+        male |
+          M  |   1.073137   .0559849     1.35   0.176     .9688319    1.188671
+             |
+         imd |
+          2  |   1.015448    .074969     0.21   0.836     .8786479    1.173548
+          3  |   .8110921   .0638518    -2.66   0.008     .6951217    .9464104
+          4  |   .9929087   .0735832    -0.10   0.923      .858673    1.148129
+5 most de..  |    1.02574   .0955084     0.27   0.785      .854635    1.231103
+             |
+        eth2 |
+      Other  |   .9645975   .0585979    -0.59   0.553     .8563215    1.086564
+             |
+smoke_nomi~2 |
+     Former  |   .9886184   .0743325    -0.15   0.879     .8531557     1.14559
+             |
+   obese4cat |
+Obese I ..)  |   1.074291   .0784462     0.98   0.326     .9310353     1.23959
+Obese II..)  |   1.037084    .076455     0.49   0.621     .8975577      1.1983
+Obese II..)  |   1.040942   .0709203     0.59   0.556     .9108218    1.189651
+             |
+hh_total_cat |
+        3-5  |   .9568018   .0499248    -0.85   0.397     .8637883    1.059831
+       6-10  |   .4766449   .4788506    -0.74   0.461     .0665356    3.414566
+             |
+      region |
+     London  |   1.009459   .0970692     0.10   0.922     .8360598    1.218821
+ North East  |   1.046138   .1152673     0.41   0.682      .842947    1.298307
+ North West  |   .9699331   .1087895    -0.27   0.785     .7785193    1.208409
+ South East  |   1.070844   .1168589     0.63   0.531     .8646417    1.326221
+ South West  |   .9756386   .1092607    -0.22   0.826     .7833644    1.215106
+West Midl..  |   .9746583   .1093275    -0.23   0.819     .7822994    1.214316
+Yorkshire..  |    1.03758   .1144863     0.33   0.738     .8357956     1.28808
+             |
+rural_urban5 |
+Urban min..  |   .8746693   .1036206    -1.13   0.258     .6934314    1.103276
+Urban cit..  |   .9885489   .0980132    -0.12   0.908     .8139594    1.200587
+Rural tow..  |   .9525998   .0949129    -0.49   0.626     .7836109    1.158032
+Rural vil..  |   .9590836    .086944    -0.46   0.645     .8029571    1.145567
+             |
+  comorb_cat |
+1 comorbi..  |   .8322787    .091405    -1.67   0.095     .6710974    1.032172
+2+ comorb..  |   .8178292   .0810586    -2.03   0.042      .673436    .9931821
+             |
+    home_bin |
+  Care home  |   1.070864   .0759613     0.97   0.334     .9318683    1.230591
+       _cons |   .0181409   .0034116   -21.32   0.000     .0125481    .0262264
+------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+.                         
+. est store e_weekX
+
+. 
+. * Test for interaction
+. lrtest e_no_int e_weekX
+
+Likelihood-ratio test                                 LR chi2(4)  =     -0.87
+(Assumption: e_no_int nested in e_weekX)              Prob > chi2 =    1.0000
+
+. 
+. * Epi week VOC vs. non-VOC OR
+. lincom 1.sgtf + 1.sgtf#2.start_week, eform      // week 1/2
+
+ ( 1)  [risk_28]1.sgtf + [risk_28]1o.sgtf#2b.start_weekA = 0
+
+------------------------------------------------------------------------------
+     risk_28 |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |    .878508   .0845491    -1.35   0.178      .727486    1.060881
+------------------------------------------------------------------------------
+
+. lincom 1.sgtf + 1.sgtf#3.start_week, eform      // week 3
+
+ ( 1)  [risk_28]1.sgtf + [risk_28]1.sgtf#3.start_weekA = 0
+
+------------------------------------------------------------------------------
+     risk_28 |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   1.003005   .1360193     0.02   0.982     .7689005    1.308387
+------------------------------------------------------------------------------
+
+. lincom 1.sgtf + 1.sgtf#4.start_week, eform      // week 4
+
+ ( 1)  [risk_28]1.sgtf + [risk_28]1.sgtf#4.start_weekA = 0
+
+------------------------------------------------------------------------------
+     risk_28 |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .9762052   .1354895    -0.17   0.862     .7437058    1.281389
+------------------------------------------------------------------------------
+
+. lincom 1.sgtf + 1.sgtf#5.start_week, eform      // week 5
+
+ ( 1)  [risk_28]1.sgtf + [risk_28]1.sgtf#5.start_weekA = 0
+
+------------------------------------------------------------------------------
+     risk_28 |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   1.204441   .1675622     1.34   0.181     .9169932    1.581995
+------------------------------------------------------------------------------
+
+. lincom 1.sgtf + 1.sgtf#6.start_week, eform      // week 6
+
+ ( 1)  [risk_28]1.sgtf + [risk_28]1.sgtf#6.start_weekA = 0
+
+------------------------------------------------------------------------------
+     risk_28 |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .9079685   .1308709    -0.67   0.503     .6845136    1.204369
+------------------------------------------------------------------------------
+
+. lincom 1.sgtf + 1.sgtf#7.start_week, eform      // week 7
+
+ ( 1)  [risk_28]1.sgtf + [risk_28]1.sgtf#7.start_weekA = 0
+
+------------------------------------------------------------------------------
+     risk_28 |     exp(b)   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .9988907   .1376931    -0.01   0.994     .7624006    1.308738
+------------------------------------------------------------------------------
+
+. lincom 1.sgtf + 1.sgtf#8.start_week, eform      // week 8
+regressor I1.sgtf#I8.start_weekA not found
+r(111);
 
 end of do-file
-r(503);
+r(111);

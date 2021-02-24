@@ -67,6 +67,8 @@ actions:
         log: logs/an_cox_stable1.log
         table1text: output/stable1_cox.txt
         table1xlsx: output/stable1_cox.xlsx
+        table2text: output/stable1_cox_short.txt
+        table2xlsx: output/stable1_cox_short.xlsx
 
 #  anRISK_MOD:
 #    run: stata-mp:latest analysis/an_risk_models.do

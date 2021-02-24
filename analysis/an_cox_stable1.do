@@ -206,12 +206,6 @@ file write tablecontent _tab ("Total")			_tab ///
 							 
 
 
-* DEMOGRAPHICS (more than one level, potentially missing) 
-
-/*reminder of variables:
-patient_id age ageCat hh_id hh_size hh_composition case_date case eth5 eth16 ethnicity_16 indexdate sex bmicat smoke imd region comorb_Neuro comorb_Immunosuppression shielding chronic_respiratory_disease chronic_cardiac_disease diabetes chronic_liver_disease cancer egfr_cat hypertension smoke_nomiss rural_urban
-*/
-
 *DIED
 tabulatevariable, variable(cox_death) min(0) max(1) 
 file write tablecontent _n
@@ -225,7 +219,7 @@ summarizevariable, variable(cox_time)
 file write tablecontent _n
 
 *EPI WEEK
-tabulatevariable, variable(start_week) min(1) max(7) 
+tabulatevariable, variable(start_week) min(1) max(8) 
 file write tablecontent _n 
 
 *SEX
@@ -278,7 +272,32 @@ file write tablecontent _n
 
 
 
+file write tablecontent _n _n
 
+
+file close tablecontent
+
+
+
+
+*Set up short output file
+cap file close tablecontent
+
+file open tablecontent using ./output/stable1_cox_short.txt, write text replace
+
+file write tablecontent ("Table S1: Demographic and Clinical Characteristics") _n
+
+file write tablecontent _tab ("Total")			_tab ///
+							 ("non-VOC")		_tab ///
+							 ("VOC")			_tab ///
+							 ("Unclassified")	_tab ///
+							 ("Blank")			_n
+							 
+
+
+*EPI WEEK
+tabulatevariable, variable(start_week) min(1) max(8) 
+file write tablecontent _n 
 
 
 file write tablecontent _n _n
@@ -287,12 +306,14 @@ file write tablecontent _n _n
 file close tablecontent
 
 
+
 * Close log file 
 log close
 
 clear
 
 insheet using ./output/stable1_cox.txt, clear
-
 export excel using ./output/stable1_cox.xlsx, replace
 
+insheet using ./output/stable1_cox_short.txt, clear
+export excel using ./output/stable1_cox_short.xlsx, replace
