@@ -295,6 +295,8 @@ file write tablecontent _tab ("Total")			_tab ///
 							 
 
 *N
+label define cox_popLab 1 "N"
+label values cox_pop cox_popLab
 tabulatevariable, variable(cox_pop) min(1) max(1) 
 file write tablecontent _n 
 

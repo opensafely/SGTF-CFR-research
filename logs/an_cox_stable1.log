@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /workspace/logs/an_cox_stable1.log
   log type:  text
- opened on:  24 Feb 2021, 14:03:49
+ opened on:  24 Feb 2021, 14:11:47
 
 . 
 . clear
@@ -1207,6 +1207,10 @@ rural_urban5 |     73,275           5           0          5          5
 .                                                          
 . 
 . *N
+. label define cox_popLab 1 "N"
+
+. label values cox_pop cox_popLab
+
 . tabulatevariable, variable(cox_pop) min(1) max(1) 
   182,968
 
@@ -1359,5 +1363,5 @@ rural_urban5 |     73,275           5           0          5          5
       name:  <unnamed>
        log:  /workspace/logs/an_cox_stable1.log
   log type:  text
- closed on:  24 Feb 2021, 14:03:58
+ closed on:  24 Feb 2021, 14:11:56
 -------------------------------------------------------------------------------
