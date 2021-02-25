@@ -218,6 +218,12 @@ file write tablecontent _tab ("Total")		_tab ///
 patient_id age ageCat hh_id hh_size hh_composition case_date case eth5 eth16 ethnicity_16 indexdate sex bmicat smoke imd region comorb_Neuro comorb_Immunosuppression shielding chronic_respiratory_disease chronic_cardiac_disease diabetes chronic_liver_disease cancer egfr_cat hypertension smoke_nomiss rural_urban
 */
 
+*N
+label define cox_popLab 1 "N"
+label values cox_pop cox_popLab
+tabulatevariable, variable(cox_pop) min(1) max(1) 
+file write tablecontent _n 
+
 *DIED
 tabulatevariable, variable(cox_death) min(0) max(1) 
 file write tablecontent _n
@@ -266,7 +272,9 @@ tabulatevariable, variable(imd) min(1) max(5)
 file write tablecontent _n 
 
 *HOUSEHOLD SIZE
-tabulatevariable, variable(hh_total_cat) min(1) max(4) 
+replace hh_total_cat = 5 if hh_total_cat==.
+label define hh_total_catLab 5 "Missing", modify
+tabulatevariable, variable(hh_total_cat) min(1) max(5) 
 file write tablecontent _n 
 
 *CARE HOME
@@ -278,7 +286,9 @@ tabulatevariable, variable(region) min(0) max(8)
 file write tablecontent _n 
 
 *RURAL URBAN (five categories)
-tabulatevariable, variable(rural_urban5) min(1) max(5) 
+replace rural_urban5 = 6 if rural_urban5==.
+label define rural_urban5Lab 6 "Missing", modify
+tabulatevariable, variable(rural_urban5) min(1) max(6) 
 file write tablecontent _n 
 
 

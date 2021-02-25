@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /workspace/logs/an_cox_table1.log
   log type:  text
- opened on:  20 Feb 2021, 10:11:52
+ opened on:  25 Feb 2021, 08:47:57
 
 . 
 . clear
@@ -10,7 +10,7 @@
 . 
 . 
 . use ./output/cr_analysis_dataset.dta
-(SGTF CFR ANALYSIS DATASET: 20 Feb 2021)
+(SGTF CFR ANALYSIS DATASET: 25 Feb 2021)
 
 . 
 . 
@@ -255,6 +255,26 @@ SUBSETTING ON COX POPULATION
 > rban
 > */
 . 
+. *N
+. label define cox_popLab 1 "N"
+
+. label values cox_pop cox_popLab
+
+. tabulatevariable, variable(cox_pop) min(1) max(1) 
+  146,482
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+     cox_pop |    146,482           1           0          1          1
+  146,482
+  73,073
+  73,073
+  73,409
+  73,409
+
+. file write tablecontent _n 
+
+. 
 . *DIED
 . tabulatevariable, variable(cox_death) min(0) max(1) 
   146,482
@@ -294,7 +314,7 @@ SUBSETTING ON COX POPULATION
 
 . 
 . *EPI WEEK
-. tabulatevariable, variable(start_week) min(1) max(7) 
+. tabulatevariable, variable(start_week) min(1) max(8) 
   146,482
 
     Variable |        Obs        Mean    Std. Dev.       Min        Max
@@ -359,12 +379,22 @@ SUBSETTING ON COX POPULATION
 
     Variable |        Obs        Mean    Std. Dev.       Min        Max
 -------------+---------------------------------------------------------
-  start_week |     20,191           7           0          7          7
-  20,191
+  start_week |     17,734           7           0          7          7
+  17,734
   73,073
-  10,208
+  8,958
   73,409
-  9,983
+  8,776
+  146,482
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+  start_week |      2,457           8           0          8          8
+  2,457
+  73,073
+  1,250
+  73,409
+  1,207
 
 . file write tablecontent _n 
 
@@ -717,7 +747,12 @@ smoke_nomiss |     17,598           3           0          3          3
 
 . 
 . *HOUSEHOLD SIZE
-. tabulatevariable, variable(hh_total_cat) min(1) max(4) 
+. replace hh_total_cat = 5 if hh_total_cat==.
+(3,360 real changes made)
+
+. label define hh_total_catLab 5 "Missing", modify
+
+. tabulatevariable, variable(hh_total_cat) min(1) max(5) 
   146,482
 
     Variable |        Obs        Mean    Std. Dev.       Min        Max
@@ -758,6 +793,16 @@ hh_total_cat |          0
   0
   73,409
   0
+  146,482
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+hh_total_cat |      3,360           5           0          5          5
+  3,360
+  73,073
+  1,679
+  73,409
+  1,681
 
 . file write tablecontent _n 
 
@@ -885,7 +930,12 @@ hh_total_cat |          0
 
 . 
 . *RURAL URBAN (five categories)
-. tabulatevariable, variable(rural_urban5) min(1) max(5) 
+. replace rural_urban5 = 6 if rural_urban5==.
+(0 real changes made)
+
+. label define rural_urban5Lab 6 "Missing", modify
+
+. tabulatevariable, variable(rural_urban5) min(1) max(6) 
   146,482
 
     Variable |        Obs        Mean    Std. Dev.       Min        Max
@@ -936,6 +986,16 @@ rural_urban5 |     58,623           5           0          5          5
   29,245
   73,409
   29,378
+  146,482
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+rural_urban5 |          0
+  0
+  73,073
+  0
+  73,409
+  0
 
 . file write tablecontent _n 
 
@@ -995,5 +1055,5 @@ rural_urban5 |     58,623           5           0          5          5
       name:  <unnamed>
        log:  /workspace/logs/an_cox_table1.log
   log type:  text
- closed on:  20 Feb 2021, 10:12:10
+ closed on:  25 Feb 2021, 08:48:06
 -------------------------------------------------------------------------------

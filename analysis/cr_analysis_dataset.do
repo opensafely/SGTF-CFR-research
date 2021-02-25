@@ -530,7 +530,7 @@ tab hh_total_cat, m
 
 /*  RURAL OR URBAN  */
 
-* Create a 4 category rural urban variable based upon meeting with Roz 21st October
+* Create a 5 category rural urban variable based upon meeting with Roz 21st October
 gen rural_urban5=.
 replace rural_urban5=1 if rural_urban==1
 replace rural_urban5=2 if rural_urban==2
@@ -1110,6 +1110,14 @@ tab cox_death hh_total_cat if cox_pop==1 & has_sgtf==1, m
 tab cox_death comorb_cat if cox_pop==1 & has_sgtf==1, m
 tab cox_death start_week if cox_pop==1 & has_sgtf==1, m
 
+
+********************
+*  Missing values  *
+********************
+
+tab smoke sgtf if cox_pop==1, m
+tab bmicat sgtf if cox_pop==1, m
+tab care_home_type sgtf if cox_pop==1, m
 
 
 ***************
