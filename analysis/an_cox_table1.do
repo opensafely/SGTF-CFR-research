@@ -248,7 +248,7 @@ file write tablecontent _n
 summarizevariable, variable(age) 
 file write tablecontent _n
 
-tabulatevariable, variable(agegroup) min(1) max(7) 
+tabulatevariable, variable(agegroup) min(0) max(7) 
 file write tablecontent _n 
 
 *ETHNICITY
