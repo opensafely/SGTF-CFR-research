@@ -107,6 +107,7 @@ glm risk_28 i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.o
 est store fully
 
 table agegroupA sgtf if e(sample)==1, contents(count patient_id) by(comorb_cat male)
+table male comorb_cat if e(sample)==1
 
 * Adjusted absolute risks
 margins comorb_cat#male#agegroupA if sgtf==0, post asobserved
