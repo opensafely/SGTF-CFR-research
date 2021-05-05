@@ -43,7 +43,7 @@ study = StudyDefinition(
         covid_codelist,
         on_or_after="2020-02-01",
         match_only_underlying_cause=False,
-        return_expectations={"date": {"earliest": "2020-02-01"}, "incidence" : 0.2},
+        return_expectations={"date": {"earliest": "2020-02-01"}, "incidence" : 0.5},
     ),
 
     died_date_ons=patients.died_from_any_cause(
@@ -51,7 +51,7 @@ study = StudyDefinition(
         returning="date_of_death",
         include_month=True,
         include_day=True,
-        return_expectations={"date": {"earliest": "2020-08-01"}, "incidence" : 0.1},
+        return_expectations={"date": {"earliest": "2020-08-01"}, "incidence" : 0.5},
     ),
 
 
@@ -78,7 +78,7 @@ study = StudyDefinition(
                 "earliest": "2020-12-08",  # first vaccine administered on the 8/12
                 "latest": "2021-01-31",
             },
-                "incidence":0.2
+                "incidence":0.1
         },
     ),
 
@@ -104,7 +104,7 @@ study = StudyDefinition(
        returning="date",
        date_format="YYYY-MM-DD",
        return_expectations={"date": {"earliest": "2020-11-16", "latest": "2021-01-11"},
-                            "incidence": 0.8
+                            "incidence": 0.9
        },
     ), 
 
@@ -119,6 +119,26 @@ study = StudyDefinition(
             "category": {"ratios": {"0": 0.4, "1": 0.4, "9": 0.1, "": 0.1}},
        },
     ), 
+
+
+    # SUS HOSPITAL ADMISSION
+    covid_admission_date=patients.admitted_to_hospital(
+        returning= "date_admitted",
+        with_these_diagnoses=covid_codelist,
+        on_or_after="sgss_pos_inrange",
+        find_first_match_in_period=True,  
+        date_format="YYYY-MM-DD",  
+        return_expectations={"date": {"earliest": "2020-11-16"}, "incidence" : 0.3},
+    ),
+
+    # ICU ADMISSION
+    icu_admission_date=patients.admitted_to_icu(
+        on_or_after="sgss_pos_inrange",
+        find_first_match_in_period=True,
+        returning="date_admitted",
+        date_format="YYYY-MM-DD",
+        return_expectations={"date": {"earliest" : "2020-11-16"}, "incidence" : 0.2},
+    ),
 
 
     ### DEMOGRAPHIC COVARIATES
