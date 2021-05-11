@@ -403,7 +403,8 @@ label define agegroup6Lab 	0 "0-<40" ///
 							3 "65-<75" ///
 							4 "75-<85" ///
 							5 "85+"
-
+							
+label values agegroup6 agegroup6Lab
 
 * Create binary age
 recode age min/69.999=0 70/max=1, gen(age70)

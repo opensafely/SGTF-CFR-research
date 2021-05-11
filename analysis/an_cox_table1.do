@@ -236,6 +236,10 @@ file write tablecontent _n
 tabulatevariable, variable(cox_death) min(0) max(1) 
 file write tablecontent _n
 
+*DEATH|HOSP
+tabulatevariable, variable(end_death_hosp) min(0) max(1) 
+file write tablecontent _n
+
 *TIME TO DEATH
 summarizevariable, variable(cox_time_d) 
 file write tablecontent _n
