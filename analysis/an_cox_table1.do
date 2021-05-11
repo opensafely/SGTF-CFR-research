@@ -26,7 +26,7 @@ log using ./logs/an_cox_table1, replace t
 clear
 
 
-use ./output/cr_analysis_dataset.dta
+use ./output/cr_analysis_new.dta
 
 
 
@@ -224,6 +224,14 @@ label values cox_pop cox_popLab
 tabulatevariable, variable(cox_pop) min(1) max(1) 
 file write tablecontent _n 
 
+*HOSPTIAL ADMISSION
+tabulatevariable, variable(end_hosp_test) min(0) max(1) 
+file write tablecontent _n
+
+*ICU ADMISSION
+tabulatevariable, variable(end_icu_test) min(0) max(1) 
+file write tablecontent _n
+
 *DIED
 tabulatevariable, variable(cox_death) min(0) max(1) 
 file write tablecontent _n
@@ -323,6 +331,13 @@ twoway (histogram died_date_ons if sgtf==1, color(red%30)) ///
 graph export ./output/time_date_death_hist1.svg, as(svg) replace
 
 
+/* Histogram of date of hospital and icu admission dates */
+
+histogram covid_admission_date, color(red%30)
+graph export ./output/hosp_hist.svg, as(svg) replace
+
+histogram icu_admission_date, color(red%30)
+graph export ./output/icu_hist.svg, as(svg) replace
 
 
 * Close log file 

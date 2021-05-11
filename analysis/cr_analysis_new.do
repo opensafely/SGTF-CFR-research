@@ -44,7 +44,7 @@ gen study_start = date(sgss_pos_inrange, "YMD")
 summ study_start
 noi disp "MINIMUM START DATE: " %td r(min)
 
-gen study_end = date("04jan2021", "DMY")
+gen study_end = date("11jan2021", "DMY")
 format %td study_start study_end
 
 * DROP IF NO POSITIVE PCR TEST IN SGSS DURING STUDY PERIOD
@@ -142,7 +142,7 @@ rename hiv_date_date hiv_date
 
 * Dates of: covid tests, ONS death
 foreach var of varlist 	dereg_date died_date_ons covid_tpp_probable covid_vacc_date ///
-						first_pos_test_sgss sgss_pos_inrange {
+						first_pos_test_sgss sgss_pos_inrange covid_admission_date icu_admission_date {
 		confirm string variable `var'
 		rename `var' _tmp
 		gen `var' = date(_tmp, "YMD")
@@ -388,6 +388,21 @@ label define agegroupALab 	1 "0-<65" ///
 							4 "85+"
 							
 label values agegroupA agegroupALab
+
+* More age categories
+recode age 	0/39.9999=0 ///
+			40/54.9999 = 1 /// 
+		    55/64.9999 = 2 /// 
+			65/74.9999 = 3 ///
+			75/84.9999 = 4 ///
+			85/max = 5, gen(agegroup6) 
+
+label define agegroup6Lab 	0 "0-<40" ///
+							1 "40-<55" ///
+							2 "55-<65" ///
+							3 "65-<75" ///
+							4 "75-<85" ///
+							5 "85+"
 
 
 * Create binary age
@@ -922,7 +937,7 @@ tab comorb_cat, m
 
 /*  28-day risk censoring dates  */
 noi di "REMEMBER TO UPDATE DATE OF ONS DATA UPLOAD"
-gen ons_data_date = date("19feb2021", "DMY")
+gen ons_data_date = date("26apr2021", "DMY")
 gen ons_data_cens = ons_data_date-14			// Censor 14 days prior to ONS death data upload
 gen risk_28_days = study_start+28
 gen risk_40_days = study_start+40
@@ -966,8 +981,26 @@ replace cox_death = 0 if (died_date_ons > stime_death)
 gen cox_time = stime_death-study_start
 gen cox_time_d = stime_death-study_start if cox_death==1
 
+
+/* Hospital and ICU admission */
+gen stime_hosp_test = min(covid_admission_date, dereg_date, vacc_cens) // add admin censor
+gen end_hosp_test = (covid_admission_date < .)
+replace end_hosp_test = 0 if (covid_admission_date > stime_hosp_test) // censor
+gen time_hosp_test = stime_hosp_test-study_start
+
+gen stime_icu_test = min(icu_admission_date, dereg_date, vacc_cens) // add admin censor
+gen end_icu_test = (icu_admission_date < .)
+replace end_icu_test = 0 if (icu_admission_date > stime_icu_test) // censor
+gen time_icu_test = stime_icu_test-study_start
+
+* Death given hospital
+gen end_death_hosp = cox_death
+gen time_death_hosp = stime_death-covid_admission_date
+replace end_death_hosp = . if end_hosp_test != 1 // blank if no hospital admission
+replace time_death_hosp =. if end_hosp_test != 1
+
 * Format date variables
-format ons_data_date ons_data_cens risk_28_days risk_40_days stime_death %td 
+format ons_data_date ons_data_cens risk_28_days risk_40_days stime_death stime_hosp_test stime_icu_test %td
 
 		
 *********************
@@ -986,6 +1019,7 @@ label var start_weekA					"Epidemiological week of study"
 label var age 							"Age (years)"
 label var agegroup						"Grouped age"
 label var agegroupA						"Age subgroups"
+label var agegroup6						"Six age groups"
 label var age70 						"70 years and older"
 label var age1 							"Age65 spline 1"
 label var age2 							"Age65 spline 2"
@@ -1090,11 +1124,21 @@ label var risk_40						"40-day outcome"
 label var cox_pop						"1=Population for Cox analysis"
 label var died_date_ons					"ONS death date"
 label var stime_death					"Date of study exit"
+label var stime_hosp_test				"Date of exit (hospital admission)"
+label var stime_icu_test				"Date of exit (icu admission)"
 label var cox_death						"Outcome for Cox"
 label var cox_time						"Follow-up time"
 label var cox_time_d					"Time to death"
+label var end_death_hosp				"Outcome death|hosp"
+label var end_hosp_test					"Outcome hosp|test"
+label var end_icu_test					"Outcome icu|test"
+label var time_death_hosp				"Follow-up time (death|hosp)"
+label var time_hosp_test				"Follow-up time (hosp|test)"
+label var time_icu_test					"Follow-up time (icu|test)"
 label var sgtf							"SGTF (exposure)"
 label var has_sgtf						"1=Has SGTF data"
+label var covid_admission_date			"Date of hospital admission" 
+label var icu_admission_date			"Date of icu admission" 
 
 
 * Deaths before exclusions
@@ -1130,7 +1174,7 @@ keep `r(varlist)'
 sort patient_id
 order patient_id risk_pop risk_pop_40 risk_28 risk_40 cox_pop cox_death stime_death cox_time sgtf
 
-label data "SGTF CFR ANALYSIS DATASET: $S_DATE"
+label data "SGTF CFR ANALYSIS NEW DATASET: $S_DATE"
 
 save ./output/cr_analysis_new.dta, replace
 

@@ -18,6 +18,8 @@
 *	Purpose:		This do-file summarises:
 *					1-the number of deaths by SGTF status for each covariate
 *					2-plots the proportion of SGTF cases over time by NHS region
+*					3-plots the number of hospitalisations over time
+*					4-plots the number of ICU admissions over time
 *  
 ********************************************************************************
 
@@ -31,11 +33,11 @@ clear
 use "C:\Users\EIDEDGRI\Documents\GitHub\SGTF-CFR-research\output\cr_analysis_dataset.dta"
 */
 
-use ./output/cr_analysis_dataset.dta
+use ./output/cr_analysis_new.dta
 
 * Tabulate number of deaths by SGTF and covariates
 
-foreach var of varlist agegroup agegroupA male imd eth5 eth2 smoke_nomiss smoke_nomiss2 ///
+foreach var of varlist agegroup agegroupA agegroup6 male imd eth5 eth2 smoke_nomiss smoke_nomiss2 ///
 			obese4cat hh_total_cat home_bin region rural_urban5 comorb_cat start_week {
 			
 			noi disp "Table `var'"
@@ -50,7 +52,7 @@ drop if has_sgtf==0
 
 * Tabulate number of deaths by SGTF and covariates
 
-foreach var of varlist agegroup agegroupA male imd eth5 eth2 smoke_nomiss smoke_nomiss2 ///
+foreach var of varlist agegroup agegroupA agegroup6 male imd eth5 eth2 smoke_nomiss smoke_nomiss2 ///
 			obese4cat hh_total_cat home_bin region rural_urban5 comorb_cat start_week {
 			
 			noi disp "Table `var'"
@@ -58,6 +60,27 @@ foreach var of varlist agegroup agegroupA male imd eth5 eth2 smoke_nomiss smoke_
 			}
 
 
+* Tabulate number of hosptial admissions by SGTF and covariates
+
+foreach var of varlist agegroup agegroupA agegroup6 male imd eth5 eth2 smoke_nomiss smoke_nomiss2 ///
+			obese4cat hh_total_cat home_bin region rural_urban5 comorb_cat start_week {
+			
+			noi disp "Table `var'"
+			table `var' sgtf, contents(count patient_id sum end_hosp_test mean end_hosp_test)	
+			}
+			
+
+* Tabulate number of ICU admissions by SGTF and covariates
+
+foreach var of varlist agegroup agegroupA agegroup6 male imd eth5 eth2 smoke_nomiss smoke_nomiss2 ///
+			obese4cat hh_total_cat home_bin region rural_urban5 comorb_cat start_week {
+			
+			noi disp "Table `var'"
+			table `var' sgtf, contents(count patient_id sum end_icu_test mean end_icu_test)	
+			}
+
+			
+			
 * Plot SGTF proportion by NHS region
 
 /*
@@ -100,7 +123,7 @@ keep region start_week week phe_sgtf phe_n
 save "C:\Users\EIDEDGRI\Documents\GitHub\SGTF-CFR-research\lookups\VOC_Data_England.dta"
 */
 
-
+/*
 * Drop if unknown SGTF
 drop if !inrange(sgtf,0,1)
 
@@ -131,7 +154,7 @@ line phe_sgtf os_sgtf start_week, by(region) ///
 	legend(label(1 "PHE") label(2 "TPP"))
 graph export ./output/sgtf_perc_region.svg, as(svg) replace
 graph export ./output/sgtf_perc_region.pdf, as(pdf) replace
-
+*/
 
 log close
 

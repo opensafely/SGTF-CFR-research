@@ -20,6 +20,15 @@ actions:
       highly_sensitive:
         data: output/cr_analysis_dataset.dta
 
+  crNEW:
+    run: stata-mp:latest analysis/cr_analysis_new.do
+    needs: [generate_cohort]
+    outputs:
+      moderately_sensitive:
+        log: logs/cr_analysis_new.log
+      highly_sensitive:
+        data: output/cr_analysis_new.dta
+
   crIMP:
     run: stata-mp:latest analysis/cr_imputed_dataset.do
     needs: [crMAIN]
@@ -31,12 +40,12 @@ actions:
 
   anSUMM:
     run: stata-mp:latest analysis/an_summary.do
-    needs: [crMAIN]
+    needs: [crNEW]
     outputs:
       moderately_sensitive:
         log: logs/an_summary.log
-        figure1: output/sgtf_perc_region.svg
-        figure2: output/sgtf_perc_region.pdf
+        #figure1: output/sgtf_perc_region.svg
+        #figure2: output/sgtf_perc_region.pdf
 
   anRISK_TAB1:
     run: stata-mp:latest analysis/an_risk28_table1.do
@@ -49,7 +58,7 @@ actions:
 
   anCOX_TAB1:
     run: stata-mp:latest analysis/an_cox_table1.do
-    needs: [crMAIN]
+    needs: [crNEW]
     outputs:
       moderately_sensitive:
         log: logs/an_cox_table1.log
@@ -58,6 +67,8 @@ actions:
         figure1: output/time_death_hist.svg
         figure2: output/time_date_death_hist.svg
         figure3: output/time_date_death_hist1.svg
+        figure4: output/hosp_hist.svg
+        figure5: output/icu_hist.svg
 
   anCOX_STAB1:
     run: stata-mp:latest analysis/an_cox_stable1.do
