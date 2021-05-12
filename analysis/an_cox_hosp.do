@@ -1,6 +1,6 @@
 ********************************************************************************
 *
-*	Do-file:		an_cox_models.do
+*	Do-file:		an_cox_hosp.do
 *
 *	Project:		SGTF CFR
 *
@@ -10,24 +10,25 @@
 *
 *	Data created:	
 *
-*	Other output:	an_cox_models.log containing:
+*	Other output:	an_cox_hosp.log containing:
 *					1-Unadjusted Cox models for SGTF
 *					2-Adjusted Cox models for SGTF
 *
 ********************************************************************************
 *
 *	Purpose:		This do-file runs Cox PH models, calculating HR for VOC 
-*					vs. non-VOC
+*					vs. non-VOC for hospital admission
 *  
 ********************************************************************************
 
 * Open a log file
 cap log close
-log using ./logs/an_cox_models, replace t
+log using ./logs/an_cox_hosp, replace t
 
 clear
 
 use ./output/cr_analysis_new.dta
+
 
 * DROP MISSING UTLA
 noi di "DROPPING MISSING UTLA DATA"
@@ -40,13 +41,13 @@ drop if has_sgtf==0
 noi di "SUBSETTING ON COX CENSORED POPULATION"
 keep if cox_pop==1
 
-tab sgtf cox_death, row
+tab sgtf end_hosp_test, row
 
 
 *Set up output file
 cap file close tablecontent
 
-file open tablecontent using ./output/table2_hr.txt, write text replace
+file open tablecontent using ./output/table2_hr_hosp.txt, write text replace
 
 file write tablecontent ("Table 2: Hazard ratios for VOC vs. non-VOC") _n _n
 
@@ -59,7 +60,7 @@ file write tablecontent ("Estimate")	_tab ///
 /* Unadjusted HR */
 *******************
 
-stset stime_death, origin(study_start) fail(cox_death) scale(1) id(patient_id)
+stset stime_hosp_test, origin(study_start) fail(end_hosp_test) scale(1) id(patient_id)
 
 stcox i.sgtf
 
@@ -73,7 +74,7 @@ stcox i.sgtf, strata(region)
 stcox i.sgtf, strata(utla_group)
 
 * N (events)
-tab sgtf cox_death if e(sample)
+tab sgtf end_hosp_test if e(sample)
 
 * Output unadjusted
 lincom 1.sgtf, eform
@@ -84,12 +85,13 @@ file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(
 * Interaction with time
 stcox i.sgtf, tvc(i.sgtf) strata(utla_group)
 
+/*
 * Interaction with time excluding November
 stcox i.sgtf if study_start >= date("01dec2020", "DMY"), strata(utla_group)
 estat phtest, d
 
 stcox i.sgtf if study_start >= date("01dec2020", "DMY"), tvc(i.sgtf) strata(utla_group)
-
+*/
 
 
 ************************
@@ -101,16 +103,17 @@ stcox i.sgtf age1 age2 age3 ///
 			 , strata(utla_group)
 			 
 * N (events)
-tab sgtf cox_death if e(sample)
+tab sgtf end_hosp_test if e(sample)
 
 lincom 1.sgtf, eform
 file write tablecontent ("Age adj.") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
+/*
 * Age grouped only
 stcox i.sgtf ib2.agegroupA ///
 			 , strata(utla_group)
-
+*/
 
 
 ***************************
@@ -122,7 +125,7 @@ stcox i.sgtf age1 age2 age3 ib0.comorb_cat ib1.smoke_nomiss2 ib1.obese4cat ///
 			 , strata(utla_group)
 		 
 * N (events)
-tab sgtf cox_death if e(sample)
+tab sgtf end_hosp_test if e(sample)
 
 lincom 1.sgtf, eform
 file write tablecontent ("Age + comorb adj.") _tab 
@@ -142,7 +145,7 @@ stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat i.home_bin ///
 			 , strata(utla_group)
 			 
 * N (events)
-tab sgtf cox_death if e(sample)
+tab sgtf end_hosp_test if e(sample)
 
 lincom 1.sgtf, eform
 file write tablecontent ("Demographically adj.") _tab 
@@ -155,12 +158,13 @@ file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(
 /* Not adjusting for comorbidities, obesity, or smoking	status	   */
 *********************************************************************
 
+/*
 * Stratified by region
 stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat i.home_bin ///
 			 ib1.rural_urban5 ib1.start_week ib2.agegroupA ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
-
+*/
 
 			 
 ****************************************************
@@ -176,11 +180,11 @@ stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_tota
 est store e_no_int
 
 * N (events)
-bysort start_weekA: tab sgtf cox_death if e(sample)
-bysort comorb_cat: tab sgtf cox_death if e(sample)
-bysort eth2: tab sgtf cox_death if e(sample)
-bysort imd: tab sgtf cox_death if e(sample)
-bysort agegroupA: tab sgtf cox_death if e(sample)
+bysort start_weekA: tab sgtf end_hosp_test if e(sample)
+bysort comorb_cat: tab sgtf end_hosp_test if e(sample)
+bysort eth2: tab sgtf end_hosp_test if e(sample)
+bysort imd: tab sgtf end_hosp_test if e(sample)
+bysort agegroupA: tab sgtf end_hosp_test if e(sample)
 
 estat phtest, d
 
@@ -191,8 +195,9 @@ file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(
 
 * Plot scaled schoenfeld residuals
 estat phtest, plot(1.sgtf)
-graph export ./output/cox_shoen.svg, as(svg) replace
+graph export ./output/cox_shoen_hosp.svg, as(svg) replace
 
+/*
 * KM plot
 sts graph,	surv by(sgtf) ci risktable(, order(1 "non-VOC" 2 "VOC") size(small)) ///
 			ylabel(0.994(0.001)1, format(%5.3f)) ///
@@ -204,11 +209,12 @@ sts graph,	cumhaz by(sgtf) ci ///
 			ylabel(minmax, format(%5.3f)) ///
 			legend(order(2 4) label(2 "non-VOC") label(4 "VOC") rows(1))
 graph export ./output/cox_cumhaz.svg, as(svg) replace
-		
+*/
+	
 * Smoothed hazard plot
 sts graph,	haz by(sgtf) ///
 			legend(label(1 "non-VOC") label(2 "VOC"))
-graph export ./output/cox_haz.svg, as(svg) replace
+graph export ./output/cox_haz_hosp.svg, as(svg) replace
 
 
 /* Subgroup analyses */
@@ -455,43 +461,12 @@ stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_tota
 			 , strata(utla_group)
 			 
 * N (events)
-tab sgtf cox_death if e(sample)
+tab sgtf end_hosp_test if e(sample)
 
 file write tablecontent _n ("Sensitivity analyses") _n
 
 lincom 1.sgtf, eform
 file write tablecontent ("Min. 28-days follow-up") _tab 
-file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
-
-tab risk_pop risk_pop_40
-
-* Include with 40-days follow-up
-* Stratified by region
-stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
-			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 age2 age3 i.home_bin ///
-			 if eth2 != 6 & risk_pop_40==1 ///
-			 , strata(utla_group)
-			 
-* N (events)
-tab sgtf cox_death if e(sample)
-
-lincom 1.sgtf, eform
-file write tablecontent ("Min. 40-days follow-up") _tab 
-file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
-
-
-* Excluding week 1
-* Stratified by region
-stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
-			 ib1.rural_urban5 ib0.comorb_cat ib2.start_week age1 age2 age3 i.home_bin ///
-			 if eth2 != 6 & start_week!=1 ///
-			 , strata(utla_group)
-			 
-* N (events)
-tab sgtf cox_death if e(sample)
-
-lincom 1.sgtf, eform
-file write tablecontent ("Excluding week 1") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
 
@@ -503,7 +478,7 @@ stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_tota
 			 , strata(utla_group)
 			 
 * N (events)
-tab sgtf cox_death if e(sample)
+tab sgtf end_hosp_test if e(sample)
 
 lincom 1.sgtf, eform
 file write tablecontent ("No care home adj.") _tab 
@@ -518,7 +493,7 @@ stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_tota
 			 , strata(utla_group)
 			 
 * N (events)
-tab sgtf cox_death if e(sample)
+tab sgtf end_hosp_test if e(sample)
 tab region if e(sample)
 
 lincom 1.sgtf, eform
@@ -531,12 +506,13 @@ file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(
 /* Fully adjusted HR - age grouped, cat hh size */
 **************************************************
 
+/*
 * Stratified by region
 stcox i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
 			 ib1.hh_total_cat ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.home_bin ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
-			 
+*/		 
 			 
 			 
 *********************************************************************
@@ -544,16 +520,16 @@ stcox i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4c
 /* deprivation index, and smoking status						   */
 *********************************************************************
 
-stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3 i.home_bin
+*stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3 i.home_bin
 
 * Stratified by STP
-stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3 i.home_bin, strata(stp)
+*stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3 i.home_bin, strata(stp)
 			 
 * Stratified by region
 stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3 i.home_bin, strata(utla_group)
 
 * N (events)
-tab sgtf cox_death if e(sample)
+tab sgtf end_hosp_test if e(sample)
 
 lincom 1.sgtf, eform
 file write tablecontent ("Causal min. adjustment") _tab 
@@ -577,6 +553,6 @@ log close
 
 clear
 
-insheet using ./output/table2_hr.txt, clear
-export excel using ./output/table2_hr.xlsx, replace
+insheet using ./output/table2_hr_hosp.txt, clear
+export excel using ./output/table2_hr_hosp.xlsx, replace
 

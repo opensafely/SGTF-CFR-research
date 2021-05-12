@@ -120,6 +120,19 @@ actions:
         table1text: output/table2_hr.txt
         table1xlsx: output/table2_hr.xlsx
 
+  anCOX_HOSP:
+    run: stata-mp:latest analysis/an_cox_hosp.do
+    needs: [crNEW]
+    outputs:
+      moderately_sensitive:
+        log: logs/an_cox_hosp.log
+        figure1: output/cox_shoen_hosp.svg
+        #figure2: output/cox_km.svg
+        #figure3: output/cox_cumhaz.svg  
+        figure2: output/cox_haz_hosp.svg
+        table1text: output/table2_hr_hosp.txt
+        table1xlsx: output/table2_hr_hosp.xlsx
+
   anCOX_SENS:
     run: stata-mp:latest analysis/an_cox_models_sgtf_sens.do
     needs: [crMAIN]

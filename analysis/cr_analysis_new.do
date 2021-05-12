@@ -984,12 +984,12 @@ gen cox_time_d = stime_death-study_start if cox_death==1
 
 
 /* Hospital and ICU admission */
-gen stime_hosp_test = min(covid_admission_date, dereg_date, vacc_cens) // add admin censor
+gen stime_hosp_test = min(covid_admission_date, dereg_date, vacc_cens)
 gen end_hosp_test = (covid_admission_date < .)
 replace end_hosp_test = 0 if (covid_admission_date > stime_hosp_test) // censor
 gen time_hosp_test = stime_hosp_test-study_start
 
-gen stime_icu_test = min(icu_admission_date, dereg_date, vacc_cens) // add admin censor
+gen stime_icu_test = min(icu_admission_date, dereg_date, vacc_cens)
 gen end_icu_test = (icu_admission_date < .)
 replace end_icu_test = 0 if (icu_admission_date > stime_icu_test) // censor
 gen time_icu_test = stime_icu_test-study_start
