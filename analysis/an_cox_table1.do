@@ -340,6 +340,18 @@ graph export ./output/time_date_death_hist1.svg, as(svg) replace
 histogram covid_admission_date, color(red%30)
 graph export ./output/hosp_hist.svg, as(svg) replace
 
+twoway kdensity covid_admission_date if start_week==1 || ///
+	kdensity covid_admission_date if start_week==2 || ///
+	kdensity covid_admission_date if start_week==3 || ///
+	kdensity covid_admission_date if start_week==4 || ///
+	kdensity covid_admission_date if start_week==5 || ///
+	kdensity covid_admission_date if start_week==6 || ///
+	kdensity covid_admission_date if start_week==7 || ///
+	kdensity covid_admission_date if start_week==8, legend(off) xlabel(,format(%td))
+	
+graph export ./output/hosp_kden.svg, as(svg) replace
+	
+	
 histogram icu_admission_date, color(red%30)
 graph export ./output/icu_hist.svg, as(svg) replace
 

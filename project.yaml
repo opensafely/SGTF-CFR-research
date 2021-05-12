@@ -68,7 +68,8 @@ actions:
         figure2: output/time_date_death_hist.svg
         figure3: output/time_date_death_hist1.svg
         figure4: output/hosp_hist.svg
-        figure5: output/icu_hist.svg
+        figure5: output/hosp_kden.svg
+        figure6: output/icu_hist.svg
 
   anCOX_STAB1:
     run: stata-mp:latest analysis/an_cox_stable1.do
