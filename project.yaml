@@ -133,6 +133,19 @@ actions:
         table1text: output/table2_hr_hosp.txt
         table1xlsx: output/table2_hr_hosp.xlsx
 
+  anCOX_DHOSP:
+    run: stata-mp:latest analysis/an_cox_deathhosp.do
+    needs: [crNEW]
+    outputs:
+      moderately_sensitive:
+        log: logs/an_cox_deathhosp.log
+        figure1: output/cox_shoen_deathhosp.svg
+        #figure2: output/cox_km.svg
+        #figure3: output/cox_cumhaz.svg  
+        figure2: output/cox_haz_deathhosp.svg
+        table1text: output/table2_hr_deathhosp.txt
+        table1xlsx: output/table2_hr_deathhosp.xlsx
+
   anCOX_SENS:
     run: stata-mp:latest analysis/an_cox_models_sgtf_sens.do
     needs: [crMAIN]
