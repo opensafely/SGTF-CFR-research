@@ -142,7 +142,8 @@ rename hiv_date_date hiv_date
 
 * Dates of: covid tests, ONS death
 foreach var of varlist 	dereg_date died_date_ons covid_tpp_probable covid_vacc_date ///
-						first_pos_test_sgss sgss_pos_inrange covid_admission_date icu_admission_date {
+						first_pos_test_sgss sgss_pos_inrange covid_admission_date icu_admission_date ///
+						covid_discharge_date {
 		confirm string variable `var'
 		rename `var' _tmp
 		gen `var' = date(_tmp, "YMD")
@@ -1000,6 +1001,10 @@ gen time_death_hosp = stime_death-covid_admission_date
 replace end_death_hosp = . if end_hosp_test != 1 // blank if no hospital admission
 replace time_death_hosp =. if end_hosp_test != 1
 
+* Discharge
+gen hosp_discharge = (covid_discharge_date < .)
+tab end_hosp_test hosp_discharge
+
 * Format date variables
 format ons_data_date ons_data_cens risk_28_days risk_40_days stime_death stime_hosp_test stime_icu_test %td
 
@@ -1140,6 +1145,8 @@ label var sgtf							"SGTF (exposure)"
 label var has_sgtf						"1=Has SGTF data"
 label var covid_admission_date			"Date of hospital admission" 
 label var icu_admission_date			"Date of icu admission" 
+label var covid_discharge_date			"Date of hospital discharge" 
+label var hosp_discharge				"Discharged from hospital"
 
 
 * Deaths before exclusions
