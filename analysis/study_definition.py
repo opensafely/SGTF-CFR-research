@@ -131,6 +131,15 @@ study = StudyDefinition(
         return_expectations={"date": {"earliest": "2020-11-16"}, "incidence" : 0.3},
     ),
 
+    covid_discharge_date=patients.admitted_to_hospital(
+        returning= "date_discharged",
+        with_these_diagnoses=covid_codelist,
+        on_or_after="sgss_pos_inrange",
+        find_first_match_in_period=True,  
+        date_format="YYYY-MM-DD",  
+        return_expectations={"date": {"earliest": "2020-11-16"}, "incidence" : 0.2},
+    ),
+
     # ICU ADMISSION
     icu_admission_date=patients.admitted_to_icu(
         on_or_after="sgss_pos_inrange",

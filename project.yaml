@@ -71,6 +71,16 @@ actions:
         figure5: output/hosp_kden.svg
         figure6: output/icu_hist.svg
 
+  anHOSP_TAB1:
+    run: stata-mp:latest analysis/an_hosp_table1.do
+    needs: [crNEW]
+    outputs:
+      moderately_sensitive:
+        log: logs/an_hosp_table1.log
+        table1text: output/table1_hosp.txt
+        table1xlsx: output/table1_hosp.xlsx
+        figure1: output/time_death_hosp.svg
+
   anCOX_STAB1:
     run: stata-mp:latest analysis/an_cox_stable1.do
     needs: [crMAIN]
