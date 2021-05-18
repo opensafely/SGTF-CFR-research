@@ -939,7 +939,7 @@ tab comorb_cat, m
 
 /*  28-day risk censoring dates  */
 noi di "REMEMBER TO UPDATE DATE OF ONS DATA UPLOAD"
-gen ons_data_date = date("26apr2021", "DMY")
+gen ons_data_date = date("5may2021", "DMY")
 gen ons_data_cens = ons_data_date-14			// Censor 14 days prior to ONS death data upload
 gen risk_28_days = study_start+28
 gen risk_40_days = study_start+40
@@ -1002,8 +1002,11 @@ replace end_death_hosp = . if end_hosp_test != 1 // blank if no hospital admissi
 replace time_death_hosp =. if end_hosp_test != 1
 
 * Discharge
-gen hosp_discharge = (covid_discharge_date < .)
+gen hosp_discharge = (covid_discharge_date < died_date_ons)
 tab end_hosp_test hosp_discharge
+
+bysort hosp_discharge: summ time_death_hosp, d
+bysort end_death_hosp hosp_discharge: summ time_death_hosp, d
 
 * Format date variables
 format ons_data_date ons_data_cens risk_28_days risk_40_days stime_death stime_hosp_test stime_icu_test %td
