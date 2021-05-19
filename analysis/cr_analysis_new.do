@@ -1002,11 +1002,20 @@ replace end_death_hosp = . if end_hosp_test != 1 // blank if no hospital admissi
 replace time_death_hosp =. if end_hosp_test != 1
 
 * Discharge
-gen hosp_discharge = (covid_discharge_date < died_date_ons)
+gen hosp_discharge = (covid_discharge_date+7 < died_date_ons) // Survive 1 week post discharge
 tab end_hosp_test hosp_discharge
+tab end_death_hosp hosp_discharge
 
 bysort hosp_discharge: summ time_death_hosp, d
 bysort end_death_hosp hosp_discharge: summ time_death_hosp, d
+
+* Discharge as competing risk
+gen comp_death_hosp = end_death_hosp
+replace comp_death_hosp = 7 if hosp_discharge == 1
+
+tab end_death_hosp comp_death_hosp
+
+bysort comp_death_hosp: summ time_death_hosp, d
 
 * Format date variables
 format ons_data_date ons_data_cens risk_28_days risk_40_days stime_death stime_hosp_test stime_icu_test %td
@@ -1139,6 +1148,7 @@ label var cox_death						"Outcome for Cox"
 label var cox_time						"Follow-up time"
 label var cox_time_d					"Time to death"
 label var end_death_hosp				"Outcome death|hosp"
+label var comp_death_hosp				"Competing risks outcome death|hosp"
 label var end_hosp_test					"Outcome hosp|test"
 label var end_icu_test					"Outcome icu|test"
 label var time_death_hosp				"Follow-up time (death|hosp)"
