@@ -1009,16 +1009,19 @@ tab end_death_hosp hosp_discharge
 bysort hosp_discharge: summ time_death_hosp, d
 bysort end_death_hosp hosp_discharge: summ time_death_hosp, d
 
-* Discharge as competing risk
+* Discharge as censor
 gen comp_death_hosp = end_death_hosp
-replace comp_death_hosp = 7 if hosp_discharge == 1
+replace comp_death_hosp = 0 if hosp_discharge == 1
+
+gen stime_comp_death = min(died_date_ons, covid_discharge_date+7)
+gen time_comp_death = stime_comp_death-covid_admission_date
 
 tab end_death_hosp comp_death_hosp
 
-bysort comp_death_hosp: summ time_death_hosp, d
+bysort comp_death_hosp: summ time_comp_death, d
 
 * Format date variables
-format ons_data_date ons_data_cens risk_28_days risk_40_days stime_death stime_hosp_test stime_icu_test %td
+format ons_data_date ons_data_cens risk_28_days risk_40_days stime_death stime_comp_death stime_hosp_test stime_icu_test %td
 
 		
 *********************
@@ -1142,16 +1145,18 @@ label var risk_40						"40-day outcome"
 label var cox_pop						"1=Population for Cox analysis"
 label var died_date_ons					"ONS death date"
 label var stime_death					"Date of study exit"
+label var stime_comp_death				"Date of study exit, discharge as censor"
 label var stime_hosp_test				"Date of exit (hospital admission)"
 label var stime_icu_test				"Date of exit (icu admission)"
 label var cox_death						"Outcome for Cox"
 label var cox_time						"Follow-up time"
 label var cox_time_d					"Time to death"
 label var end_death_hosp				"Outcome death|hosp"
-label var comp_death_hosp				"Competing risks outcome death|hosp"
+label var comp_death_hosp				"Discharge censor outcome death|hosp"
 label var end_hosp_test					"Outcome hosp|test"
 label var end_icu_test					"Outcome icu|test"
 label var time_death_hosp				"Follow-up time (death|hosp)"
+label var time_comp_death				"Follow-up time (death|hosp) discharge as censor"
 label var time_hosp_test				"Follow-up time (hosp|test)"
 label var time_icu_test					"Follow-up time (icu|test)"
 label var sgtf							"SGTF (exposure)"

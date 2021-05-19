@@ -519,6 +519,22 @@ file write tablecontent ("Exluding NE/SE") _tab
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
 
+* Discharge as censor
+stset time_comp_death, fail(comp_death_hosp) scale(1) id(patient_id)
+
+stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
+			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 age2 age3 i.home_bin ///
+			 if eth2 != 6 ///
+			 , strata(utla_group)
+			 
+* N (events)
+tab sgtf comp_death_hosp if e(sample)
+
+lincom 1.sgtf, eform
+file write tablecontent ("Censor at hospital discharge") _tab 
+file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
+
+
 
 **************************************************
 /* Fully adjusted HR - age grouped, cat hh size */
