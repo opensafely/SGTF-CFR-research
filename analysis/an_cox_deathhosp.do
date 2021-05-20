@@ -63,7 +63,7 @@ file write tablecontent ("Estimate")	_tab ///
 /* Unadjusted HR */
 *******************
 
-stset stime_death, origin(covid_admission_date-1) fail(end_death_hosp) scale(1) id(patient_id)
+stset time_death_hosp, fail(end_death_hosp) scale(1) id(patient_id)
 
 stcox i.sgtf
 
@@ -554,7 +554,7 @@ stcox i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4c
 /* deprivation index, and smoking status						   */
 *********************************************************************
 
-stset stime_death, origin(covid_admission_date-1) fail(end_death_hosp) scale(1) id(patient_id)
+stset time_death_hosp, fail(end_death_hosp) scale(1) id(patient_id)
 
 *stcox i.sgtf i.comorb_cat ib1.imd i.smoke_nomiss2 age1 age2 age3 i.home_bin
 

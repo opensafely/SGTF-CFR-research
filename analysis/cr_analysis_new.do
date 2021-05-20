@@ -997,7 +997,7 @@ gen time_icu_test = stime_icu_test-study_start
 
 * Death given hospital
 gen end_death_hosp = cox_death
-gen time_death_hosp = stime_death-covid_admission_date
+gen time_death_hosp = (stime_death-covid_admission_date)+1
 replace end_death_hosp = . if end_hosp_test != 1 // blank if no hospital admission
 replace time_death_hosp =. if end_hosp_test != 1
 
