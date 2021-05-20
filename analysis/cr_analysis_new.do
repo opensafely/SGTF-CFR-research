@@ -1001,6 +1001,10 @@ gen time_death_hosp = stime_death-covid_admission_date
 replace end_death_hosp = . if end_hosp_test != 1 // blank if no hospital admission
 replace time_death_hosp =. if end_hosp_test != 1
 
+* Death in or out of hospital
+gen death_inout = 1 if cox_death == 1 & end_hosp_test == 1 // Death and hospital admission
+replace death_inout = 0 if cox_death == 1 & end_hosp_test == 0 // Death no hospital
+
 * Discharge
 gen hosp_discharge = (covid_discharge_date+7 < died_date_ons) // Survive 1 week post discharge
 tab end_hosp_test hosp_discharge
@@ -1014,7 +1018,7 @@ gen comp_death_hosp = end_death_hosp
 replace comp_death_hosp = 0 if hosp_discharge == 1
 
 gen stime_comp_death = min(died_date_ons, covid_discharge_date+7)
-gen time_comp_death = stime_comp_death-covid_admission_date
+gen time_comp_death = (stime_comp_death-covid_admission_date)+1
 
 tab end_death_hosp comp_death_hosp
 
@@ -1165,6 +1169,7 @@ label var covid_admission_date			"Date of hospital admission"
 label var icu_admission_date			"Date of icu admission" 
 label var covid_discharge_date			"Date of hospital discharge" 
 label var hosp_discharge				"Discharged from hospital"
+label var death_inout					"Death with or without hospital admission"
 
 
 * Deaths before exclusions

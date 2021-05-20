@@ -11,6 +11,12 @@ actions:
       highly_sensitive:
         cohort: output/input.csv
 
+  generate_cohort617:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition617
+    outputs:
+      highly_sensitive:
+        cohort: output/input617.csv
+
   crMAIN:
     run: stata-mp:latest analysis/cr_analysis_dataset.do
     needs: [generate_cohort]
@@ -80,6 +86,17 @@ actions:
         table1text: output/table1_hosp.txt
         table1xlsx: output/table1_hosp.xlsx
         figure1: output/time_death_hosp.svg
+
+  anDEATH_TAB1:
+    run: stata-mp:latest analysis/an_deaths_table1.do
+    needs: [crNEW]
+    outputs:
+      moderately_sensitive:
+        log: logs/an_deaths_table1.log
+        table1text: output/table1_deaths1.txt
+        table1xlsx: output/table1_deaths1.xlsx
+        table2text: output/table1_deaths0.txt
+        table2xlsx: output/table1_deaths0.xlsx      
 
   anCOX_STAB1:
     run: stata-mp:latest analysis/an_cox_stable1.do
