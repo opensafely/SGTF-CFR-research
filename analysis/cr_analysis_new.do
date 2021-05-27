@@ -976,9 +976,13 @@ gen cox_pop = (study_start < vacc_cens)			// Exclude if vaccinated within 7 days
 
 * Censor at death, ons data censor, or 7 days prior to vaccine
 gen stime_death = min(died_date_ons, ons_data_cens, vacc_cens)
+gen stime_death28 = min(died_date_ons, ons_data_cens, vacc_cens, study_start+28)
 
 gen cox_death = (died_date_ons < .)
 replace cox_death = 0 if (died_date_ons > stime_death)
+
+gen cox_death28 = (died_date_ons < .)
+replace cox_death28 = 0 if (died_date_ons > stime_death28)
 
 gen cox_time = stime_death-study_start
 gen cox_time_d = stime_death-study_start if cox_death==1
@@ -1000,6 +1004,12 @@ gen end_death_hosp = cox_death
 gen time_death_hosp = (stime_death-covid_admission_date)+1
 replace end_death_hosp = . if end_hosp_test != 1 // blank if no hospital admission
 replace time_death_hosp =. if end_hosp_test != 1
+
+* Death given ICU
+gen end_death_icu = cox_death
+gen time_death_icu = (stime_death-icu_admission_date)+1
+replace end_death_icu = . if end_icu_test != 1 // blank if no icu admission
+replace time_death_icu =. if end_icu_test != 1
 
 * Death in or out of hospital
 gen death_inout = 1 if cox_death == 1 & end_hosp_test == 1 // Death and hospital admission
@@ -1149,20 +1159,24 @@ label var risk_40						"40-day outcome"
 label var cox_pop						"1=Population for Cox analysis"
 label var died_date_ons					"ONS death date"
 label var stime_death					"Date of study exit"
+label var stime_death28					"Date of study exit (28-day censor)"
 label var stime_comp_death				"Date of study exit, discharge as censor"
 label var stime_hosp_test				"Date of exit (hospital admission)"
 label var stime_icu_test				"Date of exit (icu admission)"
 label var cox_death						"Outcome for Cox"
+label var cox_death28					"Outcome for Cox (28-day censor)"
 label var cox_time						"Follow-up time"
 label var cox_time_d					"Time to death"
 label var end_death_hosp				"Outcome death|hosp"
 label var comp_death_hosp				"Discharge censor outcome death|hosp"
 label var end_hosp_test					"Outcome hosp|test"
 label var end_icu_test					"Outcome icu|test"
+label var end_death_icu					"Outcome death|icu"
 label var time_death_hosp				"Follow-up time (death|hosp)"
 label var time_comp_death				"Follow-up time (death|hosp) discharge as censor"
 label var time_hosp_test				"Follow-up time (hosp|test)"
 label var time_icu_test					"Follow-up time (icu|test)"
+label var time_death_icu				"Follow-up time (death|icu)"
 label var sgtf							"SGTF (exposure)"
 label var has_sgtf						"1=Has SGTF data"
 label var covid_admission_date			"Date of hospital admission" 
