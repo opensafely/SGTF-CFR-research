@@ -11,12 +11,6 @@ actions:
       highly_sensitive:
         cohort: output/input.csv
 
-#  generate_cohort617:
-#    run: cohortextractor:latest generate_cohort --study-definition study_definition617
-#    outputs:
-#      highly_sensitive:
-#        cohort: output/input617.csv
-
   crMAIN:
     run: stata-mp:latest analysis/cr_analysis_dataset.do
     needs: [generate_cohort]

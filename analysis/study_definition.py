@@ -394,7 +394,7 @@ study = StudyDefinition(
         },
         return_expectations={"category": {"ratios": {"0": 0.8, "1": 0.1, "2": 0.1}},},
         recent_asthma_code=patients.with_these_clinical_events(
-            asthma_codes, between=["2017-02-01", "2020-02-01"],
+            asthma_codes, between=["2017-02-01", "2020-11-16"],
         ),
         asthma_code_ever=patients.with_these_clinical_events(asthma_codes),
         copd_code_ever=patients.with_these_clinical_events(
@@ -402,7 +402,7 @@ study = StudyDefinition(
         ),
         prednisolone_last_year=patients.with_these_medications(
             pred_codes,
-            between=["2019-02-01", "2020-02-01"],
+            between=["2019-11-16", "2020-11-16"],
             returning="number_of_matches_in_period",
         ),
     ),
@@ -453,13 +453,13 @@ study = StudyDefinition(
     creatinine=patients.with_these_clinical_events(
         creatinine_codes,
         find_last_match_in_period=True,
-        on_or_before="2020-02-01",
+        on_or_before="2020-11-16",
         returning="numeric_value",
         include_date_of_match=True,
         include_month=True,
         return_expectations={
             "float": {"distribution": "normal", "mean": 60.0, "stddev": 15},
-            "date": {"earliest": "2019-02-28", "latest": "2020-02-29"},
+            "date": {"earliest": "2019-02-28", "latest": "2020-11-16"},
             "incidence": 0.95,
         },
     ),
@@ -513,36 +513,36 @@ study = StudyDefinition(
     bp_sys=patients.mean_recorded_value(
         systolic_blood_pressure_codes,
         on_most_recent_day_of_measurement=True,
-        on_or_before="2020-02-01",
+        on_or_before="2020-11-16",
         include_measurement_date=True,
         include_month=True,
         return_expectations={
             "float": {"distribution": "normal", "mean": 80, "stddev": 10},
-            "date": {"latest": "2020-02-29"},
+            "date": {"latest": "2020-11-16"},
             "incidence": 0.95,
         },
     ),
     bp_dias=patients.mean_recorded_value(
         diastolic_blood_pressure_codes,
         on_most_recent_day_of_measurement=True,
-        on_or_before="2020-02-01",
+        on_or_before="2020-11-16",
         include_measurement_date=True,
         include_month=True,
         return_expectations={
             "float": {"distribution": "normal", "mean": 120, "stddev": 10},
-            "date": {"latest": "2020-02-29"},
+            "date": {"latest": "2020-11-16"},
             "incidence": 0.95,
         },
     ),
     hba1c_mmol_per_mol=patients.with_these_clinical_events(
         hba1c_new_codes,
         find_last_match_in_period=True,
-        on_or_before="2020-02-01",
+        on_or_before="2020-11-16",
         returning="numeric_value",
         include_date_of_match=True,
         include_month=True,
         return_expectations={
-            "date": {"latest": "2020-02-29"},
+            "date": {"latest": "2020-11-16"},
             "float": {"distribution": "normal", "mean": 40.0, "stddev": 20},
             "incidence": 0.95,
         },
@@ -550,12 +550,12 @@ study = StudyDefinition(
     hba1c_percentage=patients.with_these_clinical_events(
         hba1c_old_codes,
         find_last_match_in_period=True,
-        on_or_before="2020-02-01",
+        on_or_before="2020-11-16",
         returning="numeric_value",
         include_date_of_match=True,
         include_month=True,
         return_expectations={
-            "date": {"latest": "2020-02-29"},
+            "date": {"latest": "2020-11-16"},
             "float": {"distribution": "normal", "mean": 5, "stddev": 2},
             "incidence": 0.95,
         },
