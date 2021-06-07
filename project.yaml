@@ -112,12 +112,21 @@ actions:
 
   anODDS_MOD:
     run: stata-mp:latest analysis/an_logit_models.do
-    needs: [crMAIN]
+    needs: [crNEW]
     outputs:
       moderately_sensitive:
         log: logs/an_logit_models.log
         table1text: output/table3_abs_risk.txt
         table1xlsx: output/table3_abs_risk.xlsx
+
+  anODDS_HOSP:
+    run: stata-mp:latest analysis/an_logit_hosp.do
+    needs: [crNEW]
+    outputs:
+      moderately_sensitive:
+        log: logs/an_logit_hosp.log
+        table1text: output/table3_hosp_risk.txt
+        table1xlsx: output/table3_hosp_risk.xlsx
 
   anODDS_MOD40:
     run: stata-mp:latest analysis/an_logit_models_40.do

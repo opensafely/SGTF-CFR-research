@@ -182,6 +182,8 @@ stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_tota
 			 
 est store e_no_int
 
+estat phtest, d
+
 * N (events)
 bysort start_weekA: tab sgtf end_death_icu if e(sample)
 bysort comorb_cat: tab sgtf end_death_icu if e(sample)
@@ -189,7 +191,7 @@ bysort eth2: tab sgtf end_death_icu if e(sample)
 bysort imd: tab sgtf end_death_icu if e(sample)
 bysort agegroupA: tab sgtf end_death_icu if e(sample)
 
-estat phtest, d
+
 
 
 lincom 1.sgtf, eform

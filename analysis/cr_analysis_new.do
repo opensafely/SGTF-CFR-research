@@ -994,6 +994,9 @@ gen end_hosp_test = (covid_admission_date < .)
 replace end_hosp_test = 0 if (covid_admission_date > stime_hosp_test) // censor
 gen time_hosp_test = stime_hosp_test-study_start
 
+gen hosp_28 = end_hosp_test
+replace hosp_28 = 0 if time_hosp_test > 28
+
 gen stime_icu_test = min(icu_admission_date, dereg_date, vacc_cens)
 gen end_icu_test = (icu_admission_date < .)
 replace end_icu_test = 0 if (icu_admission_date > stime_icu_test) // censor
@@ -1177,6 +1180,7 @@ label var time_comp_death				"Follow-up time (death|hosp) discharge as censor"
 label var time_hosp_test				"Follow-up time (hosp|test)"
 label var time_icu_test					"Follow-up time (icu|test)"
 label var time_death_icu				"Follow-up time (death|icu)"
+label var hosp_28						"28-day hospitalisation outcome"
 label var sgtf							"SGTF (exposure)"
 label var has_sgtf						"1=Has SGTF data"
 label var covid_admission_date			"Date of hospital admission" 

@@ -6,7 +6,7 @@
 *
 *	Programmed by:	Daniel Grint
 *
-*	Data used:		output/cr_analysis_dataset.dta
+*	Data used:		output/cr_analysis_new.dta
 *
 *	Data created:	
 *
@@ -24,7 +24,7 @@
 
 * Open a log file
 cap log close
-log using ./logs/an_logit_models, replace t
+log using ./logs/an_logit_hosp, replace t
 
 clear
 
@@ -39,10 +39,13 @@ drop if utla_group==""
 noi di "DROPPING NO SGTF DATA" 
 drop if has_sgtf==0
 
+tab sgtf end_hosp_test
+
 noi di "SUBSETTING ON 28-DAY RISK POPULATION"
 keep if risk_pop==1
 
-tab sgtf risk_28, row
+tab sgtf end_hosp_test, row
+tab sgtf hosp_28, row
 
 
 
@@ -50,7 +53,7 @@ tab sgtf risk_28, row
 /* Unadjusted OR */
 *******************
 
-glm risk_28 i.sgtf, family(bin) link(logit) eform
+glm hosp_28 i.sgtf, family(bin) link(logit) eform
 
 * Absolute odds
 margins sgtf
@@ -62,7 +65,7 @@ margins sgtf
 /* Not adjusting for comorbidities, obesity, or smoking	status	   */
 *********************************************************************
 
-glm risk_28 i.sgtf i.male ib1.imd ib1.eth2 household_size i.home_bin ///
+glm hosp_28 i.sgtf i.male ib1.imd ib1.eth2 household_size i.home_bin ///
 			i.region ib1.rural_urban5 ib1.start_week age1 age2 age3 ///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
@@ -74,7 +77,7 @@ glm risk_28 i.sgtf i.male ib1.imd ib1.eth2 household_size i.home_bin ///
 /* Not adjusting for comorbidities, obesity, or smoking	status	   */
 *********************************************************************
 
-glm risk_28 i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat i.home_bin ///
+glm hosp_28 i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat i.home_bin ///
 			i.region ib1.rural_urban5 ib1.start_week ib2.agegroupA ///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
@@ -85,7 +88,7 @@ glm risk_28 i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat i.home_bin ///
 /* Fully adjusted OR - age as spline, continuous hh size */
 ***********************************************************
 
-glm risk_28 i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat household_size ///
+glm hosp_28 i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat household_size ///
 			i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 age2 age3 i.home_bin ///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
@@ -96,7 +99,7 @@ glm risk_28 i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat house
 /* Fully adjusted OR - age grouped, cat hh size */
 **************************************************
 
-glm risk_28 i.sgtf ib2.agegroup6 i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
+glm hosp_28 i.sgtf ib2.agegroup6 i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ///
 			ib1.hh_total_cat i.region ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.home_bin ///
 			if eth2 != 6 ///
 			, family(bin) link(logit) eform
@@ -240,9 +243,9 @@ replace risk_labels = "85+" in 36
 
 cap file close tablecontent
 
-file open tablecontent using ./output/table3_abs_risk.txt, write text replace
+file open tablecontent using ./output/table3_hosp_risk.txt, write text replace
 
-file write tablecontent ("Table 3: Absolute risk of death by 28-days") _n _n
+file write tablecontent ("Table 3: Absolute risk of hosp by 28-days") _n _n
 
 file write tablecontent ("Comorbidities/Sex/Age group")		_tab ///
 						("non-VOC (95% CI)")				_tab ///
@@ -470,5 +473,5 @@ log close
 
 
 
-insheet using ./output/table3_abs_risk.txt, clear
-export excel using ./output/table3_abs_risk.xlsx, replace
+insheet using ./output/table3_hosp_risk.txt, clear
+export excel using ./output/table3_hosp_risk.xlsx, replace
