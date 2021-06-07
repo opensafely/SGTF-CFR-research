@@ -1005,14 +1005,18 @@ gen time_icu_test = stime_icu_test-study_start
 * Death given hospital
 gen end_death_hosp = cox_death
 gen time_death_hosp = (stime_death-covid_admission_date)+1
+gen time_death_hosp1 = (stime_death-study_start)+1
 replace end_death_hosp = . if end_hosp_test != 1 // blank if no hospital admission
 replace time_death_hosp =. if end_hosp_test != 1
+replace time_death_hosp1 =. if end_hosp_test != 1
 
 * Death given ICU
 gen end_death_icu = cox_death
 gen time_death_icu = (stime_death-icu_admission_date)+1
+gen time_death_icu1 = (stime_death-study_start)+1
 replace end_death_icu = . if end_icu_test != 1 // blank if no icu admission
 replace time_death_icu =. if end_icu_test != 1
+replace time_death_icu1 =. if end_icu_test != 1
 
 * Death in or out of hospital
 gen death_inout = 1 if cox_death == 1 & end_hosp_test == 1 // Death and hospital admission
@@ -1176,10 +1180,12 @@ label var end_hosp_test					"Outcome hosp|test"
 label var end_icu_test					"Outcome icu|test"
 label var end_death_icu					"Outcome death|icu"
 label var time_death_hosp				"Follow-up time (death|hosp)"
+label var time_death_hosp1				"Follow-up time (death|hosp)"
 label var time_comp_death				"Follow-up time (death|hosp) discharge as censor"
 label var time_hosp_test				"Follow-up time (hosp|test)"
 label var time_icu_test					"Follow-up time (icu|test)"
 label var time_death_icu				"Follow-up time (death|icu)"
+label var time_death_icu1				"Follow-up time (death|icu)"
 label var hosp_28						"28-day hospitalisation outcome"
 label var sgtf							"SGTF (exposure)"
 label var has_sgtf						"1=Has SGTF data"
