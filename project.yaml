@@ -176,6 +176,19 @@ actions:
         table1text: output/table2_hr_deathhosp.txt
         table1xlsx: output/table2_hr_deathhosp.xlsx
 
+  anCOX_DAYSICU:
+    run: stata-mp:latest analysis/an_cox_hosp_icu.do
+    needs: [crNEW]
+    outputs:
+      moderately_sensitive:
+        log: logs/an_cox_hosp_icu.log
+        figure1: output/cox_shoen_hosp_icu.svg
+        #figure2: output/cox_km.svg
+        #figure3: output/cox_cumhaz.svg  
+        figure2: output/cox_haz_hosp_icu.svg
+        table1text: output/table2_hr_hosp_icu.txt
+        table1xlsx: output/table2_hr_hosp_icu.xlsx       
+
   anCOX_DICU:
     run: stata-mp:latest analysis/an_cox_deathicu.do
     needs: [crNEW]

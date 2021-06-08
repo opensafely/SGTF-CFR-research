@@ -1010,6 +1010,11 @@ replace end_death_hosp = . if end_hosp_test != 1 // blank if no hospital admissi
 replace time_death_hosp =. if end_hosp_test != 1
 replace time_death_hosp1 =. if end_hosp_test != 1
 
+* Days spent in ICU
+replace covid_icu_days = . if covid_icu_days < 0
+gen icu_pop = (covid_icu_days > 0)
+replace icu_pop = 0 if covid_icu_days==.
+
 * Death given ICU
 gen end_death_icu = cox_death
 gen time_death_icu = (stime_death-icu_admission_date)+1
@@ -1191,6 +1196,8 @@ label var sgtf							"SGTF (exposure)"
 label var has_sgtf						"1=Has SGTF data"
 label var covid_admission_date			"Date of hospital admission" 
 label var icu_admission_date			"Date of icu admission" 
+label var icu_pop						"Population with days spent in ICU"
+label var covid_icu_days				"Days spent in ICU"
 label var covid_discharge_date			"Date of hospital discharge" 
 label var hosp_discharge				"Discharged from hospital"
 label var death_inout					"Death with or without hospital admission"

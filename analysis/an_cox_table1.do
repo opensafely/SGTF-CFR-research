@@ -229,7 +229,11 @@ tabulatevariable, variable(end_hosp_test) min(0) max(1)
 file write tablecontent _n
 
 *ICU ADMISSION
-tabulatevariable, variable(end_icu_test) min(0) max(1) 
+tabulatevariable, variable(icu_pop) min(0) max(1) 
+file write tablecontent _n
+
+*ICU DAYS
+summarizevariable, variable(covid_icu_days) 
 file write tablecontent _n
 
 *DIED

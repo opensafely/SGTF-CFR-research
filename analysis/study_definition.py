@@ -140,6 +140,18 @@ study = StudyDefinition(
         return_expectations={"date": {"earliest": "2020-11-16"}, "incidence" : 0.2},
     ),
 
+    # DAYS SPENT IN ICU
+    covid_icu_days=patients.admitted_to_hospital(
+        returning= "days_in_critical_care",
+        with_these_diagnoses=covid_codelist,
+        on_or_after="sgss_pos_inrange",
+        find_first_match_in_period=True,  
+        return_expectations={
+            "category": {"ratios": {"10": 0.5, "20": 0.5}},
+            "incidence": 0.4,
+        },
+    ),    
+
     # ICU ADMISSION
     icu_admission_date=patients.admitted_to_icu(
         on_or_after="sgss_pos_inrange",
@@ -148,7 +160,6 @@ study = StudyDefinition(
         date_format="YYYY-MM-DD",
         return_expectations={"date": {"earliest" : "2020-11-16"}, "incidence" : 0.2},
     ),
-
 
     ### DEMOGRAPHIC COVARIATES
     # AGE
