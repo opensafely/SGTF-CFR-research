@@ -1033,7 +1033,7 @@ replace time_death_hosp =. if end_hosp_test != 1
 replace time_death_hosp1 =. if end_hosp_test != 1
 
 * Days spent in ICU
-replace covid_icu_days = . if covid_icu_days < 0
+replace covid_icu_days = . if covid_icu_days <= 0
 gen icu_pop = (covid_icu_days > 0)
 replace icu_pop = 0 if covid_icu_days==.
 
