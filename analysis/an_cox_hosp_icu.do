@@ -145,7 +145,7 @@ file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(
 *********************************************************************
 
 * Stratified by region
-stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat i.home_bin ///
+stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat ///
 			 ib1.rural_urban5 ib1.start_week age1 age2 age3 ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
@@ -179,18 +179,18 @@ stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.hh_total_cat i.home_bin ///
 
 * Stratified by region
 stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
-			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 age2 age3 i.home_bin ///
+			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week age1 age2 age3 ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
 			 
 est store e_no_int
 
 * N (events)
-bysort start_weekA: tab sgtf end_death_hosp if e(sample)
+bysort start_weekB: tab sgtf end_death_hosp if e(sample)
 bysort comorb_cat: tab sgtf end_death_hosp if e(sample)
 bysort eth2: tab sgtf end_death_hosp if e(sample)
 bysort imd: tab sgtf end_death_hosp if e(sample)
-bysort agegroupA: tab sgtf end_death_hosp if e(sample)
+bysort agegroupB: tab sgtf end_death_hosp if e(sample)
 
 estat phtest, d
 
@@ -227,14 +227,14 @@ graph export ./output/cox_haz_hosp_icu.svg, as(svg) replace
 
 * Epi week
 stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
-			 ib1.rural_urban5 ib0.comorb_cat ib2.start_weekA age1 age2 age3 i.home_bin ///
+			 ib1.rural_urban5 ib0.comorb_cat ib2.start_weekB age1 age2 age3 ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
 			 
 est store e_week
 
 
-stcox i.sgtf##ib2.start_weekA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
+stcox i.sgtf##ib2.start_weekB i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
 			 ib1.rural_urban5 ib0.comorb_cat age1 age2 age3 i.home_bin ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
@@ -249,31 +249,23 @@ file write tablecontent _n ("Subgroup analyses") _n
 file write tablecontent _n ("Epi. week") _tab _tab %6.4f (r(p)) _n
 
 * Epi week VOC vs. non-VOC HR
-lincom 1.sgtf + 1.sgtf#2.start_weekA, eform	// week 1/2
-file write tablecontent ("16Nov-29Nov") _tab 
+lincom 1.sgtf + 1.sgtf#4.start_weekB, eform	// week 1/2
+file write tablecontent ("16Nov-13Dec") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
-lincom 1.sgtf + 1.sgtf#3.start_weekA, eform	// week 3
-file write tablecontent ("30Nov-06Dec") _tab 
-file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
-
-lincom 1.sgtf + 1.sgtf#4.start_weekA, eform	// week 4
-file write tablecontent ("07Dec-13Dec") _tab 
-file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
-
-lincom 1.sgtf + 1.sgtf#5.start_weekA, eform	// week 5
+lincom 1.sgtf + 1.sgtf#5.start_weekB, eform	// week 5
 file write tablecontent ("14Dec-20Dec") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
-lincom 1.sgtf + 1.sgtf#6.start_weekA, eform	// week 6
+lincom 1.sgtf + 1.sgtf#6.start_weekB, eform	// week 6
 file write tablecontent ("21Dec-27Dec") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
-lincom 1.sgtf + 1.sgtf#7.start_weekA, eform	// week 7
+lincom 1.sgtf + 1.sgtf#7.start_weekB, eform	// week 7
 file write tablecontent ("28Dec-03Jan") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
-lincom 1.sgtf + 1.sgtf#8.start_weekA, eform	// week 8
+lincom 1.sgtf + 1.sgtf#8.start_weekB, eform	// week 8
 file write tablecontent ("04Jan-11Jan") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
@@ -395,14 +387,14 @@ file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(
 
 
 * Age group
-stcox i.sgtf ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
+stcox i.sgtf ib2.agegroupB i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
 			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.home_bin ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
 			 
 est store e_age
 
-stcox i.sgtf##ib2.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
+stcox i.sgtf##ib2.agegroupB i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
 			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.home_bin ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
@@ -415,32 +407,28 @@ lrtest e_age e_ageX
 file write tablecontent _n ("Age group") _tab _tab %6.4f (r(p)) _n
 
 * Age group VOC vs. non-VOC HR
-lincom 1.sgtf + 1.sgtf#1.agegroupA, eform	// 0-<65
+lincom 1.sgtf + 1.sgtf#1.agegroupB, eform	// 0-<65
 file write tablecontent ("0-<65") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
-lincom 1.sgtf + 1.sgtf#2.agegroupA, eform	// 65-<75
+lincom 1.sgtf + 1.sgtf#2.agegroupB, eform	// 65-<75
 file write tablecontent ("65-<75") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
-lincom 1.sgtf + 1.sgtf#3.agegroupA, eform	// 75-<85
-file write tablecontent ("75-<85") _tab 
-file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
-
-lincom 1.sgtf + 1.sgtf#4.agegroupA, eform	// 85+
-file write tablecontent ("85+") _tab 
+lincom 1.sgtf + 1.sgtf#3.agegroupB, eform	// 75+
+file write tablecontent ("75+") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
 
 * Test for trend
-stcox i.sgtf c.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
+stcox i.sgtf c.agegroupB i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
 			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.home_bin ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
 			 
 est store e_cage
 
-stcox i.sgtf##c.agegroupA i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
+stcox i.sgtf##c.agegroupB i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
 			 ib1.rural_urban5 ib0.comorb_cat ib1.start_week i.home_bin ///
 			 if eth2 != 6 ///
 			 , strata(utla_group)
@@ -450,7 +438,7 @@ est store e_cageX
 lrtest e_cage e_cageX
 local lin_age_p = r(p)
 
-lincom 1.sgtf#c.agegroupA, eform
+lincom 1.sgtf#c.agegroupB, eform
 file write tablecontent ("Per group increase") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (`lin_age_p') _n
 
@@ -490,20 +478,6 @@ lincom 1.sgtf, eform
 file write tablecontent ("Min. 40-days follow-up") _tab 
 file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
-
-* No adjustment for care home
-* Stratified by region
-stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_total_cat ///
-			 ib1.rural_urban5 ib0.comorb_cat ib2.start_week age1 age2 age3 ///
-			 if eth2 != 6 ///
-			 , strata(utla_group)
-			 
-* N (events)
-tab sgtf end_death_hosp if e(sample)
-
-lincom 1.sgtf, eform
-file write tablecontent ("No care home adj.") _tab 
-file write tablecontent %4.2f (r(estimate)) (" (") %4.2f (r(lb)) ("-") %4.2f (r(ub)) (")") _tab %6.4f (r(p)) _n
 
 
 * NHS England coverage - exclude SE and NE

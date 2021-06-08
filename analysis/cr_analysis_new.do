@@ -390,6 +390,16 @@ label define agegroupALab 	1 "0-<65" ///
 							
 label values agegroupA agegroupALab
 
+
+recode agegroupA 4=3, gen(agegroupB)
+
+label define agegroupBLab 	1 "0-<65" ///
+							2 "65-<75" ///
+							3 "75+"
+							
+label values agegroupB agegroupBLab
+
+
 * More age categories
 recode age 	0/39.9999=0 ///
 			40/54.9999 = 1 /// 
@@ -660,6 +670,18 @@ label define start_weekLabA	2 "16Nov-29Nov"	///
 label values start_weekA start_weekLabA
 
 tab start_week start_weekA
+
+* Recode small epi weeks for epi week interaction
+recode start_week 1/3=4 , gen(start_weekB)
+label define start_weekLabB	4 "16Nov-13Dec" ///
+							5 "14Dec-20Dec" ///
+							6 "21Dec-27Dec" ///
+							7 "28Dec-03Jan" ///
+							8 "04Jan-11Jan"
+							
+label values start_weekB start_weekLabB
+
+tab start_week start_weekB
 
 
 
@@ -1063,9 +1085,11 @@ foreach var of varlist _all {
 label var patient_id					"Patient ID"
 label var start_week					"Epidemiological week of study"
 label var start_weekA					"Epidemiological week of study"
+label var start_weekB					"Epidemiological week of study"
 label var age 							"Age (years)"
 label var agegroup						"Grouped age"
 label var agegroupA						"Age subgroups"
+label var agegroupB						"Age subgroups"
 label var agegroup6						"Six age groups"
 label var age70 						"70 years and older"
 label var age1 							"Age65 spline 1"

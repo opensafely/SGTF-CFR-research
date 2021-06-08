@@ -81,6 +81,16 @@ actions:
         table1xlsx: output/table1_hosp.xlsx
         figure1: output/time_death_hosp.svg
 
+  anICU_TAB1:
+    run: stata-mp:latest analysis/an_icu_table1.do
+    needs: [crNEW]
+    outputs:
+      moderately_sensitive:
+        log: logs/an_icu_table1.log
+        table1text: output/table1_icu.txt
+        table1xlsx: output/table1_icu.xlsx
+        figure1: output/time_death_icu.svg
+
   anDEATH_TAB1:
     run: stata-mp:latest analysis/an_deaths_table1.do
     needs: [crNEW]
