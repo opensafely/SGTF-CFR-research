@@ -176,6 +176,7 @@ stcox i.sgtf i.male ib1.imd ib1.eth2 ib1.smoke_nomiss2 ib1.obese4cat ib1.hh_tota
 est store e_no_int
 
 * N (events)
+tab sgtf cox_death if e(sample)
 bysort start_weekA: tab sgtf cox_death if e(sample)
 bysort comorb_cat: tab sgtf cox_death if e(sample)
 bysort eth2: tab sgtf cox_death if e(sample)

@@ -187,6 +187,7 @@ est store e_no_int
 
 
 * N (events)
+tab sgtf end_death_icu if e(sample)
 bysort start_weekA: tab sgtf end_death_icu if e(sample)
 bysort comorb_cat: tab sgtf end_death_icu if e(sample)
 bysort eth2: tab sgtf end_death_icu if e(sample)
