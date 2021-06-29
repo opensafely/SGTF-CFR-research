@@ -1020,6 +1020,17 @@ summ time_hosp_test, d
 summ time_hosp_test if dereg_date != ., d
 summ time_hosp_test if dereg_date == ., d
 
+count if time_hosp_test == -6
+count if time_hosp_test < 0
+
+count if covid_admission_date < study_start
+count if dereg_date < study_start
+count if vacc_cens < study_start
+
+format %td dereg_date vacc_cens
+
+list study_start covid_admission_date dereg_date vacc_cens if time_hosp_test == -6 in 10000/16000, table
+
 gen hosp_28 = end_hosp_test
 replace hosp_28 = 0 if time_hosp_test > 28
 
