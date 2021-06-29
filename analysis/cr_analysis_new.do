@@ -1016,6 +1016,9 @@ gen end_hosp_test = (covid_admission_date < .)
 replace end_hosp_test = 0 if (covid_admission_date > stime_hosp_test) // censor
 gen time_hosp_test = stime_hosp_test-study_start
 
+summ time_hosp_test, d
+count if covid_admission_date == study_start
+
 gen hosp_28 = end_hosp_test
 replace hosp_28 = 0 if time_hosp_test > 28
 
