@@ -38,6 +38,15 @@ actions:
       highly_sensitive:
         data: output/cr_imputed_dataset.dta
 
+  crIMP_NEW:
+    run: stata-mp:latest analysis/cr_imputed_new.do
+    needs: [crNEW]
+    outputs:
+      moderately_sensitive:
+        log: logs/cr_imputed_new.log
+      highly_sensitive:
+        data: output/cr_imputed_new.dta
+
   anSUMM:
     run: stata-mp:latest analysis/an_summary.do
     needs: [crNEW]
@@ -227,3 +236,12 @@ actions:
         log: logs/an_cox_imputed.log
       highly_sensitive:
         data2: output/an_imputed_eth2.ster
+
+  anCOX_IMP_NEW:
+    run: stata-mp:latest analysis/an_cox_imputed_new.do
+    needs: [crIMP_NEW]
+    outputs:
+      moderately_sensitive:
+        log: logs/an_cox_imputed_new.log
+      highly_sensitive:
+        data2: output/an_imputed_eth2_new.ster
