@@ -4,7 +4,8 @@ This is a study of the CFR of the SARS-CoV-2 variant of concern B.1.1.7 (VOC) co
 
 This is the code and configuration for our analysis
 
-* The paper is published in Eurosurveillance https://www.eurosurveillance.org/content/10.2807/1560-7917.ES.2021.26.11.2100256
+* The original paper is published in Eurosurveillance https://www.eurosurveillance.org/content/10.2807/1560-7917.ES.2021.26.11.2100256
+* The follow-up paper is published in Clinical Infectious Diseases https://doi.org/10.1093/cid/ciab754
 * Raw model outputs, including charts, crosstabs, etc, are in `released_outputs/`
 * If you are interested in how we defined our variables, take a look at the [study definition](analysis/study_definition.py); this is written in `python`, but non-programmers should be able to understand what is going on there
 * If you are interested in how we defined our code lists, look in the [codelists folder](./codelists/).
